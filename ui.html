@@ -1,0 +1,8 @@
+<div tabindex="0" id="controls">Select me</div>
+<script>
+
+document.getElementById('controls').focus()
+document.getElementById('controls').onkeydown = (e) => {
+  parent.postMessage({ pluginMessage: { type: 'keydown', keyCode: e.keyCode } }, '*')
+}
+</script>
