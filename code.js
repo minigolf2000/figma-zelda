@@ -6,7 +6,6 @@
 // This shows the HTML page in "ui.html".
 let linkNode = null;
 let worldNode;
-let sprites = null;
 let walls = {};
 function main() {
     if (!figma.currentPage.selection) {
@@ -18,11 +17,6 @@ function main() {
         return false;
     }
     linkNode = figma.currentPage.selection[0];
-    sprites = loadSprites(linkNode);
-    if (!sprites) {
-        figma.closePlugin("Error loading sprites");
-        return false;
-    }
     if (linkNode.parent.type !== 'FRAME') {
         figma.closePlugin("World must be a frame");
         return;
@@ -45,11 +39,14 @@ figma.showUI(__html__);
 // newevent.data.pluginMessage.health
 //  event.data.pluginMessage.health.re
 figma.ui.postMessage({ health: '💗💗💗' });
-const FPS = 60;
+const FPS = 30;
 const keysPressed = {
     up: false, down: false, left: false, right: false, action: false
 };
-const linkState = {};
+const linkState = {
+    health: 3,
+    walkingFrame: 0,
+};
 figma.ui.onmessage = msg => {
     switch (msg.keyCode) {
         case 13: // ENTER
@@ -80,35 +77,36 @@ figma.ui.onmessage = msg => {
     // figma.closePlugin();
 };
 function nextFrame() {
+    console.log(linkState);
+    let walking = false;
     if (keysPressed.action) {
         action();
     }
-    if (keysPressed.left) {
-        moveLeft();
+    if (keysPressed.left && !keysPressed.right) {
+        moveLeft(keysPressed.up === keysPressed.down ? 3.5 : 2.8);
+        walking = true;
     }
-    if (keysPressed.up) {
-        moveUp();
+    if (keysPressed.right && !keysPressed.left) {
+        moveRight(keysPressed.up === keysPressed.down ? 3.5 : 2.8);
+        walking = true;
     }
-    if (keysPressed.right) {
-        moveRight();
+    if (keysPressed.up && !keysPressed.down) {
+        moveUp(keysPressed.left === keysPressed.right ? 3.5 : 2.8);
+        walking = true;
     }
-    if (keysPressed.down) {
-        moveDown();
+    if (keysPressed.down && !keysPressed.up) {
+        moveDown(keysPressed.left === keysPressed.right ? 3.5 : 2.8);
+        walking = true;
+    }
+    if (walking) {
+        if (linkState.walkingFrame === 4)
+            linkState.walkingFrame = 0;
+        else
+            linkState.walkingFrame++;
     }
 }
 function action() {
-    console.log("action");
-}
-function moveLeft() {
-    console.log("moveLeft");
-    linkNode.masterComponent = sprites['side'][0];
-    const newX = linkNode.x - 4;
-    const newY = linkNode.y;
-    if (isColliding(newX, newY)) {
-        return;
-    }
-    linkNode.x = newX;
-    linkNode.y = newY;
+    // console.log("action")
 }
 function isColliding(x, y) {
     var _a, _b, _c, _d;
@@ -117,20 +115,20 @@ function isColliding(x, y) {
     }
     return (((_a = walls[Math.floor(x / 16) * 16]) === null || _a === void 0 ? void 0 : _a[Math.floor(y / 16) * 16]) || ((_b = walls[Math.floor(x / 16) * 16]) === null || _b === void 0 ? void 0 : _b[Math.ceil(y / 16) * 16]) || ((_c = walls[Math.ceil(x / 16) * 16]) === null || _c === void 0 ? void 0 : _c[Math.floor(y / 16) * 16]) || ((_d = walls[Math.ceil(x / 16) * 16]) === null || _d === void 0 ? void 0 : _d[Math.ceil(y / 16) * 16]));
 }
-function moveUp() {
-    console.log("moveUp");
-    linkNode.masterComponent = sprites['up'][0];
-    const newX = linkNode.x;
-    const newY = linkNode.y - 4;
-    if (isColliding(newX, newY)) {
-        return;
-    }
-    linkNode.x = newX;
-    linkNode.y = newY;
+function setAllBasicSpritesInvisible(linkNode) {
+    linkNode.children.find(n => n.name === 'basic').children.find(n => n.name === 'left_0').visible = false;
+    linkNode.children.find(n => n.name === 'basic').children.find(n => n.name === 'right_0').visible = false;
+    linkNode.children.find(n => n.name === 'basic').children.find(n => n.name === 'down_0').visible = false;
+    linkNode.children.find(n => n.name === 'basic').children.find(n => n.name === 'up_0').visible = false;
+    linkNode.children.find(n => n.name === 'basic').children.find(n => n.name === 'left_1').visible = false;
+    linkNode.children.find(n => n.name === 'basic').children.find(n => n.name === 'right_1').visible = false;
+    linkNode.children.find(n => n.name === 'basic').children.find(n => n.name === 'down_1').visible = false;
+    linkNode.children.find(n => n.name === 'basic').children.find(n => n.name === 'up_1').visible = false;
 }
-function moveRight() {
-    linkNode.masterComponent = sprites['side'][0];
-    const newX = linkNode.x + 4;
+function moveLeft(velocity) {
+    setAllBasicSpritesInvisible(linkNode);
+    linkNode.children.find(n => n.name === 'basic').children.find(n => n.name === `left_${linkState.walkingFrame > 2 ? 1 : 0}`).visible = true;
+    const newX = linkNode.x - velocity;
     const newY = linkNode.y;
     if (isColliding(newX, newY)) {
         return;
@@ -138,39 +136,38 @@ function moveRight() {
     linkNode.x = newX;
     linkNode.y = newY;
 }
-function moveDown() {
-    linkNode.masterComponent = sprites['down'][0];
+function moveUp(velocity) {
+    setAllBasicSpritesInvisible(linkNode);
+    linkNode.children.find(n => n.name === 'basic').children.find(n => n.name === `up_${linkState.walkingFrame > 2 ? 1 : 0}`).visible = true;
     const newX = linkNode.x;
-    const newY = linkNode.y + 4;
+    const newY = linkNode.y - velocity;
     if (isColliding(newX, newY)) {
         return;
     }
     linkNode.x = newX;
     linkNode.y = newY;
 }
-function loadSprites(link) {
-    const sprites = {};
-    let spritesFrame = link.masterComponent.parent;
-    while (spritesFrame.parent && spritesFrame.name !== 'sprites') {
-        spritesFrame = spritesFrame.parent;
+function moveRight(velocity) {
+    setAllBasicSpritesInvisible(linkNode);
+    linkNode.children.find(n => n.name === 'basic').children.find(n => n.name === `right_${linkState.walkingFrame > 2 ? 1 : 0}`).visible = true;
+    const newX = linkNode.x + velocity;
+    const newY = linkNode.y;
+    if (isColliding(newX, newY)) {
+        return;
     }
-    if (spritesFrame.name !== 'sprites') {
-        return null;
+    linkNode.x = newX;
+    linkNode.y = newY;
+}
+function moveDown(velocity) {
+    setAllBasicSpritesInvisible(linkNode);
+    linkNode.children.find(n => n.name === 'basic').children.find(n => n.name === `down_${linkState.walkingFrame > 2 ? 1 : 0}`).visible = true;
+    const newX = linkNode.x;
+    const newY = linkNode.y + velocity;
+    if (isColliding(newX, newY)) {
+        return;
     }
-    const basic = spritesFrame.children.find(n => n.name === 'basic' && n.type === 'FRAME');
-    sprites['down'] = [
-        basic.children.find(n => n.name === 'down_0'),
-        basic.children.find(n => n.name === 'down_1')
-    ];
-    sprites['side'] = [
-        basic.children.find(n => n.name === 'side_0'),
-        basic.children.find(n => n.name === 'side_1')
-    ];
-    sprites['up'] = [
-        basic.children.find(n => n.name === 'up_0'),
-        basic.children.find(n => n.name === 'up_1')
-    ];
-    return sprites;
+    linkNode.x = newX;
+    linkNode.y = newY;
 }
 function loadWalls() {
     const walls = {};

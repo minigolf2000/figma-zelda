@@ -9,7 +9,6 @@
 
 let linkNode: InstanceNode = null
 let worldNode: FrameNode
-let sprites: Sprites = null
 let walls = {}
 
 function main() {
@@ -24,11 +23,6 @@ function main() {
   }
 
   linkNode = figma.currentPage.selection[0]
-  sprites = loadSprites(linkNode)
-  if (!sprites) {
-    figma.closePlugin("Error loading sprites")
-    return false
-  }
   if (linkNode.parent.type !== 'FRAME') {
     figma.closePlugin("World must be a frame")
     return
@@ -56,7 +50,7 @@ figma.showUI(__html__);
 //  event.data.pluginMessage.health.re
 
 figma.ui.postMessage({health: '💗💗💗'})
-const FPS = 60
+const FPS = 30
 interface Buttons {
   up: boolean
   down: boolean
@@ -70,13 +64,15 @@ const keysPressed: Buttons = {
 
 interface State {
   health: number
-  x: number
-  y: number
+  walkingFrame?: number
   swordActiveFrame?: number
 }
-const linkState = {
 
+const linkState: State = {
+  health: 3,
+  walkingFrame: 0,
 }
+
 figma.ui.onmessage = msg => {
   switch (msg.keyCode as number) {
     case 13: // ENTER
@@ -109,37 +105,37 @@ figma.ui.onmessage = msg => {
 };
 
 function nextFrame() {
+  console.log(linkState)
+  let walking = false
+
   if (keysPressed.action) {
     action()
   }
-  if (keysPressed.left) {
-    moveLeft()
+  if (keysPressed.left && !keysPressed.right) {
+    moveLeft(keysPressed.up === keysPressed.down ? 3.5 : 2.8)
+    walking = true
   }
-  if (keysPressed.up) {
-    moveUp()
+  if (keysPressed.right && !keysPressed.left) {
+    moveRight(keysPressed.up === keysPressed.down ? 3.5 : 2.8)
+    walking = true
   }
-  if (keysPressed.right) {
-    moveRight()
+  if (keysPressed.up && !keysPressed.down) {
+    moveUp(keysPressed.left === keysPressed.right ? 3.5 : 2.8)
+    walking = true
   }
-  if (keysPressed.down) {
-    moveDown()
+  if (keysPressed.down && !keysPressed.up) {
+    moveDown(keysPressed.left === keysPressed.right ? 3.5 : 2.8)
+    walking = true
+  }
+  
+  if (walking) {
+    if (linkState.walkingFrame === 4) linkState.walkingFrame = 0
+    else linkState.walkingFrame++
   }
 }
 
 function action() {
-  console.log("action")
-}
-
-function moveLeft() {
-  console.log("moveLeft")
-  linkNode.masterComponent = sprites['side'][0]
-  const newX = linkNode.x - 4
-  const newY = linkNode.y
-
-  if (isColliding(newX, newY)) {
-    return
-  }
-  linkNode.x = newX; linkNode.y = newY
+  // console.log("action")
 }
 
 function isColliding(x: number, y: number) {
@@ -153,21 +149,23 @@ function isColliding(x: number, y: number) {
     walls[Math.ceil(x / 16) * 16]?.[Math.ceil(y / 16) * 16]
   )
 }
-function moveUp() {
-  console.log("moveUp")
-  linkNode.masterComponent = sprites['up'][0]
-  const newX = linkNode.x
-  const newY = linkNode.y - 4
 
-  if (isColliding(newX, newY)) {
-    return
-  }
-  linkNode.x = newX; linkNode.y = newY
+function setAllBasicSpritesInvisible(linkNode: InstanceNode) {
+  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === 'left_0').visible = false;
+  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === 'right_0').visible = false;
+  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === 'down_0').visible = false;
+  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === 'up_0').visible = false;
+  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === 'left_1').visible = false;
+  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === 'right_1').visible = false;
+  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === 'down_1').visible = false;
+  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === 'up_1').visible = false;
 }
 
-function moveRight() {
-  linkNode.masterComponent = sprites['side'][0]
-  const newX = linkNode.x + 4
+function moveLeft(velocity: number) {
+  setAllBasicSpritesInvisible(linkNode);
+  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === `left_${linkState.walkingFrame > 2 ? 1 : 0}`).visible = true;
+
+  const newX = linkNode.x - velocity
   const newY = linkNode.y
 
   if (isColliding(newX, newY)) {
@@ -176,10 +174,11 @@ function moveRight() {
   linkNode.x = newX; linkNode.y = newY
 }
 
-function moveDown() {
-  linkNode.masterComponent = sprites['down'][0]
+function moveUp(velocity: number) {
+  setAllBasicSpritesInvisible(linkNode);
+  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === `up_${linkState.walkingFrame > 2 ? 1 : 0}`).visible = true;
   const newX = linkNode.x
-  const newY = linkNode.y + 4
+  const newY = linkNode.y - velocity
 
   if (isColliding(newX, newY)) {
     return
@@ -187,36 +186,28 @@ function moveDown() {
   linkNode.x = newX; linkNode.y = newY
 }
 
-interface Sprites {
-  [side: string]: ComponentNode[]
+function moveRight(velocity: number) {
+  setAllBasicSpritesInvisible(linkNode);
+  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === `right_${linkState.walkingFrame > 2 ? 1 : 0}`).visible = true;
+  const newX = linkNode.x + velocity
+  const newY = linkNode.y
+
+  if (isColliding(newX, newY)) {
+    return
+  }
+  linkNode.x = newX; linkNode.y = newY
 }
 
-function loadSprites(link: InstanceNode) {
-  const sprites: Sprites = {}
+function moveDown(velocity: number) {
+  setAllBasicSpritesInvisible(linkNode);
+  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === `down_${linkState.walkingFrame > 2 ? 1 : 0}`).visible = true;
+  const newX = linkNode.x
+  const newY = linkNode.y + velocity
 
-  let spritesFrame = link.masterComponent.parent
-  while (spritesFrame.parent && spritesFrame.name !== 'sprites') {
-    spritesFrame = spritesFrame.parent
+  if (isColliding(newX, newY)) {
+    return
   }
-  if (spritesFrame.name !== 'sprites') {
-    return null
-  }
-
-  const basic = spritesFrame.children.find(n => n.name === 'basic' && n.type === 'FRAME') as InstanceNode
-  
-  sprites['down'] = [
-    basic.children.find(n => n.name === 'down_0') as ComponentNode,
-    basic.children.find(n => n.name === 'down_1') as ComponentNode
-  ]
-  sprites['side'] = [
-    basic.children.find(n => n.name === 'side_0') as ComponentNode,
-    basic.children.find(n => n.name === 'side_1') as ComponentNode
-  ]
-  sprites['up'] = [
-    basic.children.find(n => n.name === 'up_0') as ComponentNode,
-    basic.children.find(n => n.name === 'up_1') as ComponentNode
-  ]
-  return sprites
+  linkNode.x = newX; linkNode.y = newY
 }
 
 function loadWalls() {
