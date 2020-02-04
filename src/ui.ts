@@ -1,6 +1,4 @@
-<div tabindex="0" id="controls">Focus here to control Link</div>
-<span id="health" /></span>
-<script>
+import './ui.css'
 
 document.getElementById('controls').focus()
 document.getElementById('controls').onkeydown = (e) => {
@@ -15,4 +13,3 @@ onmessage = (event) => {
     document.getElementById('health').innerText = event.data.pluginMessage.health
   }
 }
-</script>
