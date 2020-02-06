@@ -4,6 +4,7 @@ export class Sprite {
 
   public constructor(linkNode: InstanceNode) {
     this.linkNode = linkNode
+    linkNode.findAll((node: SceneNode) => node.type === 'INSTANCE').forEach((node: SceneNode) => node.visible = false);
     this.setSprite("basic", "down_0")
   }
 
