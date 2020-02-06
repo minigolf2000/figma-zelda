@@ -1,3 +1,6 @@
+import { FPS, WALK_SPEED, DIAG_WALK_SPEED } from './lib'
+import { Sprite } from './sprite'
+
 // This plugin will open a modal to prompt the user to enter a number, and
 // it will then create that many rectangles on the screen.
 
@@ -10,6 +13,7 @@
 let linkNode: InstanceNode = null
 let worldNode: FrameNode
 let walls = {}
+let sprite: Sprite | null = null
 
 function main() {
   if (!figma.currentPage.selection) {
@@ -27,30 +31,33 @@ function main() {
     figma.closePlugin("World must be a frame")
     return
   }
-  worldNode = linkNode.parent
-
+  worldNode = linkNode.parent;
+  sprite = new Sprite(linkNode);
   walls = loadWalls()
-  console.log(walls)
+
   return true
 }
 
 figma.showUI(__html__);
 
-// let health = event.data.pluginMessage.health
-// let newHealth = ''
-// while (health >= 1) {
-//   newHealth += '💗'
-//   health -= 1
-// }
-// while (event.data.pluginMessage.health >= .5) {
-//   newHealth += '💔'
-// }
+function displayHealth(current: number, max: number) {
+  const missing = max - current
+  let displayHealth = ''
+  while (current >= 1) {
+    displayHealth += '💗'
+    current -= 1
+  }
+  if (current >= .5) {
+    displayHealth += '💔'
+  }
+  Array.from(Array(Math.floor(missing))).forEach((x, i) => {
+    displayHealth += '🖤'
+  });
+  return displayHealth
+}
 
-// newevent.data.pluginMessage.health
-//  event.data.pluginMessage.health.re
+figma.ui.postMessage({health: displayHealth(3, 3)})
 
-figma.ui.postMessage({health: '💗💗💗'})
-const FPS = 30
 interface Buttons {
   up: boolean
   down: boolean
@@ -64,15 +71,17 @@ const keysPressed: Buttons = {
 
 interface State {
   health: number
-  walkingFrame?: number
-  swordActiveFrame?: number
+  walkingFrame: number
+  swordActiveFrame: number | null
 }
 
 const linkState: State = {
   health: 3,
   walkingFrame: 0,
+  swordActiveFrame: null,
 }
 
+  
 figma.ui.onmessage = msg => {
   switch (msg.keyCode as number) {
     case 13: // ENTER
@@ -105,26 +114,30 @@ figma.ui.onmessage = msg => {
 };
 
 function nextFrame() {
-  console.log(linkState)
   let walking = false
 
-  if (keysPressed.action) {
-    action()
+  if (keysPressed.action && linkState.swordActiveFrame === null) {
+    linkState.swordActiveFrame = 0
+  } else if (linkState.swordActiveFrame !== null) {
+    linkState.swordActiveFrame++
+    if (linkState.swordActiveFrame === 3) linkState.swordActiveFrame = null
   }
+    
+    
   if (keysPressed.left && !keysPressed.right) {
-    moveLeft(keysPressed.up === keysPressed.down ? 3.5 : 2.8)
+    moveLeft(keysPressed.up === keysPressed.down)
     walking = true
   }
   if (keysPressed.right && !keysPressed.left) {
-    moveRight(keysPressed.up === keysPressed.down ? 3.5 : 2.8)
+    moveRight(keysPressed.up === keysPressed.down)
     walking = true
   }
   if (keysPressed.up && !keysPressed.down) {
-    moveUp(keysPressed.left === keysPressed.right ? 3.5 : 2.8)
+    moveUp(keysPressed.left === keysPressed.right)
     walking = true
   }
   if (keysPressed.down && !keysPressed.up) {
-    moveDown(keysPressed.left === keysPressed.right ? 3.5 : 2.8)
+    moveDown(keysPressed.left === keysPressed.right)
     walking = true
   }
   
@@ -132,10 +145,16 @@ function nextFrame() {
     if (linkState.walkingFrame === 4) linkState.walkingFrame = 0
     else linkState.walkingFrame++
   }
+  if (linkState.swordActiveFrame) {
+    if (linkState.swordActiveFrame > 0) (linkNode.children.find(n => n.name === 'sword') as FrameNode).children.find(n => n.name === `up_${linkState.swordActiveFrame - 1}`).visible = false;
+    (linkNode.children.find(n => n.name === 'sword') as FrameNode).children.find(n => n.name === `up_${linkState.swordActiveFrame}`).visible = true;
+  }
+    
+    
 }
 
 function action() {
-  // console.log("action")
+  console.log("action")
 }
 
 function isColliding(x: number, y: number) {
@@ -149,21 +168,10 @@ function isColliding(x: number, y: number) {
     walls[Math.ceil(x / 16) * 16]?.[Math.ceil(y / 16) * 16]
   )
 }
-
-function setAllBasicSpritesInvisible(linkNode: InstanceNode) {
-  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === 'left_0').visible = false;
-  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === 'right_0').visible = false;
-  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === 'down_0').visible = false;
-  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === 'up_0').visible = false;
-  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === 'left_1').visible = false;
-  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === 'right_1').visible = false;
-  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === 'down_1').visible = false;
-  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === 'up_1').visible = false;
-}
-
-function moveLeft(velocity: number) {
-  setAllBasicSpritesInvisible(linkNode);
-  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === `left_${linkState.walkingFrame > 2 ? 1 : 0}`).visible = true;
+  
+function moveLeft(fast: boolean) {
+  const velocity = fast ? WALK_SPEED : DIAG_WALK_SPEED
+  sprite.setSprite('basic', `left_${linkState.walkingFrame > 2 ? 1 : 0}`)
 
   const newX = linkNode.x - velocity
   const newY = linkNode.y
@@ -174,9 +182,9 @@ function moveLeft(velocity: number) {
   linkNode.x = newX; linkNode.y = newY
 }
 
-function moveUp(velocity: number) {
-  setAllBasicSpritesInvisible(linkNode);
-  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === `up_${linkState.walkingFrame > 2 ? 1 : 0}`).visible = true;
+function moveUp(fast: boolean) {
+  const velocity = fast ? WALK_SPEED : DIAG_WALK_SPEED
+  sprite.setSprite('basic', `up_${linkState.walkingFrame > 2 ? 1 : 0}`)
   const newX = linkNode.x
   const newY = linkNode.y - velocity
 
@@ -186,9 +194,9 @@ function moveUp(velocity: number) {
   linkNode.x = newX; linkNode.y = newY
 }
 
-function moveRight(velocity: number) {
-  setAllBasicSpritesInvisible(linkNode);
-  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === `right_${linkState.walkingFrame > 2 ? 1 : 0}`).visible = true;
+function moveRight(fast: boolean) {
+  const velocity = fast ? WALK_SPEED : DIAG_WALK_SPEED
+  sprite.setSprite('basic', `right_${linkState.walkingFrame > 2 ? 1 : 0}`)
   const newX = linkNode.x + velocity
   const newY = linkNode.y
 
@@ -198,9 +206,9 @@ function moveRight(velocity: number) {
   linkNode.x = newX; linkNode.y = newY
 }
 
-function moveDown(velocity: number) {
-  setAllBasicSpritesInvisible(linkNode);
-  (linkNode.children.find(n => n.name === 'basic') as FrameNode).children.find(n => n.name === `down_${linkState.walkingFrame > 2 ? 1 : 0}`).visible = true;
+function moveDown(fast: boolean) {
+  const velocity = fast ? WALK_SPEED : DIAG_WALK_SPEED
+  sprite.setSprite('basic', `down_${linkState.walkingFrame > 2 ? 1 : 0}`)
   const newX = linkNode.x
   const newY = linkNode.y + velocity
 
