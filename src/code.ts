@@ -1,4 +1,4 @@
-import { FPS, WALK_SPEED, DIAG_WALK_SPEED } from './lib'
+import { FPS, WALK_SPEED, DIAG_WALK_SPEED, displayHealth, COLLISION_TILES } from './lib'
 import { Sprite } from './sprite'
 
 // This plugin will open a modal to prompt the user to enter a number, and
@@ -39,23 +39,6 @@ function main() {
 }
 
 figma.showUI(__html__);
-
-function displayHealth(current: number, max: number) {
-  const missing = max - current
-  let displayHealth = ''
-  while (current >= 1) {
-    displayHealth += '💗'
-    current -= 1
-  }
-  if (current >= .5) {
-    displayHealth += '💔'
-  }
-  Array.from(Array(Math.floor(missing))).forEach((x, i) => {
-    displayHealth += '🖤'
-  });
-  return displayHealth
-}
-
 figma.ui.postMessage({health: displayHealth(3, 3)})
 
 interface Buttons {
@@ -73,12 +56,14 @@ interface State {
   health: number
   walkingFrame: number
   swordActiveFrame: number | null
+  facing: 'up' | 'down' | 'left' | 'right'
 }
 
 const linkState: State = {
   health: 3,
   walkingFrame: 0,
   swordActiveFrame: null,
+  facing: 'down'
 }
 
   
@@ -114,40 +99,46 @@ figma.ui.onmessage = msg => {
 };
 
 function nextFrame() {
+  console.log(linkState, keysPressed)
   let walking = false
 
   if (keysPressed.action && linkState.swordActiveFrame === null) {
     linkState.swordActiveFrame = 0
-  } else if (linkState.swordActiveFrame !== null) {
-    linkState.swordActiveFrame++
-    if (linkState.swordActiveFrame === 3) linkState.swordActiveFrame = null
   }
-    
-    
-  if (keysPressed.left && !keysPressed.right) {
-    moveLeft(keysPressed.up === keysPressed.down)
-    walking = true
+   
+  if (linkState.swordActiveFrame !== null) {
+    sprite.setSprite('sword', `${linkState.facing}_${linkState.swordActiveFrame}`)
+  } else {
+    if (keysPressed.left && !keysPressed.right) {
+      moveLeft(keysPressed.up === keysPressed.down)
+      linkState.facing = 'left'
+      walking = true
+    }
+    if (keysPressed.right && !keysPressed.left) {
+      moveRight(keysPressed.up === keysPressed.down)
+      linkState.facing = 'right'
+      walking = true
+    }
+    if (keysPressed.up && !keysPressed.down) {
+      moveUp(keysPressed.left === keysPressed.right)
+      linkState.facing = 'up'
+      walking = true
+    }
+    if (keysPressed.down && !keysPressed.up) {
+      moveDown(keysPressed.left === keysPressed.right)
+      linkState.facing = 'down'
+      walking = true
+    }
   }
-  if (keysPressed.right && !keysPressed.left) {
-    moveRight(keysPressed.up === keysPressed.down)
-    walking = true
-  }
-  if (keysPressed.up && !keysPressed.down) {
-    moveUp(keysPressed.left === keysPressed.right)
-    walking = true
-  }
-  if (keysPressed.down && !keysPressed.up) {
-    moveDown(keysPressed.left === keysPressed.right)
-    walking = true
-  }
-  
+
+  // Increment state
   if (walking) {
-    if (linkState.walkingFrame === 4) linkState.walkingFrame = 0
+    if (linkState.walkingFrame === 3) linkState.walkingFrame = 0
     else linkState.walkingFrame++
   }
-  if (linkState.swordActiveFrame) {
-    if (linkState.swordActiveFrame > 0) (linkNode.children.find(n => n.name === 'sword') as FrameNode).children.find(n => n.name === `up_${linkState.swordActiveFrame - 1}`).visible = false;
-    (linkNode.children.find(n => n.name === 'sword') as FrameNode).children.find(n => n.name === `up_${linkState.swordActiveFrame}`).visible = true;
+  if (linkState.swordActiveFrame !== null) {
+    linkState.swordActiveFrame++
+    if (linkState.swordActiveFrame === 4) linkState.swordActiveFrame = null
   }
     
     
@@ -221,7 +212,7 @@ function moveDown(fast: boolean) {
 function loadWalls() {
   const walls = {}
   worldNode.children.forEach((node: SceneNode) => {
-    if (node.name === 'tree' || node.name.includes('rock')) {
+    if (COLLISION_TILES.has(node.name)) {
       if (!walls[node.x]) {walls[node.x] = {}}
       walls[node.x][node.y] = true
     }
