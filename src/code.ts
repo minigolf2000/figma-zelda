@@ -1,5 +1,6 @@
-import { FPS, WALK_SPEED, DIAG_WALK_SPEED, displayHealth, COLLISION_TILES } from './lib'
+import { FPS, WALK_SPEED, DIAG_WALK_SPEED, displayHealth, loadWalls } from './lib'
 import { Sprite } from './sprite'
+import { loadEnemies, OctorokRed } from './enemies'
 
 // This plugin will open a modal to prompt the user to enter a number, and
 // it will then create that many rectangles on the screen.
@@ -14,6 +15,7 @@ let linkNode: InstanceNode = null
 let worldNode: FrameNode
 let walls = {}
 let sprite: Sprite | null = null
+let enemies: OctorokRed[] = []
 
 function main() {
   if (!figma.currentPage.selection) {
@@ -33,7 +35,8 @@ function main() {
   }
   worldNode = linkNode.parent;
   sprite = new Sprite(linkNode);
-  walls = loadWalls()
+  walls = loadWalls(worldNode)
+  enemies = loadEnemies(worldNode, linkNode)
 
   linkNode.masterComponent.setRelaunchData({relaunch: ''})
   return true
@@ -106,9 +109,13 @@ function nextFrame() {
   if (keysPressed.action && linkState.swordActiveFrame === null) {
     linkState.swordActiveFrame = 0
   }
-   
+  
+  enemies.forEach((enemy: any) => {
+    enemy.nextFrame()
+  })
+
   if (linkState.swordActiveFrame !== null) {
-    sprite.setSprite('sword', `${linkState.facing}_${linkState.swordActiveFrame}`)
+    sprite.setSprite(['sword', linkState.facing, linkState.swordActiveFrame])
   } else {
     if (keysPressed.left && !keysPressed.right) {
       moveLeft(keysPressed.up === keysPressed.down)
@@ -163,7 +170,7 @@ function isColliding(x: number, y: number) {
   
 function moveLeft(fast: boolean) {
   const velocity = fast ? WALK_SPEED : DIAG_WALK_SPEED
-  sprite.setSprite('basic', `left_${linkState.walkingFrame > 2 ? 1 : 0}`)
+  sprite.setSprite(['basic', 'left', linkState.walkingFrame > 2 ? 1 : 0])
 
   const newX = linkNode.x - velocity
   const newY = linkNode.y
@@ -176,7 +183,7 @@ function moveLeft(fast: boolean) {
 
 function moveUp(fast: boolean) {
   const velocity = fast ? WALK_SPEED : DIAG_WALK_SPEED
-  sprite.setSprite('basic', `up_${linkState.walkingFrame > 2 ? 1 : 0}`)
+  sprite.setSprite(['basic', 'up', linkState.walkingFrame > 2 ? 1 : 0])
   const newX = linkNode.x
   const newY = linkNode.y - velocity
 
@@ -188,7 +195,7 @@ function moveUp(fast: boolean) {
 
 function moveRight(fast: boolean) {
   const velocity = fast ? WALK_SPEED : DIAG_WALK_SPEED
-  sprite.setSprite('basic', `right_${linkState.walkingFrame > 2 ? 1 : 0}`)
+  sprite.setSprite(['basic', 'right', linkState.walkingFrame > 2 ? 1 : 0])
   const newX = linkNode.x + velocity
   const newY = linkNode.y
 
@@ -200,7 +207,7 @@ function moveRight(fast: boolean) {
 
 function moveDown(fast: boolean) {
   const velocity = fast ? WALK_SPEED : DIAG_WALK_SPEED
-  sprite.setSprite('basic', `down_${linkState.walkingFrame > 2 ? 1 : 0}`)
+  sprite.setSprite(['basic', 'down', linkState.walkingFrame > 2 ? 1 : 0])
   const newX = linkNode.x
   const newY = linkNode.y + velocity
 
@@ -210,17 +217,6 @@ function moveDown(fast: boolean) {
   linkNode.x = newX; linkNode.y = newY
 }
 
-function loadWalls() {
-  const walls = {}
-  worldNode.children.forEach((node: SceneNode) => {
-    if (COLLISION_TILES.has(node.name)) {
-      if (!walls[node.x]) {walls[node.x] = {}}
-      walls[node.x][node.y] = true
-    }
-  })
-
-  return walls
-}
 if (main()) {
   setInterval(nextFrame, 1000 / FPS)
 }
