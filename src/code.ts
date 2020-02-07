@@ -1,6 +1,8 @@
-import { FPS, WALK_SPEED, DIAG_WALK_SPEED, displayHealth, loadWalls } from './lib'
+import { FPS, WALK_SPEED, DIAG_WALK_SPEED, displayHealth, Facing } from './lib'
 import { Sprite } from './sprite'
-import { loadEnemies, OctorokRed } from './enemies'
+import { OctorokRed } from './enemies/octorok_red'
+import { loadEnemies } from './enemies/enemies'
+import { Collision } from './collision'
 
 // This plugin will open a modal to prompt the user to enter a number, and
 // it will then create that many rectangles on the screen.
@@ -13,8 +15,8 @@ import { loadEnemies, OctorokRed } from './enemies'
 
 let linkNode: InstanceNode = null
 let worldNode: FrameNode
-let walls = {}
 let sprite: Sprite | null = null
+let collision: Collision = null
 let enemies: OctorokRed[] = []
 
 function main() {
@@ -33,16 +35,17 @@ function main() {
     figma.closePlugin("World must be a frame")
     return
   }
-  worldNode = linkNode.parent;
-  sprite = new Sprite(linkNode);
-  walls = loadWalls(worldNode)
-  enemies = loadEnemies(worldNode, linkNode)
+  worldNode = linkNode.parent
+  sprite = new Sprite(linkNode)
+  collision = new Collision(worldNode)
+
+  enemies = loadEnemies(worldNode, collision, linkNode)
 
   linkNode.masterComponent.setRelaunchData({relaunch: ''})
   return true
 }
 
-figma.showUI(__html__);
+figma.showUI(__html__)
 figma.ui.postMessage({health: displayHealth(3, 3)})
 
 interface Buttons {
@@ -60,7 +63,7 @@ interface State {
   health: number
   walkingFrame: number
   swordActiveFrame: number | null
-  facing: 'up' | 'down' | 'left' | 'right'
+  facing: Facing
 }
 
 const linkState: State = {
@@ -70,7 +73,7 @@ const linkState: State = {
   facing: 'down'
 }
 
-  
+
 figma.ui.onmessage = msg => {
   switch (msg.keyCode as number) {
     case 13: // ENTER
@@ -96,20 +99,18 @@ figma.ui.onmessage = msg => {
     case 83: // S
       keysPressed.down = (msg.type === 'keydown') ? true : false
       break
+  }
+  // Call this when Link dies
+  // figma.closePlugin();
 }
 
-// Call this when Link dies
-// figma.closePlugin();
-};
-
 function nextFrame() {
-  console.log(linkState, keysPressed)
   let walking = false
 
   if (keysPressed.action && linkState.swordActiveFrame === null) {
     linkState.swordActiveFrame = 0
   }
-  
+
   enemies.forEach((enemy: any) => {
     enemy.nextFrame()
   })
@@ -139,6 +140,12 @@ function nextFrame() {
     }
   }
 
+  if (linkState.swordActiveFrame !== null) {
+    sprite.setSprite(['sword', linkState.facing, linkState.swordActiveFrame])
+  } else {
+    sprite.setSprite(['basic', linkState.facing, walking && linkState.walkingFrame > 2 ? 1 : 0])
+  }
+
   // Increment state
   if (walking) {
     if (linkState.walkingFrame === 3) linkState.walkingFrame = 0
@@ -148,34 +155,17 @@ function nextFrame() {
     linkState.swordActiveFrame++
     if (linkState.swordActiveFrame === 4) linkState.swordActiveFrame = null
   }
-    
-    
+
+
 }
 
-function action() {
-  console.log("action")
-}
-
-function isColliding(x: number, y: number) {
-  if (x < 0 || y < 0 || x > worldNode.width || y > worldNode.height) {
-    return true
-  }
-  return (
-    walls[Math.floor(x / 16) * 16]?.[Math.floor(y / 16) * 16] ||
-    walls[Math.floor(x / 16) * 16]?.[Math.ceil(y / 16) * 16] ||
-    walls[Math.ceil(x / 16) * 16]?.[Math.floor(y / 16) * 16] ||
-    walls[Math.ceil(x / 16) * 16]?.[Math.ceil(y / 16) * 16]
-  )
-}
-  
 function moveLeft(fast: boolean) {
   const velocity = fast ? WALK_SPEED : DIAG_WALK_SPEED
-  sprite.setSprite(['basic', 'left', linkState.walkingFrame > 2 ? 1 : 0])
 
   const newX = linkNode.x - velocity
   const newY = linkNode.y
 
-  if (isColliding(newX, newY)) {
+  if (collision.isColliding(newX, newY)) {
     return
   }
   linkNode.x = newX; linkNode.y = newY
@@ -183,11 +173,10 @@ function moveLeft(fast: boolean) {
 
 function moveUp(fast: boolean) {
   const velocity = fast ? WALK_SPEED : DIAG_WALK_SPEED
-  sprite.setSprite(['basic', 'up', linkState.walkingFrame > 2 ? 1 : 0])
   const newX = linkNode.x
   const newY = linkNode.y - velocity
 
-  if (isColliding(newX, newY)) {
+  if (collision.isColliding(newX, newY)) {
     return
   }
   linkNode.x = newX; linkNode.y = newY
@@ -195,11 +184,10 @@ function moveUp(fast: boolean) {
 
 function moveRight(fast: boolean) {
   const velocity = fast ? WALK_SPEED : DIAG_WALK_SPEED
-  sprite.setSprite(['basic', 'right', linkState.walkingFrame > 2 ? 1 : 0])
   const newX = linkNode.x + velocity
   const newY = linkNode.y
 
-  if (isColliding(newX, newY)) {
+  if (collision.isColliding(newX, newY)) {
     return
   }
   linkNode.x = newX; linkNode.y = newY
@@ -207,11 +195,10 @@ function moveRight(fast: boolean) {
 
 function moveDown(fast: boolean) {
   const velocity = fast ? WALK_SPEED : DIAG_WALK_SPEED
-  sprite.setSprite(['basic', 'down', linkState.walkingFrame > 2 ? 1 : 0])
   const newX = linkNode.x
   const newY = linkNode.y + velocity
 
-  if (isColliding(newX, newY)) {
+  if (collision.isColliding(newX, newY)) {
     return
   }
   linkNode.x = newX; linkNode.y = newY
