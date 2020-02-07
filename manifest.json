@@ -3,5 +3,8 @@
   "id": "805956715727028515",
   "api": "1.0.0",
   "main": "dist/code.js",
-  "ui": "dist/ui.html"
+  "ui": "dist/ui.html",
+  "relaunchButtons": [
+    {"command": "relaunch", "name" : "Play Figma Zelda"}
+  ]
 }

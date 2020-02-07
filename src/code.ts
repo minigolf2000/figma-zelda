@@ -35,6 +35,7 @@ function main() {
   sprite = new Sprite(linkNode);
   walls = loadWalls()
 
+  linkNode.masterComponent.setRelaunchData({relaunch: ''})
   return true
 }
 
