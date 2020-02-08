@@ -1,3 +1,5 @@
+import { Vector, rectsToVector } from "./vector"
+
 const COLLISION_TILES = new Set(['tree', 'rock', 'water', 'rock_s'])
 
 export class Collision {
@@ -34,9 +36,16 @@ export interface Rectangle {
   height: number
 }
 
-export function isOverlapping(rect1: Rectangle, rect2: Rectangle) {
-  return (rect1.x < rect2.x + rect2.width &&
+/* If rectangles are overlapping, return a normal Vector from rect1 to rect 2
+ * Else return null
+ */
+export function isOverlapping(rect1: Rectangle, rect2: Rectangle): Vector | null {
+  if (rect1.x < rect2.x + rect2.width &&
     rect1.x + rect1.width > rect2.x &&
     rect1.y < rect2.y + rect2.height &&
-    rect1.y + rect1.height > rect2.y)
+    rect1.y + rect1.height > rect2.y
+  ) {
+    return rectsToVector(rect1, rect2)
+  }
+  return null
 }

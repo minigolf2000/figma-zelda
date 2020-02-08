@@ -1,6 +1,7 @@
 import { Sprite } from "../sprite"
-import { Facing, vector } from "../lib"
+import { Facing } from "../lib"
 import { Collision } from "../collision"
+import { facingToVector } from "../vector"
 
 const MAX_WALK_FRAMES = 12
 export class OctorokRed {
@@ -32,10 +33,10 @@ export class OctorokRed {
       //   this.node.rotation = rotation(this.facing)
       // }
       this.sprite.setSprite(['basic', this.facing, this.walkingFrame > 5 ? 1 : 0])
-      const myVector = vector(this.facing).map(n => n * 2)
-      if (!this.collision.isColliding(this.node.x + myVector[0], this.node.y + myVector[1])) {
-        this.node.x += myVector[0]
-        this.node.y += myVector[1]
+      const myVector = facingToVector(this.facing).multiply(2)
+      if (!this.collision.isColliding(this.node.x + myVector.x, this.node.y + myVector.y)) {
+        this.node.x += myVector.x
+        this.node.y += myVector.y
       }
     }
 

@@ -1,17 +1,9 @@
-import { FPS, WALK_SPEED, DIAG_WALK_SPEED, displayHealth, Facing } from './lib'
+import { FPS, displayHealth, Facing, WALK_SPEED, KNOCKBACK_DISTANCE } from './lib'
 import { Sprite } from './sprite'
 import { OctorokRed } from './enemies/octorok_red'
 import { loadEnemies } from './enemies/enemies'
 import { Collision, isOverlapping } from './collision'
-
-// This plugin will open a modal to prompt the user to enter a number, and
-// it will then create that many rectangles on the screen.
-
-// This file holds the main code for the plugins. It has access to the *document*.
-// You can access browser APIs in the <script> tag inside "ui.html" which has a
-// full browser enviroment (see documentation).
-
-// This shows the HTML page in "ui.html".
+import { buttonPressed, getMovementDirection, keysPressed, changeFacing } from './buttons'
 
 let linkNode: InstanceNode = null
 let worldNode: FrameNode
@@ -47,17 +39,6 @@ function main() {
 figma.showUI(__html__)
 figma.ui.postMessage({health: displayHealth(3, 3)})
 
-interface Buttons {
-  up: boolean
-  down: boolean
-  left: boolean
-  right: boolean
-  action: boolean
-}
-const keysPressed: Buttons = {
-  up: false, down: false, left: false, right: false, action: false
-}
-
 interface State {
   health: number
   walkingFrame: number
@@ -74,73 +55,31 @@ const linkState: State = {
   facing: 'down'
 }
 
-
-figma.ui.onmessage = msg => {
-  switch (msg.keyCode as number) {
-    case 13: // ENTER
-    case 16: // SHIFT
-    case 17: // CTRL
-    case 18: // ALT
-    case 32: // SPACE
-      keysPressed.action = (msg.type === 'keydown') ? true : false
-      break
-    case 37: // LEFT_ARROW
-    case 65: // A
-      keysPressed.left = (msg.type === 'keydown') ? true : false
-      break
-    case 38: // UP_ARROW
-    case 87: // W
-      keysPressed.up = (msg.type === 'keydown') ? true : false
-      break
-    case 39: // RIGHT_ARROW
-    case 68: // D
-      keysPressed.right = (msg.type === 'keydown') ? true : false
-      break
-    case 40: // DOWN_ARROW
-    case 83: // S
-      keysPressed.down = (msg.type === 'keydown') ? true : false
-      break
-  }
-}
+figma.ui.onmessage = buttonPressed
 
 function nextFrame() {
-  let walking = false
-
   if (keysPressed.action && linkState.swordActiveFrame === null) {
     linkState.swordActiveFrame = 0
   }
 
+  let walking = false
   if (linkState.swordActiveFrame !== null) {
     sprite.setSprite(['sword', linkState.facing, linkState.swordActiveFrame])
   } else {
-    if (keysPressed.left && !keysPressed.right) {
-      moveLeft(keysPressed.up === keysPressed.down)
-      linkState.facing = 'left'
-      walking = true
-    }
-    if (keysPressed.right && !keysPressed.left) {
-      moveRight(keysPressed.up === keysPressed.down)
-      linkState.facing = 'right'
-      walking = true
-    }
-    if (keysPressed.up && !keysPressed.down) {
-      moveUp(keysPressed.left === keysPressed.right)
-      linkState.facing = 'up'
-      walking = true
-    }
-    if (keysPressed.down && !keysPressed.up) {
-      moveDown(keysPressed.left === keysPressed.right)
-      linkState.facing = 'down'
-      walking = true
-    }
+    linkState.facing = changeFacing(linkState.facing)
+    const direction = getMovementDirection()
+    walking = direction.x !== 0 || direction.y !== 0
+    move(direction.multiply(WALK_SPEED))
   }
 
   const linkHitbox = {x: linkNode.x + 1, y: linkNode.y + 1, width: 14, height: 14}
   enemies.forEach((enemy: any) => {
     const enemyHitbox = enemy.nextFrame()
-    if (linkState.invulnerabilityFrame === null && isOverlapping(enemyHitbox, linkHitbox)) {
+    const overlappingVector = isOverlapping(linkHitbox, enemyHitbox)
+    if (linkState.invulnerabilityFrame === null && overlappingVector) {
       linkState.invulnerabilityFrame = 0
       linkState.health -= 0.5
+      move(overlappingVector.multiply(KNOCKBACK_DISTANCE))
 
       if (linkState.health > 0) {
         figma.ui.postMessage({health: displayHealth(linkState.health, 3)})
@@ -181,44 +120,9 @@ function nextFrame() {
 
 }
 
-function moveLeft(fast: boolean) {
-  const velocity = fast ? WALK_SPEED : DIAG_WALK_SPEED
-
-  const newX = linkNode.x - velocity
-  const newY = linkNode.y
-
-  if (collision.isColliding(newX, newY)) {
-    return
-  }
-  linkNode.x = newX; linkNode.y = newY
-}
-
-function moveUp(fast: boolean) {
-  const velocity = fast ? WALK_SPEED : DIAG_WALK_SPEED
-  const newX = linkNode.x
-  const newY = linkNode.y - velocity
-
-  if (collision.isColliding(newX, newY)) {
-    return
-  }
-  linkNode.x = newX; linkNode.y = newY
-}
-
-function moveRight(fast: boolean) {
-  const velocity = fast ? WALK_SPEED : DIAG_WALK_SPEED
-  const newX = linkNode.x + velocity
-  const newY = linkNode.y
-
-  if (collision.isColliding(newX, newY)) {
-    return
-  }
-  linkNode.x = newX; linkNode.y = newY
-}
-
-function moveDown(fast: boolean) {
-  const velocity = fast ? WALK_SPEED : DIAG_WALK_SPEED
-  const newX = linkNode.x
-  const newY = linkNode.y + velocity
+function move(vector: Vector) {
+  const newX = linkNode.x + vector.x
+  const newY = linkNode.y + vector.y
 
   if (collision.isColliding(newX, newY)) {
     return
