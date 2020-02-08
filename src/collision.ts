@@ -15,7 +15,7 @@ export class Collision {
   }
 
   public isColliding(x: number, y: number) {
-    if (x < 0 || y < 0 || x > this.worldNode.width || y > this.worldNode.height) {
+    if (x < 0 || y < 0 || x > this.worldNode.width - 16 || y > this.worldNode.height - 16) {
       return true
     }
     return (
