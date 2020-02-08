@@ -33,11 +33,12 @@ export class OctorokRed {
       // }
       this.sprite.setSprite(['basic', this.facing, this.walkingFrame > 5 ? 1 : 0])
       const myVector = vector(this.facing).map(n => n * 2)
-      if (this.collision.isColliding(this.node.x + myVector[0], this.node.y + myVector[1])) {
-        return
+      if (!this.collision.isColliding(this.node.x + myVector[0], this.node.y + myVector[1])) {
+        this.node.x += myVector[0]
+        this.node.y += myVector[1]
       }
-      this.node.x += myVector[0]
-      this.node.y += myVector[1]
     }
+
+    return {x: this.node.x, y: this.node.y, width: 16, height: 16}
   }
 }

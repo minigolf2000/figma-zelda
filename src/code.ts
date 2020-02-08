@@ -2,7 +2,7 @@ import { FPS, WALK_SPEED, DIAG_WALK_SPEED, displayHealth, Facing } from './lib'
 import { Sprite } from './sprite'
 import { OctorokRed } from './enemies/octorok_red'
 import { loadEnemies } from './enemies/enemies'
-import { Collision } from './collision'
+import { Collision, isOverlapping } from './collision'
 
 // This plugin will open a modal to prompt the user to enter a number, and
 // it will then create that many rectangles on the screen.
@@ -40,7 +40,6 @@ function main() {
   collision = new Collision(worldNode)
 
   enemies = loadEnemies(worldNode, collision, linkNode)
-
   linkNode.masterComponent.setRelaunchData({relaunch: ''})
   return true
 }
@@ -62,6 +61,7 @@ const keysPressed: Buttons = {
 interface State {
   health: number
   walkingFrame: number
+  invulnerabilityFrame: number | null
   swordActiveFrame: number | null
   facing: Facing
 }
@@ -69,6 +69,7 @@ interface State {
 const linkState: State = {
   health: 3,
   walkingFrame: 0,
+  invulnerabilityFrame: null,
   swordActiveFrame: null,
   facing: 'down'
 }
@@ -100,8 +101,6 @@ figma.ui.onmessage = msg => {
       keysPressed.down = (msg.type === 'keydown') ? true : false
       break
   }
-  // Call this when Link dies
-  // figma.closePlugin();
 }
 
 function nextFrame() {
@@ -110,10 +109,6 @@ function nextFrame() {
   if (keysPressed.action && linkState.swordActiveFrame === null) {
     linkState.swordActiveFrame = 0
   }
-
-  enemies.forEach((enemy: any) => {
-    enemy.nextFrame()
-  })
 
   if (linkState.swordActiveFrame !== null) {
     sprite.setSprite(['sword', linkState.facing, linkState.swordActiveFrame])
@@ -140,6 +135,22 @@ function nextFrame() {
     }
   }
 
+  const linkHitbox = {x: linkNode.x + 1, y: linkNode.y + 1, width: 14, height: 14}
+  enemies.forEach((enemy: any) => {
+    const enemyHitbox = enemy.nextFrame()
+    if (linkState.invulnerabilityFrame === null && isOverlapping(enemyHitbox, linkHitbox)) {
+      linkState.invulnerabilityFrame = 0
+      linkState.health -= 0.5
+
+      if (linkState.health > 0) {
+        figma.ui.postMessage({health: displayHealth(linkState.health, 3)})
+      } else {
+        figma.closePlugin();
+        return
+      }
+    }
+  })
+
   if (linkState.swordActiveFrame !== null) {
     sprite.setSprite(['sword', linkState.facing, linkState.swordActiveFrame])
   } else {
@@ -154,6 +165,17 @@ function nextFrame() {
   if (linkState.swordActiveFrame !== null) {
     linkState.swordActiveFrame++
     if (linkState.swordActiveFrame === 4) linkState.swordActiveFrame = null
+  }
+
+  if (linkState.invulnerabilityFrame !== null) {
+    linkState.invulnerabilityFrame++
+    if (linkState.invulnerabilityFrame && linkState.invulnerabilityFrame % 2 === 0) {
+      linkNode.visible = !linkNode.visible
+    }
+    if (linkState.invulnerabilityFrame === 20) {
+      linkNode.visible = true
+      linkState.invulnerabilityFrame = null
+    }
   }
 
 

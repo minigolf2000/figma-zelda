@@ -19,10 +19,24 @@ export class Collision {
       return true
     }
     return (
-      this.walls[Math.floor(x / 16) * 16]?.[Math.floor(y / 16) * 16] ||
-      this.walls[Math.floor(x / 16) * 16]?.[Math.ceil(y / 16) * 16] ||
-      this.walls[Math.ceil(x / 16) * 16]?.[Math.floor(y / 16) * 16] ||
-      this.walls[Math.ceil(x / 16) * 16]?.[Math.ceil(y / 16) * 16]
+      this.walls[Math.floor((x+1) / 16) * 16]?.[Math.floor((y+1) / 16) * 16] ||
+      this.walls[Math.floor((x+1) / 16) * 16]?.[Math.ceil((y-1) / 16) * 16] ||
+      this.walls[Math.ceil((x-1) / 16) * 16]?.[Math.floor((y+1) / 16) * 16] ||
+      this.walls[Math.ceil((x-1) / 16) * 16]?.[Math.ceil((y-1) / 16) * 16]
     )
   }
+}
+
+export interface Rectangle {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+export function isOverlapping(rect1: Rectangle, rect2: Rectangle) {
+  return (rect1.x < rect2.x + rect2.width &&
+    rect1.x + rect1.width > rect2.x &&
+    rect1.y < rect2.y + rect2.height &&
+    rect1.y + rect1.height > rect2.y)
 }
