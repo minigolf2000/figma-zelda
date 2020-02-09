@@ -1,9 +1,10 @@
-import { FPS, displayHealth, Facing, WALK_SPEED, KNOCKBACK_DISTANCE } from './lib'
+import { FPS, displayHealth, Facing, WALK_SPEED, KNOCKBACK_DISTANCE, rotation } from './lib'
 import { Sprite } from './sprite'
 import { OctorokRed } from './enemies/octorok_red'
 import { loadEnemies } from './enemies/enemies'
 import { Collision, isOverlapping } from './collision'
 import { buttonPressed, getMovementDirection, keysPressed, changeFacing } from './buttons'
+import { facingToVector } from './vector'
 
 let linkNode: InstanceNode = null
 let worldNode: FrameNode
@@ -33,6 +34,9 @@ function main() {
 
   enemies = loadEnemies(worldNode, collision, linkNode)
   linkNode.masterComponent.setRelaunchData({relaunch: ''})
+  linkState.swordNode = worldNode.findOne((node: SceneNode) => node.name === 'sword')
+  linkState.swordNode.visible = false
+  figma.ui.postMessage({addItem: 'sword'})
   figma.currentPage.selection = []
   return true
 }
@@ -45,6 +49,7 @@ interface State {
   walkingFrame: number
   invulnerabilityFrame: number | null
   swordActiveFrame: number | null
+  swordNode: SceneNode | null
   facing: Facing
 }
 
@@ -53,6 +58,7 @@ const linkState: State = {
   walkingFrame: 0,
   invulnerabilityFrame: null,
   swordActiveFrame: null,
+  swordNode: null,
   facing: 'down'
 }
 
@@ -65,14 +71,12 @@ function nextFrame() {
     figma.closePlugin()
   }
 
-  if (keysPressed.action && linkState.swordActiveFrame === null) {
+  if (keysPressed.action && linkState.swordNode && linkState.swordActiveFrame === null) {
     linkState.swordActiveFrame = 0
   }
 
   let walking = false
-  if (linkState.swordActiveFrame !== null) {
-    sprite.setSprite(['sword', linkState.facing, linkState.swordActiveFrame])
-  } else {
+  if (linkState.swordActiveFrame === null) {
     linkState.facing = changeFacing(linkState.facing)
     const direction = getMovementDirection()
     walking = direction.x !== 0 || direction.y !== 0
@@ -99,9 +103,7 @@ function nextFrame() {
     }
   })
 
-  if (linkState.swordActiveFrame !== null) {
-    sprite.setSprite(['sword', linkState.facing, linkState.swordActiveFrame])
-  } else {
+  if (linkState.swordActiveFrame === null) {
     sprite.setSprite(['basic', linkState.facing, walking && linkState.walkingFrame > 2 ? 1 : 0])
   }
 
@@ -110,9 +112,70 @@ function nextFrame() {
     if (linkState.walkingFrame === 3) linkState.walkingFrame = 0
     else linkState.walkingFrame++
   }
-  if (linkState.swordActiveFrame !== null) {
-    linkState.swordActiveFrame++
-    if (linkState.swordActiveFrame === 4) linkState.swordActiveFrame = null
+  if (linkState.swordActiveFrame !== null && linkState.swordNode) {
+    switch (linkState.swordActiveFrame) {
+      case 0:
+        sprite.setSprite(['action', linkState.facing])
+        linkState.swordActiveFrame++
+        break
+      case 1:
+        linkState.swordNode.visible = true
+        linkState.swordNode.rotation = rotation(linkState.facing)
+        if (linkState.facing === 'up') {
+          linkState.swordNode.x = linkNode.x + 3
+          linkState.swordNode.y = linkNode.y - 12
+        } else if (linkState.facing === 'right') {
+          linkState.swordNode.x = linkNode.x + 27
+          linkState.swordNode.y = linkNode.y + 6
+        } else if (linkState.facing === 'down') {
+          linkState.swordNode.x = linkNode.x + 12
+          linkState.swordNode.y = linkNode.y + 27
+        } else if (linkState.facing === 'left') {
+          linkState.swordNode.x = linkNode.x - 11
+          linkState.swordNode.y = linkNode.y + 13
+        }
+        linkState.swordActiveFrame++
+        break
+      case 2:
+        if (linkState.facing === 'up') {
+          linkState.swordNode.x = linkNode.x + 3
+          linkState.swordNode.y = linkNode.y - 11
+        } else if (linkState.facing === 'right') {
+          linkState.swordNode.x = linkNode.x + 23
+          linkState.swordNode.y = linkNode.y + 6
+        } else if (linkState.facing === 'down') {
+          linkState.swordNode.x = linkNode.x + 12
+          linkState.swordNode.y = linkNode.y + 23
+        } else if (linkState.facing === 'left') {
+          linkState.swordNode.x = linkNode.x - 7
+          linkState.swordNode.y = linkNode.y + 13
+        }
+        sprite.setSprite(['basic', linkState.facing, 1])
+        linkState.swordActiveFrame++
+        break
+      case 3:
+        if (linkState.facing === 'up') {
+          linkState.swordNode.x = linkNode.x + 3
+          linkState.swordNode.y = linkNode.y - 3
+        } else if (linkState.facing === 'right') {
+          linkState.swordNode.x = linkNode.x + 19
+          linkState.swordNode.y = linkNode.y + 6
+        } else if (linkState.facing === 'down') {
+          linkState.swordNode.x = linkNode.x + 12
+          linkState.swordNode.y = linkNode.y + 19
+        } else if (linkState.facing === 'left') {
+          linkState.swordNode.x = linkNode.x - 4
+          linkState.swordNode.y = linkNode.y + 13
+        }
+        sprite.setSprite(['basic', linkState.facing, 0])
+        linkState.swordActiveFrame++
+        break
+      default: // >= 4
+        linkState.swordActiveFrame = null
+        linkState.swordNode.visible = false
+        break
+    }
+
   }
 
   if (linkState.invulnerabilityFrame !== null) {
@@ -125,7 +188,9 @@ function nextFrame() {
       linkState.invulnerabilityFrame = null
     }
   }
+}
 
+export function setSword(linkNode: SceneNode, ) {
 
 }
 

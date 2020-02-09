@@ -8,12 +8,23 @@ export class Collision {
 
   public constructor(worldNode: FrameNode) {
     this.worldNode = worldNode
+
+    let numNodesSnappedToGrid = 0
     worldNode.children.forEach((node: SceneNode) => {
       if (COLLISION_TILES.has(node.name)) {
+        if (node.x % 16 !== 0 || node.y % 16 !== 0) {
+          node.x = Math.round(node.x / 16) * 16
+          node.y = Math.round(node.y / 16) * 16
+          numNodesSnappedToGrid++
+        }
         if (!this.walls[node.x]) {this.walls[node.x] = {}}
         this.walls[node.x][node.y] = true
       }
     })
+
+    if (numNodesSnappedToGrid > 0) {
+      console.log(`Warning: Snapped ${numNodesSnappedToGrid} nodes to the 16px grid`)
+    }
   }
 
   public isColliding(x: number, y: number) {

@@ -22,14 +22,28 @@ export function displayHealth(current: number, max: number) {
 
 export function rotation(facing: Facing) {
   switch (facing) {
-    case 'down':
+    case 'up':
       return 0
     case 'left':
       return 90
-    case 'up':
+    case 'down':
       return 180
     case 'right':
       return 270
   }
 }
+
+
+// export function rotation(facing: Facing) {
+//   switch (facing) {
+//     case 'down':
+//       return 0
+//     case 'left':
+//       return 90
+//     case 'up':
+//       return 180
+//     case 'right':
+//       return 270
+//   }
+// }
 

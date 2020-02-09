@@ -18,5 +18,7 @@ document.getElementById('controls').onkeyup = (e) => {
 onmessage = (event) => {
   if (event.data.pluginMessage.health) {
     document.getElementById('health').innerText = event.data.pluginMessage.health
+  } else if (event.data.pluginMessage.addItem) {
+    document.getElementById(event.data.pluginMessage.addItem).className = 'visible'
   }
 }
