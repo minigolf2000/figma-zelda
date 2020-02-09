@@ -7,9 +7,11 @@ interface Buttons {
   left: boolean
   right: boolean
   action: boolean
+  esc: boolean
 }
+
 export const keysPressed: Buttons = {
-  up: false, down: false, left: false, right: false, action: false
+  up: false, down: false, left: false, right: false, action: false, esc: false
 }
 
 export function buttonPressed(msg: any) {
@@ -38,7 +40,7 @@ export function buttonPressed(msg: any) {
       keysPressed.down = (msg.type === 'keydown') ? true : false
       break
     case 27: // ESC
-      figma.closePlugin()
+      keysPressed.esc = true
       break
   }
 }

@@ -33,6 +33,7 @@ function main() {
 
   enemies = loadEnemies(worldNode, collision, linkNode)
   linkNode.masterComponent.setRelaunchData({relaunch: ''})
+  figma.currentPage.selection = []
   return true
 }
 
@@ -58,6 +59,12 @@ const linkState: State = {
 figma.ui.onmessage = buttonPressed
 
 function nextFrame() {
+  if (keysPressed.esc) {
+    figma.currentPage.selection = [linkNode]
+    linkNode.visible = true
+    figma.closePlugin()
+  }
+
   if (keysPressed.action && linkState.swordActiveFrame === null) {
     linkState.swordActiveFrame = 0
   }
@@ -84,7 +91,9 @@ function nextFrame() {
       if (linkState.health > 0) {
         figma.ui.postMessage({health: displayHealth(linkState.health, 3)})
       } else {
-        figma.closePlugin();
+        figma.currentPage.selection = [linkNode]
+        linkNode.visible = true
+        figma.closePlugin()
         return
       }
     }
