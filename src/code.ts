@@ -1,4 +1,4 @@
-import { FPS, displayHealth, Facing, WALK_SPEED, KNOCKBACK_DISTANCE, rotation } from './lib'
+import { FPS, displayHealth, Facing, WALK_SPEED, KNOCKBACK_DISTANCE, rotation, updateCamera } from './lib'
 import { Sprite } from './sprite'
 import { OctorokRed } from './enemies/octorok_red'
 import { loadEnemies } from './enemies/enemies'
@@ -41,7 +41,7 @@ function main() {
   return true
 }
 
-figma.showUI(__html__)
+figma.showUI(__html__, {height: 160})
 figma.ui.postMessage({health: displayHealth(3, 3)})
 
 interface State {
@@ -64,10 +64,13 @@ const linkState: State = {
 
 figma.ui.onmessage = buttonPressed
 
+figma.on("close", () => {
+  figma.currentPage.selection = [linkNode]
+  linkNode.visible = true
+})
+
 function nextFrame() {
   if (keysPressed.esc) {
-    figma.currentPage.selection = [linkNode]
-    linkNode.visible = true
     figma.closePlugin()
   }
 
@@ -95,13 +98,13 @@ function nextFrame() {
       if (linkState.health > 0) {
         figma.ui.postMessage({health: displayHealth(linkState.health, 3)})
       } else {
-        figma.currentPage.selection = [linkNode]
-        linkNode.visible = true
         figma.closePlugin()
         return
       }
     }
   })
+
+  updateCamera(linkNode, worldNode)
 
   if (linkState.swordActiveFrame === null) {
     sprite.setSprite(['basic', linkState.facing, walking && linkState.walkingFrame > 2 ? 1 : 0])
@@ -116,9 +119,6 @@ function nextFrame() {
     switch (linkState.swordActiveFrame) {
       case 0:
         sprite.setSprite(['action', linkState.facing])
-        linkState.swordActiveFrame++
-        break
-      case 1:
         linkState.swordNode.visible = true
         linkState.swordNode.rotation = rotation(linkState.facing)
         if (linkState.facing === 'up') {
@@ -134,6 +134,9 @@ function nextFrame() {
           linkState.swordNode.x = linkNode.x - 11
           linkState.swordNode.y = linkNode.y + 13
         }
+        linkState.swordActiveFrame++
+        break
+      case 1:
         linkState.swordActiveFrame++
         break
       case 2:
@@ -188,10 +191,6 @@ function nextFrame() {
       linkState.invulnerabilityFrame = null
     }
   }
-}
-
-export function setSword(linkNode: SceneNode, ) {
-
 }
 
 function move(vector: Vector) {

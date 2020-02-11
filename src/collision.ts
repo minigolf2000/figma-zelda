@@ -1,6 +1,7 @@
 import { Vector, rectsToVector } from "./vector"
 
-const COLLISION_TILES = new Set(['tree', 'rock', 'water', 'rock_s'])
+const COLLISION_TILES = new Set(['tree', 'rock', 'water', 'rock_se', 'rock_s', 'rock_sw', 'rock_ne', 'rock_n', 'rock_nw'])
+
 
 export class Collision {
   private walls: {} = {}
