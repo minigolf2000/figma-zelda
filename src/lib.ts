@@ -57,17 +57,3 @@ export function rotation(facing: Facing) {
   }
 }
 
-
-// export function rotation(facing: Facing) {
-//   switch (facing) {
-//     case 'down':
-//       return 0
-//     case 'left':
-//       return 90
-//     case 'up':
-//       return 180
-//     case 'right':
-//       return 270
-//   }
-// }
-

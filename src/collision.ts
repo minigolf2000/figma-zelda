@@ -24,7 +24,7 @@ export class Collision {
     })
 
     if (numNodesSnappedToGrid > 0) {
-      console.log(`Warning: Snapped ${numNodesSnappedToGrid} nodes to the 16px grid`)
+      figma.notify(`${numNodesSnappedToGrid} tiles snapped to the 16px grid`)
     }
   }
 

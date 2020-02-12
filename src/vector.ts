@@ -1,20 +1,4 @@
-import { Facing } from "./lib"
 import { Rectangle } from "./collision"
-
-export function facingToVector(facing: Facing) {
-  switch (facing) {
-    case 'up':
-      return new Vector(0, -1)
-    case 'down':
-      return new Vector(0, 1)
-    case 'left':
-      return new Vector(-1, 0)
-    case 'right':
-      return new Vector(1, 0)
-    // default:
-    //   assertNever()
-  }
-}
 
 export function rectsToVector(a: Rectangle, b: Rectangle) {
   const aMidpoint = [a.x + a.width, a.y + a.height]

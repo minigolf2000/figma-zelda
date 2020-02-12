@@ -9,7 +9,9 @@ export class Sprite {
   private sprites: SpriteMap
 
   public constructor(characterNode: InstanceNode) {
-    this.sprites = characterNode.findAll((node: SceneNode) => node.type === 'INSTANCE').reduce((map: SpriteMap, node: SceneNode) => {
+    this.sprites = characterNode
+        .findAll((node: SceneNode) => node.type === 'INSTANCE')
+        .reduce((map: SpriteMap, node: SceneNode) => {
       map[node.name] = node
       node.visible = false
       return map
