@@ -8,8 +8,9 @@ export function loadEnemies(worldNode: FrameNode, collision: Collision, linkNode
       case 'octorok_red':
         enemies.push(new OctorokRed(node, collision))
         break
-      // case 37: // LEFT_ARROW
-      // case 65: // A
+      // case 'moblin':
+      //   enemies.push(new OctorokRed(node, collision))
+      //   break
     }
   })
   return enemies

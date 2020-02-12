@@ -1,16 +1,23 @@
-import { Facing } from "./lib"
+import { Facing, KNOCKBACK_DISTANCE } from "./lib"
 import { Collision } from "./collision"
 import { Vector } from "./vector"
 
 export class Actor {
-  protected node: InstanceNode
+  private node: InstanceNode
   protected facing: Facing
   private collision: Collision
+  private health: number
+  private invulnerabilityFrame: number | null = null
 
-  public constructor(node: InstanceNode, collision: Collision) {
+  public constructor(node: InstanceNode, collision: Collision, health: number) {
     this.node = node
     this.facing = 'down'
     this.collision = collision
+    this.health = health
+  }
+
+  public getNode() {
+    return this.node
   }
 
   protected move(vector: Vector) {
@@ -18,6 +25,16 @@ export class Actor {
       this.node.x += vector.x
       this.node.y += vector.y
     }
+  }
+
+  public takeDamage(vector: Vector) {
+    if (this.invulnerabilityFrame !== null) {
+      return this.health
+    }
+    this.invulnerabilityFrame = 0
+    this.health -= 0.5
+    this.move(vector.multiply(KNOCKBACK_DISTANCE))
+    return this.health
   }
 
   protected facingVector() {
@@ -34,5 +51,19 @@ export class Actor {
       //   assertNever()
     }
   }
+
+  protected actorNextFrame() {
+    if (this.invulnerabilityFrame !== null) {
+      this.invulnerabilityFrame++
+      if (this.invulnerabilityFrame && this.invulnerabilityFrame % 2 === 0) {
+        this.node.visible = !this.node.visible
+      }
+      if (this.invulnerabilityFrame === 20) {
+        this.node.visible = true
+        this.invulnerabilityFrame = null
+      }
+    }
+  }
+  // public nextFrame(): Rectangle;
 
 }

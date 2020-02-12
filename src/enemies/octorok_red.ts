@@ -9,12 +9,13 @@ export class OctorokRed extends Actor {
   private walkingFrame: number = 0
 
   public constructor(node: InstanceNode, collision: Collision) {
-    super(node, collision)
+    super(node, collision, 1)
     this.sprite = new Sprite(node)
     this.walkingFrame = Math.floor(Math.random() * MAX_WALK_FRAMES)
   }
 
   public nextFrame() {
+    this.actorNextFrame()
     if (this.walkingFrame === 0) {
       const choices: Facing[] = ['up', 'down', 'left', 'right']
       this.facing = choices[Math.floor(Math.random() * choices.length)]
@@ -31,6 +32,6 @@ export class OctorokRed extends Actor {
       this.move(this.facingVector().multiply(2))
     }
 
-    return {x: this.node.x, y: this.node.y, width: 16, height: 16}
+    return {x: this.getNode().x, y: this.getNode().y, width: 16, height: 16}
   }
 }

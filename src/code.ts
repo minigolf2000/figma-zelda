@@ -1,7 +1,7 @@
 import { FPS, displayHealth, updateCamera } from './lib'
 import { OctorokRed } from './enemies/octorok_red'
 import { loadEnemies } from './enemies/enemies'
-import { Collision, isOverlapping } from './collision'
+import { Collision, isOverlapping, Rectangle } from './collision'
 import { buttonPressed, keysPressed } from './buttons'
 import { Link } from './link'
 
@@ -10,6 +10,7 @@ let worldNode: FrameNode
 let link: Link = null
 let collision: Collision = null
 let enemies: OctorokRed[] = []
+const graveyard: any[] = []
 
 function main() {
   if (!figma.currentPage.selection) {
@@ -47,6 +48,7 @@ figma.ui.onmessage = buttonPressed
 figma.on("close", () => {
   figma.currentPage.selection = [linkNode]
   linkNode.visible = true
+  graveyard.forEach((node: SceneNode) => node.visible = true)
 })
 
 function nextFrame() {
@@ -56,12 +58,14 @@ function nextFrame() {
 
   link.nextFrame()
 
-  const linkHitbox = {x: linkNode.x + 1, y: linkNode.y + 1, width: 14, height: 14}
-  enemies.forEach((enemy: any) => {
+  const linkHurtbox: Rectangle = {x: linkNode.x + 1, y: linkNode.y + 1, width: 14, height: 14}
+  const linkHitboxes = link.hitBoxes()
+  enemies.forEach((enemy: any, enemyIndex: number) => {
     const enemyHitbox = enemy.nextFrame()
-    const overlappingVector = isOverlapping(linkHitbox, enemyHitbox)
-    if (overlappingVector) {
-      const health = link.takeDamage(overlappingVector)
+
+    const hurtVector = isOverlapping(linkHurtbox, enemyHitbox)
+    if (hurtVector) {
+      const health = link.takeDamage(hurtVector)
 
       if (health > 0) {
         figma.ui.postMessage({health: displayHealth(health, 3)})
@@ -70,6 +74,19 @@ function nextFrame() {
         return
       }
     }
+
+    linkHitboxes.forEach((hitbox: Rectangle, i: number) => {
+      const hitVector = isOverlapping(enemyHitbox, hitbox)
+      if (hitVector) {
+        const health = enemy.takeDamage(hitVector)
+        if (health <= 0) {
+          enemy.getNode().visible = false
+          graveyard.push(enemy.getNode())
+          enemies.splice(enemyIndex, 1)
+        }
+      }
+    })
+
   })
 
   updateCamera(linkNode, worldNode)
