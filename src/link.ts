@@ -33,7 +33,7 @@ export class Link extends Actor {
   }
 
   public nextFrame() {
-    this.actorNextFrame()
+    this.incrementInvulnerabilityFrames()
     if (keysPressed.action && this.swordNode && this.swordActiveFrame === null) {
       this.swordActiveFrame = 0
     }
@@ -118,5 +118,7 @@ export class Link extends Actor {
       }
 
     }
+
+    return {x: this.getNode().x, y: this.getNode().y, width: 16, height: 16}
   }
 }

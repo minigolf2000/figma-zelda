@@ -15,7 +15,7 @@ export class OctorokRed extends Actor {
   }
 
   public nextFrame() {
-    this.actorNextFrame()
+    this.incrementInvulnerabilityFrames()
     if (this.walkingFrame === 0) {
       const choices: Facing[] = ['up', 'down', 'left', 'right']
       this.facing = choices[Math.floor(Math.random() * choices.length)]

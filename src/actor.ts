@@ -1,8 +1,8 @@
 import { Facing, KNOCKBACK_DISTANCE } from "./lib"
-import { Collision } from "./collision"
+import { Collision, Rectangle } from "./collision"
 import { Vector } from "./vector"
 
-export class Actor {
+export abstract class Actor {
   private node: InstanceNode
   protected facing: Facing
   private collision: Collision
@@ -52,7 +52,7 @@ export class Actor {
     }
   }
 
-  protected actorNextFrame() {
+  protected incrementInvulnerabilityFrames() {
     if (this.invulnerabilityFrame !== null) {
       this.invulnerabilityFrame++
       if (this.invulnerabilityFrame && this.invulnerabilityFrame % 2 === 0) {
@@ -64,6 +64,7 @@ export class Actor {
       }
     }
   }
-  // public nextFrame(): Rectangle;
+
+  abstract nextFrame(): Rectangle;
 
 }
