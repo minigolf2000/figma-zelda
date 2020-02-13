@@ -1,10 +1,11 @@
 import './ui.css'
 
-document.getElementById('controls').focus()
-document.getElementById('controls').onkeydown = (e) => {
+const controlsEl = document.getElementById('controls')!
+controlsEl.focus()
+controlsEl.onkeydown = (e) => {
   parent.postMessage({ pluginMessage: { type: 'keydown', keyCode: e.keyCode } }, '*')
 }
-document.getElementById('controls').onkeyup = (e) => {
+controlsEl.onkeyup = (e) => {
   parent.postMessage({ pluginMessage: { type: 'keyup', keyCode: e.keyCode } }, '*')
 }
 
@@ -17,8 +18,8 @@ document.getElementById('controls').onkeyup = (e) => {
 
 onmessage = (event) => {
   if (event.data.pluginMessage.health) {
-    document.getElementById('health').innerText = event.data.pluginMessage.health
+    document.getElementById('health')!.innerText = event.data.pluginMessage.health
   } else if (event.data.pluginMessage.addItem) {
-    document.getElementById(event.data.pluginMessage.addItem).className = 'visible'
+    document.getElementById(event.data.pluginMessage.addItem)!.className = 'visible'
   }
 }

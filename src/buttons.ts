@@ -14,12 +14,10 @@ export const keysPressed: Buttons = {
   up: false, down: false, left: false, right: false, action: false, esc: false
 }
 
-export function buttonPressed(msg: any) {
+export function onKeyPressed(msg: any) {
   switch (msg.keyCode as number) {
     case 13: // ENTER
     case 16: // SHIFT
-    case 17: // CTRL
-    case 18: // ALT
     case 32: // SPACE
       keysPressed.action = (msg.type === 'keydown') ? true : false
       break

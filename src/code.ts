@@ -2,15 +2,15 @@ import { FPS, displayHealth, updateCamera } from './lib'
 import { OctorokRed } from './enemies/octorok_red'
 import { loadEnemies } from './enemies/enemies'
 import { Collision, isOverlapping, Rectangle } from './collision'
-import { buttonPressed, keysPressed } from './buttons'
+import { onKeyPressed, keysPressed } from './buttons'
 import { Link } from './link'
 
-let linkNode: InstanceNode = null
+let linkNode: InstanceNode
 let worldNode: FrameNode
-let link: Link = null
-let collision: Collision = null
-let enemies: OctorokRed[] = []
-const graveyard: any[] = []
+let link: Link
+let collision: Collision
+let enemies: OctorokRed[]
+const graveyard: SceneNode[] = []
 
 function main() {
   if (!figma.currentPage.selection) {
@@ -24,8 +24,8 @@ function main() {
   }
 
   linkNode = figma.currentPage.selection[0]
-  if (linkNode.parent.type !== 'FRAME') {
-    figma.closePlugin("World must be a frame")
+  if (!linkNode.parent || linkNode.parent.type !== 'FRAME') {
+    figma.closePlugin("Link must be inside a 'World' Frame")
     return
   }
   worldNode = linkNode.parent
@@ -43,7 +43,7 @@ function main() {
 figma.showUI(__html__, {height: 160})
 figma.ui.postMessage({health: displayHealth(3, 3)})
 
-figma.ui.onmessage = buttonPressed
+figma.ui.onmessage = onKeyPressed
 
 figma.on("close", () => {
   figma.currentPage.selection = [linkNode]
@@ -56,9 +56,7 @@ function nextFrame() {
     figma.closePlugin()
   }
 
-  link.nextFrame()
-
-  const linkHurtbox: Rectangle = {x: linkNode.x + 1, y: linkNode.y + 1, width: 14, height: 14}
+  const linkHurtbox = link.nextFrame()
   const linkHitboxes = link.hitBoxes()
   enemies.forEach((enemy: any, enemyIndex: number) => {
     const enemyHitbox = enemy.nextFrame()

@@ -7,7 +7,7 @@ import { keysPressed, changeFacing, getMovementDirection } from "./buttons"
 export class Link extends Actor {
   private walkingFrame: number = 0
   private swordActiveFrame: number | null = null
-  private swordNode: SceneNode | null = null
+  private swordNode: SceneNode
   private sprite: Sprite
 
   public constructor(node: InstanceNode, collision: Collision, swordNode: InstanceNode) {
@@ -119,6 +119,13 @@ export class Link extends Actor {
 
     }
 
-    return {x: this.getNode().x, y: this.getNode().y, width: 16, height: 16}
+    const leniency = 1
+    return {
+      x: this.getNode().x + leniency,
+      y: this.getNode().y + leniency,
+      width: 16 - leniency,
+      height: 16 - leniency,
+    }
+
   }
 }

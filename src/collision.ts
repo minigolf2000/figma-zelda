@@ -2,9 +2,14 @@ import { Vector, rectsToVector } from "./vector"
 
 const COLLISION_TILES = new Set(['tree', 'rock', 'water', 'rock_se', 'rock_s', 'rock_sw', 'rock_ne', 'rock_n', 'rock_nw'])
 
+interface Walls {
+  [x: number]: {
+    [y: number]: boolean
+  }
+}
 
 export class Collision {
-  private walls: {} = {}
+  private walls: Walls = {}
   private worldNode: FrameNode
 
   public constructor(worldNode: FrameNode) {
