@@ -8,14 +8,14 @@ export function displayHealth(current: number, max: number) {
   const missing = max - current
   let displayHealth = ''
   while (current >= 1) {
-    displayHealth += '💗'
+    displayHealth += '<span class="full"></span>'
     current -= 1
   }
   if (current >= .5) {
-    displayHealth += '💔'
+    displayHealth += '<span class="half"></span>'
   }
   Array.from(Array(Math.floor(missing))).forEach((x, i) => {
-    displayHealth += '🖤'
+    displayHealth += '<span class="empty"></span>'
   })
   return displayHealth
 }
