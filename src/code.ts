@@ -1,15 +1,15 @@
 import { FPS, displayHealth, updateCamera } from './lib'
-import { OctorokRed } from './enemies/octorok_red'
 import { loadEnemies } from './enemies/enemies'
 import { Collision, isOverlapping, Rectangle } from './collision'
 import { onKeyPressed, keysPressed } from './buttons'
 import { Link } from './link'
+import { Actor } from './actor'
 
 let linkNode: InstanceNode
 let worldNode: FrameNode
 let link: Link
 let collision: Collision
-let enemies: OctorokRed[]
+let enemies: Actor[]
 const graveyard: SceneNode[] = []
 
 function main() {
@@ -89,10 +89,19 @@ function nextFrame() {
         }
       }
     })
-
   })
 
   updateCamera(linkNode, worldNode)
+  printFPS()
+}
+
+
+let lastFrameTimestamp: number = Date.now()
+function printFPS() {
+  const currentFrameTimestamp = Date.now()
+  const fps = Math.round(1000 / (currentFrameTimestamp - lastFrameTimestamp))
+  figma.ui.postMessage({fps})
+  lastFrameTimestamp = currentFrameTimestamp
 }
 
 if (main()) {

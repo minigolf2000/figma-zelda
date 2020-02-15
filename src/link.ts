@@ -1,8 +1,11 @@
 import { Sprite } from "./sprite"
 import { Collision, Rectangle } from "./collision"
 import { Actor } from "./actor"
-import { WALK_SPEED, rotation } from "./lib"
+import { rotation } from "./lib"
 import { keysPressed, changeFacing, getMovementDirection } from "./buttons"
+
+const HEALTH = 3.0
+const WALK_SPEED = 2.5
 
 export class Link extends Actor {
   private walkingFrame: number = 0
@@ -11,7 +14,7 @@ export class Link extends Actor {
   private sprite: Sprite
 
   public constructor(node: InstanceNode, collision: Collision, swordNode: InstanceNode) {
-    super(node, collision, 3)
+    super(node, collision, HEALTH)
     this.sprite = new Sprite(node)
     this.walkingFrame = 0
     this.swordNode = swordNode

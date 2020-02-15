@@ -21,5 +21,7 @@ onmessage = (event) => {
     document.getElementById('health')!.innerHTML = event.data.pluginMessage.health
   } else if (event.data.pluginMessage.addItem) {
     document.getElementById(event.data.pluginMessage.addItem)!.className = 'visible'
+  } else if (event.data.pluginMessage.fps) {
+    document.getElementById("fps")!.innerText = event.data.pluginMessage.fps
   }
 }

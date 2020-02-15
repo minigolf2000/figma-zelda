@@ -3,10 +3,10 @@ import { Facing } from "../lib"
 import { Collision } from "../collision"
 import { Actor } from "../actor"
 
-const MAX_WALK_FRAMES = 28
+const MAX_WALK_FRAMES = 14
 const HEALTH = 1.0
 const WALK_SPEED = 1.5
-export class OctorokRed extends Actor {
+export class MoblinBlue extends Actor {
   private sprite: Sprite
   private walkingFrame: number = 0
 
@@ -27,7 +27,7 @@ export class OctorokRed extends Actor {
     if (this.walkingFrame === MAX_WALK_FRAMES) this.walkingFrame = 0
     this.sprite.setSprite(['basic', this.facing, Math.floor(this.walkingFrame / 4) % 2])
 
-    if (this.walkingFrame < 16) {
+    if (this.walkingFrame < 8) {
       this.move(this.facingVector().multiply(WALK_SPEED))
     }
 

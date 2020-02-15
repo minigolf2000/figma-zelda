@@ -1,5 +1,4 @@
 export const FPS = 30
-export const WALK_SPEED = 3
 export const KNOCKBACK_DISTANCE = 24
 
 export type Facing = 'up' | 'down' | 'left' | 'right'

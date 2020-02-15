@@ -50,6 +50,7 @@ export class Collision {
       imageHash: figma.createImage(await tilesFrame.exportAsync()).hash,
     }
 
+    // TODO: this call is async currently, causing flicker on game start. can we fix the flash?
     this.worldNode.fills = [backgroundFill, rasterizedPaintFill]
     tilesFrame.visible = false
   }
