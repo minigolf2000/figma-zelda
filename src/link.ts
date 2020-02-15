@@ -36,7 +36,7 @@ export class Link extends Actor {
   }
 
   public nextFrame() {
-    this.incrementInvulnerabilityFrames()
+    this.incrementInvulnerability()
     if (keysPressed.action && this.swordNode && this.swordActiveFrame === null) {
       this.swordActiveFrame = 0
     }

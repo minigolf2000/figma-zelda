@@ -1,4 +1,4 @@
-import { Facing, KNOCKBACK_DISTANCE } from "./lib"
+import { Facing, KNOCKBACK_MAGNITUDE, Invulnerability } from "./lib"
 import { Tiles, Rectangle } from "./tiles"
 import { Vector } from "./vector"
 
@@ -7,7 +7,7 @@ export abstract class Actor {
   protected facing: Facing
   protected collision: Tiles
   private health: number
-  private invulnerabilityFrame: number | null = null
+  private invulnerability: Invulnerability | null = null
   protected projectiles: Actor[]
 
   public constructor(node: InstanceNode, collision: Tiles, health: number, facing: Facing = 'down') {
@@ -31,12 +31,11 @@ export abstract class Actor {
   }
 
   public takeDamage(vector: Vector) {
-    if (this.invulnerabilityFrame !== null) {
+    if (this.invulnerability !== null) {
       return this.health
     }
-    this.invulnerabilityFrame = 0
     this.health -= 0.5
-    this.move(vector.multiply(KNOCKBACK_DISTANCE))
+    this.invulnerability = {numFrames: 0, knockback: vector.multiply(KNOCKBACK_MAGNITUDE)}
     return this.health
   }
 
@@ -55,15 +54,18 @@ export abstract class Actor {
     }
   }
 
-  protected incrementInvulnerabilityFrames() {
-    if (this.invulnerabilityFrame !== null) {
-      this.invulnerabilityFrame++
-      if (this.invulnerabilityFrame && this.invulnerabilityFrame % 2 === 0) {
+  protected incrementInvulnerability() {
+    if (this.invulnerability !== null) {
+      this.invulnerability.numFrames++
+      if (this.invulnerability && this.invulnerability.numFrames % 2 === 0) {
         this.node.visible = !this.node.visible
       }
-      if (this.invulnerabilityFrame === 20) {
+      if (this.invulnerability.numFrames < 4) {
+        this.move(this.invulnerability.knockback)
+      }
+      if (this.invulnerability.numFrames === 20) {
         this.node.visible = true
-        this.invulnerabilityFrame = null
+        this.invulnerability = null
       }
     }
   }

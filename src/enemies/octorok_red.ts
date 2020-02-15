@@ -12,8 +12,8 @@ class Rock extends Actor {
   private frames: number = 0
   public constructor(collision: Tiles, position: Vector, facing: Facing) {
     super(createNewLibSprite('octorok-rock'), collision, Infinity, facing)
-    this.node.x = position.x
-    this.node.y = position.y
+    this.node.x = position.x - this.node.width / 2
+    this.node.y = position.y - this.node.height / 2
   }
 
   public nextFrame() {
@@ -41,7 +41,7 @@ export class OctorokRed extends Actor {
   }
 
   public nextFrame() {
-    this.incrementInvulnerabilityFrames()
+    this.incrementInvulnerability()
     if (this.walkingFrame === 0) {
       const choices: Facing[] = ['up', 'down', 'left', 'right']
       this.facing = choices[Math.floor(Math.random() * choices.length)]

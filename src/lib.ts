@@ -1,5 +1,12 @@
+import { Vector } from "./vector"
+
 export const FPS = 30
-export const KNOCKBACK_DISTANCE = 24
+export const KNOCKBACK_MAGNITUDE = 8.0
+
+export interface Invulnerability {
+  numFrames: number
+  knockback: Vector
+}
 
 export type Facing = 'up' | 'down' | 'left' | 'right'
 const pluginApiPage = figma.root.findOne((node: BaseNode) => node.type === 'PAGE' && node.name === 'plugin-data') as PageNode

@@ -113,6 +113,7 @@ figma.on("close", () => {
     type: "SOLID",
     color: {r: 252 / 255, g: 216 / 255, b: 168 / 255}
   }]
+  worldNode.findAll((node: SceneNode) => node.type === 'INSTANCE' && node.name === 'octorok-rock')!.forEach((node: SceneNode) => node.remove())
   graveyard.forEach((node: SceneNode) => node.visible = true)
 })
 
