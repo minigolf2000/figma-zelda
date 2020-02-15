@@ -1,19 +1,20 @@
 import { Facing, KNOCKBACK_DISTANCE } from "./lib"
-import { Collision, Rectangle } from "./collision"
+import { Tiles, Rectangle } from "./tiles"
 import { Vector } from "./vector"
 
 export abstract class Actor {
-  private node: InstanceNode
+  protected node: InstanceNode
   protected facing: Facing
-  private collision: Collision
+  protected collision: Tiles
   private health: number
   private invulnerabilityFrame: number | null = null
+  protected projectiles: Actor[]
 
-  public constructor(node: InstanceNode, collision: Collision, health: number) {
+  public constructor(node: InstanceNode, collision: Tiles, health: number, facing: Facing = 'down') {
     this.node = node
-    this.facing = 'down'
     this.collision = collision
     this.health = health
+    this.facing = facing
   }
 
   public getNode() {
@@ -24,7 +25,9 @@ export abstract class Actor {
     if (!this.collision.isColliding(this.node.x + vector.x, this.node.y + vector.y)) {
       this.node.x += vector.x
       this.node.y += vector.y
+      return true
     }
+    return false
   }
 
   public takeDamage(vector: Vector) {
@@ -65,6 +68,17 @@ export abstract class Actor {
     }
   }
 
-  abstract nextFrame(): Rectangle;
+  protected getCurrentCollision() {
+    const {x, y, width, height} = this.getNode()
+    return {x, y, width, height}
+  }
+
+  protected getProjectileStartPosition() {
+    const {x, y, width, height} = this.getNode()
+    const center = (new Vector(x, y)).add(new Vector(width / 2, height / 2))
+    return center.add(this.facingVector().multiply(8))
+  }
+
+  abstract nextFrame(): Rectangle | null;
 
 }

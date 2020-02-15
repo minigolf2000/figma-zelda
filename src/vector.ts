@@ -1,4 +1,4 @@
-import { Rectangle } from "./collision"
+import { Rectangle } from "./tiles"
 
 export function rectsToVector(a: Rectangle, b: Rectangle) {
   const aMidpoint = [a.x + a.width, a.y + a.height]
@@ -14,6 +14,12 @@ export class Vector {
   constructor(x: number, y: number) {
     this.x = x
     this.y = y
+  }
+
+  public add(vector: Vector) {
+    this.x += vector.x
+    this.y += vector.y
+    return this
   }
 
   public multiply(magnitude: number) {

@@ -2,6 +2,15 @@ export const FPS = 30
 export const KNOCKBACK_DISTANCE = 24
 
 export type Facing = 'up' | 'down' | 'left' | 'right'
+const pluginApiPage = figma.root.findOne((node: BaseNode) => node.type === 'PAGE' && node.name === 'plugin-data') as PageNode
+
+export function createNewLibSprite(name: String) {
+  const worldNode = figma.currentPage.findOne((node: SceneNode) => node.name === 'world') as FrameNode
+  const component = pluginApiPage.findOne((node: SceneNode) => node.name === name) as ComponentNode
+  const instance = component.createInstance()
+  worldNode.appendChild(instance)
+  return instance
+}
 
 export function displayHealth(current: number, max: number) {
   const missing = max - current

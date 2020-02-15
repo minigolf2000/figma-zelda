@@ -1,6 +1,6 @@
 import { Sprite } from "../sprite"
 import { Facing } from "../lib"
-import { Collision } from "../collision"
+import { Tiles } from "../tiles"
 import { Actor } from "../actor"
 
 const MAX_WALK_FRAMES = 14
@@ -10,7 +10,7 @@ export class MoblinBlue extends Actor {
   private sprite: Sprite
   private walkingFrame: number = 0
 
-  public constructor(node: InstanceNode, collision: Collision) {
+  public constructor(node: InstanceNode, collision: Tiles) {
     super(node, collision, HEALTH)
     this.sprite = new Sprite(node)
     this.walkingFrame = Math.floor(Math.random() * MAX_WALK_FRAMES)
@@ -31,6 +31,6 @@ export class MoblinBlue extends Actor {
       this.move(this.facingVector().multiply(WALK_SPEED))
     }
 
-    return {x: this.getNode().x, y: this.getNode().y, width: 16, height: 16}
+    return this.getCurrentCollision()
   }
 }

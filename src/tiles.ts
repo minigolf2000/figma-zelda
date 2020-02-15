@@ -8,7 +8,7 @@ interface Walls {
   }
 }
 
-export class Collision {
+export class Tiles {
   private walls: Walls = {}
   private worldNode: FrameNode
 

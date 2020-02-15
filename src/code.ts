@@ -1,6 +1,6 @@
 import { FPS, displayHealth, updateCamera } from './lib'
 import { loadEnemies } from './enemies/enemies'
-import { Collision, isOverlapping, Rectangle } from './collision'
+import { Tiles, isOverlapping, Rectangle } from './tiles'
 import { onKeyPressed, keysPressed } from './buttons'
 import { Link } from './link'
 import { Actor } from './actor'
@@ -8,9 +8,13 @@ import { Actor } from './actor'
 let linkNode: InstanceNode
 let worldNode: FrameNode
 let link: Link
-let collision: Collision
+let tiles: Tiles
 let enemies: Actor[]
 const graveyard: SceneNode[] = []
+
+function addProjectile(projectile: Actor) {
+  enemies.push(projectile)
+}
 
 function main() {
   if (!figma.currentPage.selection) {
@@ -29,42 +33,31 @@ function main() {
     return false
   }
   worldNode = linkNode.parent
-  collision = new Collision(worldNode)
+  tiles = new Tiles(worldNode)
   const swordNode = worldNode.findOne((node: SceneNode) => node.name === 'sword') as InstanceNode
-  link = new Link(linkNode, collision, swordNode)
+  link = new Link(linkNode, tiles, swordNode)
 
-  enemies = loadEnemies(worldNode, collision, linkNode)
+  enemies = loadEnemies(worldNode, tiles, linkNode, addProjectile)
   linkNode.masterComponent.setRelaunchData({relaunch: ''})
   figma.ui.postMessage({addItem: 'sword'})
   figma.currentPage.selection = []
   return true
 }
 
-figma.showUI(__html__, {height: 160})
-figma.ui.postMessage({health: displayHealth(3, 3)})
-
-figma.ui.onmessage = onKeyPressed
-
-figma.on("close", () => {
-  figma.currentPage.selection = [linkNode]
-  linkNode.visible = true
-  worldNode.findOne((node: SceneNode) => node.type === 'FRAME' && node.name === 'tiles')!.visible = true
-  worldNode.fills = [{
-    type: "SOLID",
-    color: {r: 252 / 255, g: 216 / 255, b: 168 / 255}
-  }]
-  graveyard.forEach((node: SceneNode) => node.visible = true)
-})
-
 function nextFrame() {
   if (keysPressed.esc) {
     figma.closePlugin()
+    return
   }
 
   const linkHurtbox = link.nextFrame()
   const linkHitboxes = link.hitBoxes()
-  enemies.forEach((enemy: any, enemyIndex: number) => {
+  enemies.forEach((enemy: Actor, enemyIndex: number) => {
     const enemyHitbox = enemy.nextFrame()
+    if (!enemyHitbox) {
+      enemies.splice(enemyIndex, 1)
+      return
+    }
 
     const hurtVector = isOverlapping(linkHurtbox, enemyHitbox)
     if (hurtVector) {
@@ -90,11 +83,14 @@ function nextFrame() {
       }
     })
   })
+  // projectiles.forEach((projectile: Actor, i: number) => {
+  //   projectile.nextFrame()
+  //   const hurtVector = isOverlapping(linkHurtbox, enemyHitbox)
+  // })
 
   updateCamera(linkNode, worldNode)
   printFPS()
 }
-
 
 let lastFrameTimestamp: number = Date.now()
 function printFPS() {
@@ -103,6 +99,22 @@ function printFPS() {
   figma.ui.postMessage({fps})
   lastFrameTimestamp = currentFrameTimestamp
 }
+
+figma.showUI(__html__, {height: 160})
+figma.ui.postMessage({health: displayHealth(3, 3)})
+
+figma.ui.onmessage = onKeyPressed
+
+figma.on("close", () => {
+  figma.currentPage.selection = [linkNode]
+  linkNode.visible = true
+  worldNode.findOne((node: SceneNode) => node.type === 'FRAME' && node.name === 'tiles')!.visible = true
+  worldNode.fills = [{
+    type: "SOLID",
+    color: {r: 252 / 255, g: 216 / 255, b: 168 / 255}
+  }]
+  graveyard.forEach((node: SceneNode) => node.visible = true)
+})
 
 if (main()) {
   setInterval(nextFrame, 1000 / FPS)
