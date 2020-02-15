@@ -14,9 +14,15 @@ export class Collision {
 
   public constructor(worldNode: FrameNode) {
     this.worldNode = worldNode
+    let tilesFrame = worldNode.findOne((node: SceneNode) => node.name === 'tiles')
+    if (!tilesFrame || tilesFrame.type !== 'FRAME') {
+      throw "no Frame lol"
+    }
+
+    this.rasterizeTiles(tilesFrame)
 
     let numNodesSnappedToGrid = 0
-    worldNode.children.forEach((node: SceneNode) => {
+    tilesFrame.children.forEach((node: SceneNode) => {
       if (COLLISION_TILES.has(node.name)) {
         if (node.x % 16 !== 0 || node.y % 16 !== 0) {
           node.x = Math.round(node.x / 16) * 16
@@ -31,6 +37,21 @@ export class Collision {
     if (numNodesSnappedToGrid > 0) {
       figma.notify(`${numNodesSnappedToGrid} tiles snapped to the 16px grid`)
     }
+  }
+
+  private async rasterizeTiles(tilesFrame: FrameNode) {
+    const backgroundFill: SolidPaint = {
+      type: "SOLID",
+      color: {r: 252 / 255, g: 216 / 255, b: 168 / 255}
+    }
+    const rasterizedPaintFill: ImagePaint = {
+      type: "IMAGE",
+      scaleMode: "FILL",
+      imageHash: figma.createImage(await tilesFrame.exportAsync()).hash,
+    }
+
+    this.worldNode.fills = [backgroundFill, rasterizedPaintFill]
+    tilesFrame.visible = false
   }
 
   public isColliding(x: number, y: number) {

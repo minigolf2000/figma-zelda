@@ -26,7 +26,7 @@ function main() {
   linkNode = figma.currentPage.selection[0]
   if (!linkNode.parent || linkNode.parent.type !== 'FRAME') {
     figma.closePlugin("Link must be inside a 'World' Frame")
-    return
+    return false
   }
   worldNode = linkNode.parent
   collision = new Collision(worldNode)
@@ -48,6 +48,11 @@ figma.ui.onmessage = onKeyPressed
 figma.on("close", () => {
   figma.currentPage.selection = [linkNode]
   linkNode.visible = true
+  worldNode.findOne((node: SceneNode) => node.type === 'FRAME' && node.name === 'tiles')!.visible = true
+  worldNode.fills = [{
+    type: "SOLID",
+    color: {r: 252 / 255, g: 216 / 255, b: 168 / 255}
+  }]
   graveyard.forEach((node: SceneNode) => node.visible = true)
 })
 
