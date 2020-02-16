@@ -1,5 +1,6 @@
 import { normalize, direction } from "./vector"
 
+const ITEM_TILES = new Set(['triforce'])
 const COLLISION_TILES = new Set(['tree', 'rock', 'water', 'rock_se', 'rock_s', 'rock_sw', 'rock_ne', 'rock_n', 'rock_nw'])
 
 interface Walls {
@@ -10,6 +11,7 @@ interface Walls {
 
 export class Tiles {
   private walls: Walls = {}
+  private items: Walls = {}
   private worldNode: FrameNode
 
   public constructor(worldNode: FrameNode) {
@@ -20,6 +22,17 @@ export class Tiles {
     }
 
     let numNodesSnappedToGrid = 0
+
+    worldNode.findAll((node: SceneNode) => ITEM_TILES.has(node.name)).forEach((node: SceneNode) => {
+      if (node.x % 16 !== 0 || node.y % 16 !== 0) {
+        node.x = Math.round(node.x / 16) * 16
+        node.y = Math.round(node.y / 16) * 16
+        numNodesSnappedToGrid++
+      }
+      if (!this.items[node.x]) {this.items[node.x] = {}}
+      this.items[node.x][node.y] = true
+    })
+
     tilesFrame.children.forEach((node: SceneNode) => {
       if (COLLISION_TILES.has(node.name)) {
         if (node.x % 16 !== 0 || node.y % 16 !== 0) {
@@ -64,6 +77,16 @@ export class Tiles {
       this.walls[Math.floor((x+1) / 16) * 16]?.[Math.ceil((y-1) / 16) * 16] ||
       this.walls[Math.ceil((x-1) / 16) * 16]?.[Math.floor((y+1) / 16) * 16] ||
       this.walls[Math.ceil((x-1) / 16) * 16]?.[Math.ceil((y-1) / 16) * 16]
+    )
+  }
+
+  public onItem(linkVector: Vector) {
+    const {x, y} = linkVector
+    return (
+      this.items[Math.floor((x+1) / 16) * 16]?.[Math.floor((y+1) / 16) * 16] ||
+      this.items[Math.floor((x+1) / 16) * 16]?.[Math.ceil((y-1) / 16) * 16] ||
+      this.items[Math.ceil((x-1) / 16) * 16]?.[Math.floor((y+1) / 16) * 16] ||
+      this.items[Math.ceil((x-1) / 16) * 16]?.[Math.ceil((y-1) / 16) * 16]
     )
   }
 }

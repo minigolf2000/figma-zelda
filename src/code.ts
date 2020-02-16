@@ -50,6 +50,11 @@ function nextFrame() {
     return
   }
 
+  if (tiles.onItem({x: linkNode.x, y: linkNode.y})) {
+    figma.closePlugin("You win lol")
+    return
+  }
+
   const linkHurtbox = link.nextFrame()
   const linkHitboxes = link.hitBoxes()
   enemies.forEach((enemy: Actor, enemyIndex: number) => {
