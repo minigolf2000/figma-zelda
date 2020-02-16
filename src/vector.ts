@@ -1,41 +1,32 @@
 import { Rectangle } from "./tiles"
+import { Facing } from "./lib"
+// Helper methods on Figma's Vector type
 
-export function rectsToVector(a: Rectangle, b: Rectangle) {
+export function direction(a: Rectangle, b: Rectangle): Vector {
   const aMidpoint = [a.x + a.width, a.y + a.height]
   const bMidpoint = [b.x + b.width, b.y + b.height]
 
-  return (new Vector(aMidpoint[0] - bMidpoint[0], aMidpoint[1] - bMidpoint[1])).normalize()
+  return {x: aMidpoint[0] - bMidpoint[0], y: aMidpoint[1] - bMidpoint[1]}
 }
 
-export class Vector {
-  public x: number
-  public y: number
-
-  constructor(x: number, y: number) {
-    this.x = x
-    this.y = y
-  }
-
-  public add(vector: Vector) {
-    this.x += vector.x
-    this.y += vector.y
-    return this
-  }
-
-  public multiply(magnitude: number) {
-    this.x *= magnitude
-    this.y *= magnitude
-    return this
-  }
-
-  public normalize() {
-    var length = Math.sqrt(this.x * this.x + this.y * this.y) // calculating length
-    if (length > 0) {
-      this.x = this.x / length // assigning new value to x (dividing x by length of the vector)
-      this.y = this.y / length // assigning new value to y
-    }
-    return this
-  }
-
+export function add(v1: Vector, v2: Vector): Vector {
+  return {x: v1.x + v2.x, y: v1.y + v2.y}
 }
 
+export function multiply(v1: Vector, magnitude: number): Vector {
+  return {x: v1.x * magnitude, y: v1.y * magnitude}
+}
+
+export function normalize(v: Vector): Vector {
+  const length = Math.sqrt(v.x * v.x + v.y * v.y)
+  return {x: v.x / length, y: v.y / length}
+}
+
+export function vectorToFacing(v: Vector): Facing {
+  const theta = Math.atan(v.y / v.x)
+  if (Math.abs(theta * 2 / Math.PI) < .5) {
+    return (v.x > 0) ? 'right' : 'left'
+  } else {
+    return (v.y > 0) ? 'down' : 'up'
+  }
+}

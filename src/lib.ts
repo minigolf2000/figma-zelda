@@ -1,5 +1,3 @@
-import { Vector } from "./vector"
-
 export const FPS = 30
 export const KNOCKBACK_MAGNITUDE = 8.0
 

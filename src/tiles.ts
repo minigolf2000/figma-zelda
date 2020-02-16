@@ -1,4 +1,4 @@
-import { Vector, rectsToVector } from "./vector"
+import { normalize, direction } from "./vector"
 
 const COLLISION_TILES = new Set(['tree', 'rock', 'water', 'rock_se', 'rock_s', 'rock_sw', 'rock_ne', 'rock_n', 'rock_nw'])
 
@@ -19,8 +19,6 @@ export class Tiles {
       throw "no Frame lol"
     }
 
-    this.rasterizeTiles(tilesFrame)
-
     let numNodesSnappedToGrid = 0
     tilesFrame.children.forEach((node: SceneNode) => {
       if (COLLISION_TILES.has(node.name)) {
@@ -37,6 +35,8 @@ export class Tiles {
     if (numNodesSnappedToGrid > 0) {
       figma.notify(`${numNodesSnappedToGrid} tiles snapped to the 16px grid`)
     }
+
+    this.rasterizeTiles(tilesFrame)
   }
 
   private async rasterizeTiles(tilesFrame: FrameNode) {
@@ -84,7 +84,7 @@ export function isOverlapping(rect1: Rectangle, rect2: Rectangle): Vector | null
     rect1.y < rect2.y + rect2.height &&
     rect1.y + rect1.height > rect2.y
   ) {
-    return rectsToVector(rect1, rect2)
+    return normalize(direction(rect1, rect2))
   }
   return null
 }

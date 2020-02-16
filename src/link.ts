@@ -3,6 +3,7 @@ import { Tiles, Rectangle } from "./tiles"
 import { Actor } from "./actor"
 import { rotation } from "./lib"
 import { keysPressed, changeFacing, getMovementDirection } from "./buttons"
+import { multiply } from "./vector"
 
 const HEALTH = 3.0
 const WALK_SPEED = 2.5
@@ -46,7 +47,7 @@ export class Link extends Actor {
       this.facing = changeFacing(this.facing)
       const direction = getMovementDirection()
       walking = direction.x !== 0 || direction.y !== 0
-      this.move(direction.multiply(WALK_SPEED))
+      this.move(multiply(direction, WALK_SPEED))
       this.sprite.setSprite(['basic', this.facing, walking && this.walkingFrame > 2 ? 1 : 0])
     }
 

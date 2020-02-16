@@ -2,6 +2,7 @@ import { Sprite } from "../sprite"
 import { Facing } from "../lib"
 import { Tiles } from "../tiles"
 import { Actor } from "../actor"
+import { multiply } from "../vector"
 
 const MAX_WALK_FRAMES = 28
 const HEALTH = 1.0
@@ -28,7 +29,7 @@ export class MoblinBlue extends Actor {
     this.sprite.setSprite(['basic', this.facing, Math.floor(this.walkingFrame / 4) % 2])
 
     if (this.walkingFrame < 8) {
-      this.move(this.facingVector().multiply(WALK_SPEED))
+      this.move(multiply(this.facingVector(), WALK_SPEED))
     }
 
     return this.getCurrentCollision()

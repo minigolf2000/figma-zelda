@@ -2,6 +2,7 @@ import { Sprite } from "../sprite"
 import { Facing, createNewLibSprite } from "../lib"
 import { Tiles } from "../tiles"
 import { Actor } from "../actor"
+import { multiply } from "../vector"
 
 const MAX_WALK_FRAMES = 28
 const HEALTH = 1.0
@@ -18,7 +19,7 @@ class Rock extends Actor {
 
   public nextFrame() {
     this.frames++
-    const successfulMove = this.move(this.facingVector().multiply(ROCK_SPEED))
+    const successfulMove = this.move(multiply(this.facingVector(), ROCK_SPEED))
     if (this.frames <= 100 && successfulMove) {
       return this.getCurrentCollision()
     } else {
@@ -51,10 +52,10 @@ export class OctorokRed extends Actor {
     if (this.walkingFrame === MAX_WALK_FRAMES) this.walkingFrame = 0
     this.sprite.setSprite(['basic', this.facing, Math.floor(this.walkingFrame / 4) % 2])
 
-    this.move(this.facingVector().multiply(WALK_SPEED))
+    this.move(multiply(this.facingVector(), WALK_SPEED))
     if (this.walkingFrame === MAX_WALK_FRAMES - 1) {
       this.addProjectile(new Rock(this.collision, this.getProjectileStartPosition(), this.facing))
-      this.move(this.facingVector().multiply(WALK_SPEED))
+      this.move(multiply(this.facingVector(), WALK_SPEED))
     }
 
     return this.getCurrentCollision()

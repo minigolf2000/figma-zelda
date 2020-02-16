@@ -1,6 +1,6 @@
 import { Facing, KNOCKBACK_MAGNITUDE, Invulnerability } from "./lib"
 import { Tiles, Rectangle } from "./tiles"
-import { Vector } from "./vector"
+import { multiply, add } from "./vector"
 
 export abstract class Actor {
   protected node: InstanceNode
@@ -35,20 +35,20 @@ export abstract class Actor {
       return this.health
     }
     this.health -= 0.5
-    this.invulnerability = {numFrames: 0, knockback: vector.multiply(KNOCKBACK_MAGNITUDE)}
+    this.invulnerability = {numFrames: 0, knockback: multiply(vector, KNOCKBACK_MAGNITUDE)}
     return this.health
   }
 
   protected facingVector() {
     switch (this.facing) {
       case 'up':
-        return new Vector(0, -1)
+        return {x: 0, y: -1}
       case 'down':
-        return new Vector(0, 1)
+        return {x: 0, y: 1}
       case 'left':
-        return new Vector(-1, 0)
+        return {x: -1, y: 0}
       case 'right':
-        return new Vector(1, 0)
+        return {x: 1, y: 0}
       // default:
       //   assertNever()
     }
@@ -77,8 +77,8 @@ export abstract class Actor {
 
   protected getProjectileStartPosition() {
     const {x, y, width, height} = this.getNode()
-    const center = (new Vector(x, y)).add(new Vector(width / 2, height / 2))
-    return center.add(this.facingVector().multiply(8))
+    const center = {x: x + width / 2, y: y + height / 2}
+    return add(center, multiply(this.facingVector(), 8))
   }
 
   abstract nextFrame(linkNode: SceneNode): Rectangle | null;

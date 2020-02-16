@@ -1,4 +1,3 @@
-import { Vector } from "./vector"
 import { Facing } from "./lib"
 
 interface Buttons {
@@ -44,12 +43,12 @@ export function onKeyPressed(msg: any) {
 }
 
 export function getMovementDirection() {
-  const vector = new Vector(0, 0)
+  const vector = {x: 0, y: 0}
   if (keysPressed.left) vector.x -= 1
   if (keysPressed.right) vector.x += 1
   if (keysPressed.up) vector.y -= 1
   if (keysPressed.down) vector.y += 1
-  return vector.normalize()
+  return vector
 }
 
 export function changeFacing(facing: Facing) {
