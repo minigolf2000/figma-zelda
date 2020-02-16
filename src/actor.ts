@@ -81,6 +81,6 @@ export abstract class Actor {
     return center.add(this.facingVector().multiply(8))
   }
 
-  abstract nextFrame(): Rectangle | null;
+  abstract nextFrame(linkNode: SceneNode): Rectangle | null;
 
 }

@@ -53,7 +53,7 @@ function nextFrame() {
   const linkHurtbox = link.nextFrame()
   const linkHitboxes = link.hitBoxes()
   enemies.forEach((enemy: Actor, enemyIndex: number) => {
-    const enemyHitbox = enemy.nextFrame()
+    const enemyHitbox = enemy.nextFrame(linkNode)
     if (!enemyHitbox) {
       enemies.splice(enemyIndex, 1)
       return
