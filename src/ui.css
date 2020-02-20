@@ -3,7 +3,7 @@ body {
   margin: 0;
 }
 
-#controls {
+#ui {
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -11,20 +11,31 @@ body {
   box-sizing: border-box;
 }
 
-/* #controls:not(:focus) {
-  background-color: #990000;
-  opacity: .2;
+#top-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 }
+/*
+TODO: ask rudi about why plugin window only seems to be selectable once the window is dragged around
+*/
 
-#controls:not(:focus)::before {
-  content: 'Game paused. Click here to resume';
+#pause-warning {
   pointer-events: none;
   user-select: none;
-} */
+  visibility: hidden;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 32px;
+}
+
+#ui:not(:focus) #pause-warning {
+  visibility: visible;
+}
 
 #health {
   font-size: 18px;
-  margin-bottom: 16px;
 }
 
 #health > span {
@@ -46,10 +57,37 @@ body {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAaCAYAAACkVDyJAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAABPSURBVHgB7ZVBCgAgCAS1///Z6FphhluH2jmKuOCAqoyY+Gimv8hl3g9s+105gEKHDGTgh4E6qaEvD7/FWTTQs+vUnUmHcCIOeywzgw7hVJOTBi+cBr+BAAAAAElFTkSuQmCC')
 }
 
+.item {
+  display: flex;
+  flex-direction: column;
+}
+
+.item-top {
+  display: flex;
+  flex-direction: row;
+}
+
+.item-bottom {
+  display: flex;
+  text-transform: uppercase;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+}
+
+.bracket {
+  font-size: 32px;
+  line-height: 28px;
+  padding: 0px 3px;
+}
+
 #sword {
   height: 32px;
   width: 14px;
-  margin-bottom: 8px;
 }
 
 #sword.visible {

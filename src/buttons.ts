@@ -9,15 +9,26 @@ interface Buttons {
   esc: boolean
 }
 
+export let paused = false
 export const keysPressed: Buttons = {
   up: false, down: false, left: false, right: false, action: false, esc: false
 }
 
 export function onKeyPressed(msg: any) {
+  if (msg.type === 'pause') {
+    paused = true
+    return
+  }
+  if (msg.type === 'resume') {
+    paused = false
+    return
+  }
+
   switch (msg.keyCode as number) {
     case 13: // ENTER
     case 16: // SHIFT
     case 32: // SPACE
+    case 88: // X
       keysPressed.action = (msg.type === 'keydown') ? true : false
       break
     case 37: // LEFT_ARROW

@@ -1,7 +1,7 @@
 import { FPS, displayHealth, updateCamera } from './lib'
 import { loadEnemies } from './enemies/enemies'
 import { Tiles, isOverlapping, Rectangle } from './tiles'
-import { onKeyPressed, keysPressed } from './buttons'
+import { onKeyPressed, keysPressed, paused } from './buttons'
 import { Link } from './link'
 import { Actor } from './actor'
 
@@ -62,13 +62,16 @@ function main() {
 }
 
 function nextFrame() {
+  if (paused) {
+    return
+  }
   if (keysPressed.esc) {
     figma.closePlugin()
     return
   }
 
   if (tiles.onItem({x: linkNode.x, y: linkNode.y})) {
-    figma.closePlugin("You win lol")
+    figma.closePlugin("You win")
     return
   }
 

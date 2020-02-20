@@ -1,8 +1,17 @@
-<div tabindex="0" id="controls">
-  <span id="health"></span>
-  <span id="sword"></span>
-  <p>Focus here to control Link</p>
-  <span id="fps"></span>
+<div tabindex="0" id="ui">
+  <div id="top-bar">
+    <span id="health"></span>
+    <div class="item">
+      <div class="item-top">
+        <span class="bracket">[</span>
+        <span id="sword"></span>
+        <span class="bracket">]</span>
+      </div>
+      <div class="item-bottom">x</div>
+    </div>
+    <span id="fps"></span>
+  </div>
+  <div id="pause-warning">Game paused. Click here to resume.</div>
 </div>
 
 <img src="<%= require('./logo.svg') %>">

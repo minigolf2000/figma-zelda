@@ -1,12 +1,18 @@
 import './ui.css'
 
-const controlsEl = document.getElementById('controls')!
-controlsEl.focus()
-controlsEl.onkeydown = (e) => {
+const uiEl = document.getElementById('ui')!
+uiEl.focus()
+uiEl.onkeydown = (e) => {
   parent.postMessage({ pluginMessage: { type: 'keydown', keyCode: e.keyCode } }, '*')
 }
-controlsEl.onkeyup = (e) => {
+uiEl.onkeyup = (e) => {
   parent.postMessage({ pluginMessage: { type: 'keyup', keyCode: e.keyCode } }, '*')
+}
+uiEl.onfocus = (e) => {
+  parent.postMessage({ pluginMessage: { type: 'resume' } }, '*')
+}
+uiEl.onblur = (e) => {
+  parent.postMessage({ pluginMessage: { type: 'pause' } }, '*')
 }
 
 
