@@ -16,29 +16,46 @@ function addProjectile(projectile: Actor) {
   enemies.push(projectile)
 }
 
+function findLinkNode() {
+  const firstSelectedNode = figma.currentPage.selection[0]
+  if (firstSelectedNode?.type === 'INSTANCE' && firstSelectedNode.name === 'link') {
+    return firstSelectedNode
+  }
+
+  if (firstSelectedNode?.type === 'FRAME') {
+    return firstSelectedNode.findOne((node: SceneNode) => node.name === 'link' && node.type === 'INSTANCE') as InstanceNode
+  }
+
+  if (figma.currentPage.selection.length === 0) {
+    return figma.currentPage.findOne((node: SceneNode) => node.name === 'link' && node.type === 'INSTANCE') as InstanceNode
+  }
+
+  return null
+}
+
 function main() {
-  if (!figma.currentPage.selection) {
+  const linkNodeOrNull = findLinkNode()
+  if (linkNodeOrNull) {
+    linkNode = linkNodeOrNull
+  } else {
     figma.closePlugin("Please have Link selected while running the Plugin")
     return false
   }
 
-  if (figma.currentPage.selection[0].type !== 'INSTANCE') {
-    figma.closePlugin("Selected node must be an instance, whose master lives in 'sprites' frame")
-    return false
-  }
-
-  linkNode = figma.currentPage.selection[0]
   if (!linkNode.parent || linkNode.parent.type !== 'FRAME') {
     figma.closePlugin("Link must be inside a 'World' Frame")
     return false
   }
+
   worldNode = linkNode.parent
   tiles = new Tiles(worldNode)
   const swordNode = worldNode.findOne((node: SceneNode) => node.name === 'sword') as InstanceNode
   link = new Link(linkNode, tiles, swordNode)
 
   enemies = loadEnemies(worldNode, tiles, linkNode, addProjectile)
+  figma.currentPage.setRelaunchData({relaunch: ''})
   linkNode.masterComponent.setRelaunchData({relaunch: ''})
+  worldNode.setRelaunchData({relaunch: ''})
   figma.ui.postMessage({addItem: 'sword'})
   figma.currentPage.selection = []
   return true
