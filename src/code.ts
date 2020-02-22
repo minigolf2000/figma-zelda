@@ -52,6 +52,10 @@ function main() {
   const swordNode = worldNode.findOne((node: SceneNode) => node.name === 'sword') as InstanceNode
   link = new Link(linkNode, tiles, swordNode)
 
+
+  // link.getItem('bow')
+  figma.ui.postMessage({item: "sword"})
+
   enemies = loadEnemies(worldNode, tiles, linkNode, addProjectile)
   figma.currentPage.setRelaunchData({relaunch: ''})
   linkNode.masterComponent.setRelaunchData({relaunch: ''})
@@ -71,9 +75,18 @@ function nextFrame() {
     return
   }
 
-  if (tiles.onItem({x: linkNode.x, y: linkNode.y})) {
-    figma.closePlugin("You win")
-    return
+  const onItem = tiles.onItem({x: linkNode.x, y: linkNode.y})
+  if (onItem) {
+    switch (onItem.name) {
+      case 'triforce':
+        figma.closePlugin("You win")
+        return
+      case 'bow':
+        onItem.visible = false
+        link.getItem('bow')
+        figma.ui.postMessage({addItem: "bow"})
+        break
+    }
   }
 
   const linkHurtbox = link.nextFrame()
@@ -140,6 +153,9 @@ figma.on("close", () => {
     color: {r: 252 / 255, g: 216 / 255, b: 168 / 255}
   }]
   worldNode.findAll((node: SceneNode) => node.type === 'INSTANCE' && node.name === 'octorok-rock')!.forEach((node: SceneNode) => node.remove())
+
+  worldNode.findAll((node: SceneNode) => node.type === 'INSTANCE' && node.name === 'bow')!.forEach((node: SceneNode) => node.visible = true)
+
   graveyard.forEach((node: SceneNode) => node.visible = true)
 })
 

@@ -13,6 +13,7 @@ export class Link extends Actor {
   private swordActiveFrame: number | null = null
   private swordNode: SceneNode
   private sprite: Sprite
+  private hasBowAndArrow: boolean = false
 
   public constructor(node: InstanceNode, collision: Tiles, swordNode: InstanceNode) {
     super(node, collision, HEALTH)
@@ -34,6 +35,13 @@ export class Link extends Actor {
       })
     }
     return hitBoxes
+  }
+
+  public getItem(item: string) {
+    if (item === 'bow') {
+      this.hasBowAndArrow = true
+    }
+    console.log(this.hasBowAndArrow)
   }
 
   public nextFrame() {
