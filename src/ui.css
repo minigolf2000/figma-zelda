@@ -18,20 +18,15 @@ body {
   justify-content: space-between;
 }
 /*
-TODO: ask rudi about why plugin window only seems to be selectable once the window is dragged around
+TODO: fix dragEnd iframe bug
 */
 
-#pause-warning {
+#message {
   pointer-events: none;
   user-select: none;
-  visibility: hidden;
   font-size: 14px;
   text-align: center;
   margin-top: 32px;
-}
-
-#ui:not(:focus) #pause-warning {
-  visibility: visible;
 }
 
 #health {

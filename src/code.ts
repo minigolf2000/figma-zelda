@@ -63,6 +63,7 @@ function main() {
 
 function nextFrame() {
   if (paused) {
+    figma.ui.postMessage({message: "Game paused. Click here to resume."})
     return
   }
   if (keysPressed.esc) {
@@ -121,7 +122,7 @@ let lastFrameTimestamp: number = Date.now()
 function printFPS() {
   const currentFrameTimestamp = Date.now()
   const fps = Math.round(1000 / (currentFrameTimestamp - lastFrameTimestamp))
-  figma.ui.postMessage({fps})
+  figma.ui.postMessage({message: `FPS: ${fps}`})
   lastFrameTimestamp = currentFrameTimestamp
 }
 

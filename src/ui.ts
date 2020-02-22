@@ -15,7 +15,6 @@ uiEl.onblur = (e) => {
   parent.postMessage({ pluginMessage: { type: 'pause' } }, '*')
 }
 
-
 // window.addEventListener("gamepadconnected", function(e) {
 //   console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.",
 //     e.gamepad.index, e.gamepad.id,
@@ -27,7 +26,7 @@ onmessage = (event) => {
     document.getElementById('health')!.innerHTML = event.data.pluginMessage.health
   } else if (event.data.pluginMessage.addItem) {
     document.getElementById(event.data.pluginMessage.addItem)!.className = 'visible'
-  } else if (event.data.pluginMessage.fps) {
-    document.getElementById("fps")!.innerText = event.data.pluginMessage.fps
+  } else if (event.data.pluginMessage.message) {
+    document.getElementById("message")!.innerText = event.data.pluginMessage.message
   }
 }
