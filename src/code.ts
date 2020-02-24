@@ -10,10 +10,10 @@ let worldNode: FrameNode
 let link: Link
 let tiles: Tiles
 let enemies: Actor[]
-const graveyard: SceneNode[] = []
+let projectiles: Actor[] = []
 
 function addProjectile(projectile: Actor) {
-  enemies.push(projectile)
+  projectiles.push(projectile)
 }
 
 function findLinkNode() {
@@ -50,10 +50,10 @@ function main() {
   worldNode = linkNode.parent
   tiles = new Tiles(worldNode)
   const swordNode = worldNode.findOne((node: SceneNode) => node.name === 'sword') as InstanceNode
-  link = new Link(linkNode, tiles, swordNode)
+  link = new Link(linkNode, tiles, swordNode, addProjectile)
 
 
-  // link.getItem('bow')
+  // link.getItem('sword')
   figma.ui.postMessage({item: "sword"})
 
   enemies = loadEnemies(worldNode, tiles, linkNode, addProjectile)
@@ -90,7 +90,17 @@ function nextFrame() {
   }
 
   const linkHurtbox = link.nextFrame()
-  const linkHitboxes = link.hitBoxes()
+  const linkHitbox = link.hitBox()
+  const projectileHitboxes = projectiles.map((projectile: Actor, projectileIndex: number) => {
+    const projectileHitbox = projectile.nextFrame(linkNode)
+    if (!projectileHitbox) {
+      projectiles.splice(projectileIndex, 1)
+      return null
+    }
+
+    return projectileHitbox
+  }).filter(Boolean)
+
   enemies.forEach((enemy: Actor, enemyIndex: number) => {
     const enemyHitbox = enemy.nextFrame(linkNode)
     if (!enemyHitbox) {
@@ -98,34 +108,35 @@ function nextFrame() {
       return
     }
 
+    // enemies damage link
     const hurtVector = isOverlapping(linkHurtbox, enemyHitbox)
     if (hurtVector) {
-      const health = link.takeDamage(hurtVector)
+      link.takeDamage(hurtVector)
+    }
 
-      if (health > 0) {
-        figma.ui.postMessage({health: displayHealth(health, 3)})
-      } else {
-        figma.closePlugin()
-        return
+    // link damages enemies
+    if (linkHitbox) {
+      const hitVector = isOverlapping(enemyHitbox, linkHitbox)
+      if (hitVector) {
+        enemy.takeDamage(hitVector)
       }
     }
 
-    linkHitboxes.forEach((hitbox: Rectangle, i: number) => {
-      const hitVector = isOverlapping(enemyHitbox, hitbox)
+    projectileHitboxes.forEach((projectileHitbox: Rectangle) => {
+
+      // projectiles damage link
+      const hurtVector = isOverlapping(linkHurtbox, projectileHitbox)
+      if (hurtVector) {
+        link.takeDamage(hurtVector)
+      }
+
+      // projectiles damage enemies
+      const hitVector = isOverlapping(enemyHitbox, projectileHitbox)
       if (hitVector) {
-        const health = enemy.takeDamage(hitVector)
-        if (health <= 0) {
-          enemy.getNode().visible = false
-          graveyard.push(enemy.getNode())
-          enemies.splice(enemyIndex, 1)
-        }
+        enemy.takeDamage(hitVector)
       }
     })
   })
-  // projectiles.forEach((projectile: Actor, i: number) => {
-  //   projectile.nextFrame()
-  //   const hurtVector = isOverlapping(linkHurtbox, enemyHitbox)
-  // })
 
   updateCamera(linkNode, worldNode)
   printFPS()
@@ -152,11 +163,10 @@ figma.on("close", () => {
     type: "SOLID",
     color: {r: 252 / 255, g: 216 / 255, b: 168 / 255}
   }]
-  worldNode.findAll((node: SceneNode) => node.type === 'INSTANCE' && node.name === 'octorok-rock')!.forEach((node: SceneNode) => node.remove())
+  worldNode.children.filter((node: SceneNode) => node.name === 'octorok-rock' || node.name === 'arrow')!.forEach((node: SceneNode) => node.remove())
 
-  worldNode.findAll((node: SceneNode) => node.type === 'INSTANCE' && node.name === 'bow')!.forEach((node: SceneNode) => node.visible = true)
-
-  graveyard.forEach((node: SceneNode) => node.visible = true)
+  const toMarkVisible = new Set(['bow', 'octorok-red', 'octorok-blue', 'lynel-red', 'link', 'moblin-red', 'moblin-blue'])
+  worldNode.findAll((node: SceneNode) => node.type === 'INSTANCE' && toMarkVisible.has(node.name))!.forEach((node: SceneNode) => node.visible = true)
 })
 
 if (main()) {

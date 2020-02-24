@@ -18,6 +18,10 @@ export class LynelRed extends Actor {
   }
 
   public nextFrame(linkNode: SceneNode) {
+    if (this.health <= 0) {
+      this.getNode().visible = false
+      return null
+    }
     this.incrementInvulnerability()
     const vector = {x: linkNode.x - this.getNode().x, y: linkNode.y - this.getNode().y}
     this.facing = vectorToFacing(vector)

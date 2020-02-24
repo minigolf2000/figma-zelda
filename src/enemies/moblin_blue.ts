@@ -18,6 +18,10 @@ export class MoblinBlue extends Actor {
   }
 
   public nextFrame() {
+    if (this.health <= 0) {
+      this.getNode().visible = false
+      return null
+    }
     this.incrementInvulnerability()
     if (this.walkingFrame === 0) {
       const choices: Facing[] = ['up', 'down', 'left', 'right']

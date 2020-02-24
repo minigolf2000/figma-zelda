@@ -42,6 +42,11 @@ export class OctorokRed extends Actor {
   }
 
   public nextFrame() {
+    if (this.health <= 0) {
+      this.getNode().visible = false
+      return null
+    }
+
     this.incrementInvulnerability()
     if (this.walkingFrame === 0) {
       const choices: Facing[] = ['up', 'down', 'left', 'right']
@@ -55,7 +60,6 @@ export class OctorokRed extends Actor {
     this.move(multiply(this.facingVector(), WALK_SPEED))
     if (this.walkingFrame === MAX_WALK_FRAMES - 1) {
       this.addProjectile(new Rock(this.collision, this.getProjectileStartPosition(), this.facing))
-      this.move(multiply(this.facingVector(), WALK_SPEED))
     }
 
     return this.getCurrentCollision()

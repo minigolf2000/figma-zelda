@@ -6,7 +6,7 @@ export abstract class Actor {
   protected node: InstanceNode
   protected facing: Facing
   protected collision: Tiles
-  private health: number
+  protected health: number
   private invulnerability: Invulnerability | null = null
   protected projectiles: Actor[]
 
