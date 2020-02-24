@@ -15,10 +15,10 @@ export function loadEnemies(worldNode: FrameNode, collision: Tiles, linkNode: In
         enemies.push(new OctorokRed(node, collision, addProjectile))
         break
       case 'moblin-red':
-        enemies.push(new MoblinBlue(node, collision))
+        enemies.push(new MoblinBlue(node, collision, addProjectile))
         break
       case 'moblin-blue':
-        enemies.push(new MoblinBlue(node, collision))
+        enemies.push(new MoblinBlue(node, collision, addProjectile))
         break
       case 'lynel-red':
         enemies.push(new LynelRed(node, collision))

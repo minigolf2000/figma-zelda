@@ -32,10 +32,9 @@ class Rock extends Actor {
 export class OctorokRed extends Actor {
   private sprite: Sprite
   private walkingFrame: number = 0
-  private addProjectile: (projectile: Actor) => void
 
   public constructor(node: InstanceNode, collision: Tiles, addProjectile: (projectile: Actor) => void) {
-    super(node, collision, HEALTH)
+    super(node, collision, HEALTH, 'down', addProjectile)
     this.sprite = new Sprite(node)
     this.walkingFrame = Math.floor(Math.random() * MAX_WALK_FRAMES)
     this.addProjectile = addProjectile

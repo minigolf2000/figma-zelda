@@ -9,12 +9,14 @@ export abstract class Actor {
   protected health: number
   private invulnerability: Invulnerability | null = null
   protected projectiles: Actor[]
+  protected addProjectile: (projectile: Actor) => void
 
-  public constructor(node: InstanceNode, collision: Tiles, health: number, facing: Facing = 'down') {
+  public constructor(node: InstanceNode, collision: Tiles, health: number, facing: Facing = 'down', addProjectile?: (projectile: Actor) => void) {
     this.node = node
     this.collision = collision
     this.health = health
     this.facing = facing
+    this.addProjectile = addProjectile || (() => {})
   }
 
   public getNode() {

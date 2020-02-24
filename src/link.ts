@@ -16,15 +16,13 @@ export class Link extends Actor {
   private swordNode: SceneNode
   private sprite: Sprite
   private hasBowAndArrow: boolean = false
-  private addProjectile: (projectile: Actor) => void
 
   public constructor(node: InstanceNode, collision: Tiles, swordNode: InstanceNode, addProjectile: (projectile: Actor) => void) {
-    super(node, collision, HEALTH)
+    super(node, collision, HEALTH, 'down', addProjectile)
     this.sprite = new Sprite(node)
     this.walkingFrame = 0
     this.swordNode = swordNode
     this.swordNode.visible = false
-    this.addProjectile = addProjectile
   }
 
   public hitBox() {
