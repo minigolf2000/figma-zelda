@@ -13,12 +13,18 @@ export function add(v1: Vector, v2: Vector): Vector {
   return {x: v1.x + v2.x, y: v1.y + v2.y}
 }
 
+export function distance(v1: Vector, v2: Vector): number {
+  const a = v1.x - v2.x
+  const b = v1.y - v2.y
+  return Math.sqrt(a * a + b * b)
+}
+
 export function multiply(v1: Vector, magnitude: number): Vector {
   return {x: v1.x * magnitude, y: v1.y * magnitude}
 }
 
 export function normalize(v: Vector): Vector {
-  const length = Math.sqrt(v.x * v.x + v.y * v.y)
+  const length = magnitude(v)
   return {x: v.x / length, y: v.y / length}
 }
 
@@ -29,4 +35,8 @@ export function vectorToFacing(v: Vector): Facing {
   } else {
     return (v.y > 0) ? 'down' : 'up'
   }
+}
+
+export function magnitude(v: Vector): number {
+  return Math.sqrt(v.x * v.x + v.y * v.y)
 }

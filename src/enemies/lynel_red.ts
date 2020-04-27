@@ -1,20 +1,24 @@
 import { Sprite } from "../sprite"
 import { Tiles } from "../tiles"
 import { Actor } from "../actor"
-import { multiply, normalize, vectorToFacing } from "../vector"
+import { multiply, normalize, vectorToFacing, distance, magnitude } from "../vector"
 
 const MAX_WALK_FRAMES = 28
 const HEALTH = 3.0
 const WALK_SPEED = 1.5
 
+const PURSUIT_DISTANCE = 100
+
 export class LynelRed extends Actor {
   private sprite: Sprite
   private walkingFrame: number = 0
+  private homeVector: Vector
 
   public constructor(node: InstanceNode, collision: Tiles) {
     super(node, collision, HEALTH)
     this.sprite = new Sprite(node)
     this.walkingFrame = Math.floor(Math.random() * MAX_WALK_FRAMES)
+    this.homeVector = {x: node.x, y: node.y}
   }
 
   public nextFrame(linkNode: SceneNode) {
@@ -23,7 +27,18 @@ export class LynelRed extends Actor {
       return null
     }
     this.incrementInvulnerability()
-    const vector = {x: linkNode.x - this.getNode().x, y: linkNode.y - this.getNode().y}
+
+    let destination = {x: linkNode.x, y: linkNode.y}
+    if (distance(this.homeVector, {x: linkNode.x, y: linkNode.y}) > PURSUIT_DISTANCE) {
+      destination = this.homeVector
+    }
+
+    const vector = {x: destination.x - this.getNode().x, y: destination.y - this.getNode().y}
+    if (magnitude(vector) < 1) {
+      // Lynel is already at home
+      return this.getCurrentCollision()
+    }
+
     this.facing = vectorToFacing(vector)
 
     this.walkingFrame++
