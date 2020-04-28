@@ -1,12 +1,11 @@
-import { FPS, displayHealth, updateCamera } from './lib'
+import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode } from './lib'
 import { loadEnemies } from './enemies/enemies'
-import { Tiles, isOverlapping, Rectangle } from './tiles'
+import { Tiles, isOverlapping, Rectangle, snapTilesToGrid } from './tiles'
 import { onKeyPressed, keysPressed, paused } from './buttons'
 import { Link } from './link'
 import { Actor } from './actor'
 
 let linkNode: InstanceNode
-let worldNode: FrameNode
 let link: Link
 let tiles: Tiles
 let enemies: Actor[]
@@ -47,7 +46,16 @@ function main() {
     return false
   }
 
-  worldNode = linkNode.parent
+  const templateWorldNode = linkNode.parent
+  snapTilesToGrid(templateWorldNode)
+  templateWorldNode.setPluginData("original-world", "true")
+  templateWorldNode.visible = false
+
+  const worldNode = templateWorldNode.clone()
+  setWorldNode(worldNode)
+  worldNode.visible = true
+  figma.currentPage.selection = [worldNode]
+  linkNode = findLinkNode()!
   tiles = new Tiles(worldNode)
   const swordNode = worldNode.findOne((node: SceneNode) => node.name === 'sword') as InstanceNode
   link = new Link(linkNode, tiles, swordNode, addProjectile)
@@ -138,7 +146,7 @@ function nextFrame() {
     })
   })
 
-  updateCamera(linkNode, worldNode)
+  updateCamera(linkNode, getWorldNode())
   printFPS()
 }
 
@@ -156,17 +164,14 @@ figma.ui.postMessage({health: displayHealth(3, 3)})
 figma.ui.onmessage = onKeyPressed
 
 figma.on("close", () => {
-  figma.currentPage.selection = [linkNode]
-  linkNode.visible = true
-  worldNode.findOne((node: SceneNode) => node.type === 'FRAME' && node.name === 'tiles')!.visible = true
-  worldNode.fills = [{
-    type: "SOLID",
-    color: {r: 252 / 255, g: 216 / 255, b: 168 / 255}
-  }]
-  worldNode.children.filter((node: SceneNode) => node.name === 'octorok-rock' || node.name === 'arrow')!.forEach((node: SceneNode) => node.remove())
+  getWorldNode().remove()
 
-  const toMarkVisible = new Set(['bow', 'octorok-red', 'octorok-blue', 'lynel-red', 'link', 'moblin-red', 'moblin-blue'])
-  worldNode.findAll((node: SceneNode) => node.type === 'INSTANCE' && toMarkVisible.has(node.name))!.forEach((node: SceneNode) => node.visible = true)
+  const original = figma.currentPage.findOne((node: SceneNode) => node.getPluginData("original-world") === "true")
+  if (original) {
+    original.visible = true
+    original.setPluginData("original-world", "true")
+    // figma.currentPage.selection = [linkNode]
+  }
 })
 
 if (main()) {

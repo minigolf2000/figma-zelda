@@ -9,11 +9,19 @@ export interface Invulnerability {
 export type Facing = 'up' | 'down' | 'left' | 'right'
 const pluginApiPage = figma.root.findOne((node: BaseNode) => node.type === 'PAGE' && node.name === 'plugin-data') as PageNode
 
+let worldNode: FrameNode
+export function setWorldNode(w: FrameNode) {
+  worldNode = w
+}
+
+export function getWorldNode() {
+  return worldNode
+}
+
 export function createNewLibSprite(name: String) {
-  const worldNode = figma.currentPage.findOne((node: SceneNode) => node.name === 'world') as FrameNode
   const component = pluginApiPage.findOne((node: SceneNode) => node.name === name) as ComponentNode
   const instance = component.createInstance()
-  worldNode.appendChild(instance)
+  getWorldNode().appendChild(instance)
   return instance
 }
 

@@ -21,38 +21,27 @@ export class Tiles {
 
   public constructor(worldNode: FrameNode) {
     this.worldNode = worldNode
-    let tilesFrame = worldNode.findOne((node: SceneNode) => node.name === 'tiles')
-    if (!tilesFrame || tilesFrame.type !== 'FRAME') {
-      throw "no Frame lol"
-    }
 
-    let numNodesSnappedToGrid = 0
+    const tilesFrame = figma.createFrame()
+    tilesFrame.name = "collision tiles"
+    tilesFrame.resize(worldNode.width, worldNode.height)
+    tilesFrame.fills = []
 
-    worldNode.findAll((node: SceneNode) => ITEM_TILES.has(node.name)).forEach((node: SceneNode) => {
-      if (node.x % 16 !== 0 || node.y % 16 !== 0) {
-        node.x = Math.round(node.x / 16) * 16
-        node.y = Math.round(node.y / 16) * 16
-        numNodesSnappedToGrid++
+    worldNode.findAll((node: SceneNode) => {
+      if (ITEM_TILES.has(node.name)) {
+        if (!this.items[node.x]) {this.items[node.x] = {}}
+        this.items[node.x][node.y] = node
       }
-      if (!this.items[node.x]) {this.items[node.x] = {}}
-      this.items[node.x][node.y] = node
-    })
 
-    tilesFrame.children.forEach((node: SceneNode) => {
       if (COLLISION_TILES.has(node.name)) {
-        if (node.x % 16 !== 0 || node.y % 16 !== 0) {
-          node.x = Math.round(node.x / 16) * 16
-          node.y = Math.round(node.y / 16) * 16
-          numNodesSnappedToGrid++
-        }
         if (!this.walls[node.x]) {this.walls[node.x] = {}}
         this.walls[node.x][node.y] = true
+        tilesFrame.appendChild(node)
       }
+      return false
     })
 
-    if (numNodesSnappedToGrid > 0) {
-      figma.notify(`${numNodesSnappedToGrid} tiles snapped to the 16px grid`)
-    }
+    worldNode.appendChild(tilesFrame)
 
     this.rasterizeTiles(tilesFrame)
   }
@@ -71,6 +60,7 @@ export class Tiles {
     // TODO: this call is async currently, causing flicker on game start. can we fix the flash?
     this.worldNode.fills = [backgroundFill, rasterizedPaintFill]
     tilesFrame.visible = false
+    tilesFrame.remove()
   }
 
   public isColliding(x: number, y: number) {
@@ -119,4 +109,20 @@ export function isOverlapping(rect1: Rectangle, rect2: Rectangle): Vector | null
     return normalize(direction(rect1, rect2))
   }
   return null
+}
+
+export function snapTilesToGrid(worldNode: FrameNode) {
+  let numNodesSnappedToGrid = 0
+
+  worldNode.children.forEach((node: SceneNode) => {
+    if (node.x % 16 !== 0 || node.y % 16 !== 0) {
+      node.x = Math.round(node.x / 16) * 16
+      node.y = Math.round(node.y / 16) * 16
+      numNodesSnappedToGrid++
+    }
+  })
+
+  if (numNodesSnappedToGrid > 0) {
+    figma.notify(`${numNodesSnappedToGrid} tiles snapped to the 16px grid`)
+  }
 }
