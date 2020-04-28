@@ -10,6 +10,8 @@ let link: Link
 let tiles: Tiles
 let enemies: Actor[]
 let projectiles: Actor[] = []
+let gameWon = false
+let gameLost = false
 
 function addProjectile(projectile: Actor) {
   projectiles.push(projectile)
@@ -89,7 +91,13 @@ function nextFrame() {
     return
   }
 
-  if (link.getHealth() <= 0) {
+  if (gameWon) {
+    if (!link.winAnimation()) {
+      figma.closePlugin()
+    }
+    return
+  }
+  if (gameLost) {
     if (!link.deathAnimation()) {
       figma.closePlugin()
     }
@@ -99,12 +107,14 @@ function nextFrame() {
   if (onItem) {
     switch (onItem.name) {
       case 'triforce':
-        figma.closePlugin("You win")
+        link.getItem('triforce')
+        gameWon = true
+        onItem.remove()
         return
       case 'bow':
-        onItem.visible = false
         link.getItem('bow')
         figma.ui.postMessage({addItem: "bow"})
+        onItem.remove()
         break
     }
   }
@@ -125,6 +135,7 @@ function nextFrame() {
     if (hurtVector) {
       const health = link.takeDamage(enemy.getDamage(), hurtVector)
       figma.ui.postMessage({health: displayHealth(health, 3)})
+      if (health <= 0) { gameLost = true }
     }
 
     // link damages enemies
@@ -141,7 +152,8 @@ function nextFrame() {
       const hurtVector = isOverlapping(linkHurtbox, projectile.getNode())
       if (hurtVector) {
         if (!link.isShielding(projectile)) {
-          link.takeDamage(projectile.getDamage(), hurtVector)
+          const health = link.takeDamage(projectile.getDamage(), hurtVector)
+          if (health <= 0) { gameLost = true }
         }
         projectile.getNode().remove()
         return false

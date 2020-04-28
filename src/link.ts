@@ -42,28 +42,27 @@ export class Link extends Actor {
     if (item === 'bow') {
       this.hasBowAndArrow = true
     }
+    if (item === 'triforce') {
+      this.winAnimationFrame =  0
+    }
   }
 
   public isShielding(projectile: Actor) {
     return this.swordActiveFrame === null && this.bowActiveFrame === null && facingOpposite(this.facing, projectile.facing)
   }
 
-  private deathAnimationFrame: number = 0
+  private deathAnimationFrame = 0
   public deathAnimation() {
     if (this.deathAnimationFrame <= 64) {
       switch (Math.floor(this.deathAnimationFrame / 2) % 4) {
         case 0:
-          this.facing = 'down'
-          break
+          this.facing = 'down'; break
         case 1:
-          this.facing = 'right'
-          break
+          this.facing = 'right'; break
         case 2:
-          this.facing = 'up'
-          break
+          this.facing = 'up'; break
         case 3:
-          this.facing = 'left'
-          break
+          this.facing = 'left'; break
       }
       this.sprite.setSprite(['basic', this.facing, 0])
     }
@@ -73,6 +72,14 @@ export class Link extends Actor {
 
     this.deathAnimationFrame++
     return this.deathAnimationFrame < 100
+  }
+
+  public winAnimationFrame = 0
+  public winAnimation() {
+    const spriteName = (this.winAnimationFrame % 4 < 2) ? 'win-0' : 'win-1'
+    this.sprite.setSprite([spriteName])
+    this.winAnimationFrame++
+    return this.winAnimationFrame < 200
   }
 
   public nextFrame() {
