@@ -1,6 +1,6 @@
 import { Tiles } from "../tiles"
-import { OctorokRed } from "./octorok_red"
-import { MoblinBlue } from "./moblin_blue"
+import { OctorokRed, OctorokBlue } from "./octorok"
+import { MoblinBlue } from "./moblin"
 import { Actor } from "../actor"
 import { LynelRed } from "./lynel_red"
 
@@ -12,7 +12,7 @@ export function loadEnemies(worldNode: FrameNode, collision: Tiles, linkNode: In
         enemies.push(new OctorokRed(node, collision, addProjectile))
         break
       case 'octorok-blue':
-        enemies.push(new OctorokRed(node, collision, addProjectile))
+        enemies.push(new OctorokBlue(node, collision, addProjectile))
         break
       case 'moblin-red':
         enemies.push(new MoblinBlue(node, collision, addProjectile))

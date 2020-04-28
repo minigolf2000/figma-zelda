@@ -5,10 +5,12 @@ import { Actor } from "../actor"
 import { multiply } from "../vector"
 
 const MAX_WALK_FRAMES = 28
-const HEALTH = 1.0
+const RED_HEALTH = 0.5
+const BLUE_HEALTH = 1.0
 const WALK_SPEED = 1.0
 const ROCK_SPEED = 4.0
 const DAMAGE = 0.5
+
 
 class Rock extends Actor {
   private frames: number = 0
@@ -30,12 +32,12 @@ class Rock extends Actor {
   }
 }
 
-export class OctorokRed extends Actor {
+class Octorok extends Actor {
   private sprite: Sprite
   private walkingFrame: number = 0
 
-  public constructor(node: InstanceNode, collision: Tiles, addProjectile: (projectile: Actor) => void) {
-    super(node, collision, HEALTH, 'down', addProjectile)
+  public constructor(node: InstanceNode, collision: Tiles, health: number, addProjectile: (projectile: Actor) => void) {
+    super(node, collision, health, 'down', addProjectile)
     this.sprite = new Sprite(node)
     this.walkingFrame = Math.floor(Math.random() * MAX_WALK_FRAMES)
     this.addProjectile = addProjectile
@@ -64,5 +66,16 @@ export class OctorokRed extends Actor {
     }
 
     return this.getCurrentCollision()
+  }
+}
+
+export class OctorokRed extends Octorok {
+  public constructor(node: InstanceNode, collision: Tiles, addProjectile: (projectile: Actor) => void) {
+    super(node, collision, RED_HEALTH, addProjectile)
+  }
+}
+export class OctorokBlue extends Octorok {
+  public constructor(node: InstanceNode, collision: Tiles, addProjectile: (projectile: Actor) => void) {
+    super(node, collision, BLUE_HEALTH, addProjectile)
   }
 }
