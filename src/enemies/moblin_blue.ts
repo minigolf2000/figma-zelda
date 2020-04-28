@@ -8,6 +8,7 @@ import { Arrow } from "../arrow"
 const MAX_WALK_FRAMES = 28
 const HEALTH = 1.0
 const WALK_SPEED = 1
+const DAMAGE = 0.5
 export class MoblinBlue extends Actor {
   private sprite: Sprite
   private walkingFrame: number = 0
@@ -16,6 +17,7 @@ export class MoblinBlue extends Actor {
     super(node, collision, HEALTH, 'down', addProjectile)
     this.sprite = new Sprite(node)
     this.walkingFrame = Math.floor(Math.random() * MAX_WALK_FRAMES)
+    this.damage = DAMAGE
   }
 
   public nextFrame() {

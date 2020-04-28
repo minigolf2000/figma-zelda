@@ -10,6 +10,7 @@ export abstract class Actor {
   private invulnerability: Invulnerability | null = null
   protected projectiles: Actor[]
   protected addProjectile: (projectile: Actor) => void
+  protected damage: number
 
   public constructor(node: InstanceNode, collision: Tiles, health: number, facing: Facing = 'down', addProjectile?: (projectile: Actor) => void) {
     this.node = node
@@ -23,6 +24,10 @@ export abstract class Actor {
     return this.node
   }
 
+  public getDamage() {
+    return this.damage
+  }
+
   protected move(vector: Vector) {
     if (!this.collision.isColliding(this.node.x + vector.x, this.node.y + vector.y)) {
       this.node.x += vector.x
@@ -32,11 +37,11 @@ export abstract class Actor {
     return false
   }
 
-  public takeDamage(vector: Vector) {
+  public takeDamage(damage: number, vector: Vector) {
     if (this.invulnerability !== null) {
       return this.health
     }
-    this.health -= 0.5
+    this.health -= damage
     this.invulnerability = {numFrames: 0, knockback: multiply(vector, KNOCKBACK_MAGNITUDE)}
     return this.health
   }

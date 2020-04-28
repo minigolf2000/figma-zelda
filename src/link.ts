@@ -44,8 +44,8 @@ export class Link extends Actor {
     }
   }
 
-  public takeDamage(vector: Vector) {
-    const health = super.takeDamage(vector)
+  public takeDamage(damage: number, vector: Vector) {
+    const health = super.takeDamage(damage, vector)
 
     if (health > 0) {
       figma.ui.postMessage({health: displayHealth(health, 3)})

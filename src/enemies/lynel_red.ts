@@ -6,8 +6,9 @@ import { multiply, normalize, vectorToFacing, distance, magnitude } from "../vec
 const MAX_WALK_FRAMES = 28
 const HEALTH = 3.0
 const WALK_SPEED = 1.5
+const DAMAGE = 1.0
 
-const PURSUIT_DISTANCE = 100
+const PURSUIT_DISTANCE = 150
 
 export class LynelRed extends Actor {
   private sprite: Sprite
@@ -19,6 +20,7 @@ export class LynelRed extends Actor {
     this.sprite = new Sprite(node)
     this.walkingFrame = Math.floor(Math.random() * MAX_WALK_FRAMES)
     this.homeVector = {x: node.x, y: node.y}
+    this.damage = DAMAGE
   }
 
   public nextFrame(linkNode: SceneNode) {

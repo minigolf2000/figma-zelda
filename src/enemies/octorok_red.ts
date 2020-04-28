@@ -8,6 +8,7 @@ const MAX_WALK_FRAMES = 28
 const HEALTH = 1.0
 const WALK_SPEED = 1.0
 const ROCK_SPEED = 4.0
+const DAMAGE = 1.0
 
 class Rock extends Actor {
   private frames: number = 0
@@ -38,6 +39,7 @@ export class OctorokRed extends Actor {
     this.sprite = new Sprite(node)
     this.walkingFrame = Math.floor(Math.random() * MAX_WALK_FRAMES)
     this.addProjectile = addProjectile
+    this.damage = DAMAGE
   }
 
   public nextFrame() {

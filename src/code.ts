@@ -111,14 +111,14 @@ function nextFrame() {
     // enemies damage link
     const hurtVector = isOverlapping(linkHurtbox, enemyHitbox)
     if (hurtVector) {
-      link.takeDamage(hurtVector)
+      link.takeDamage(enemy.getDamage(), hurtVector)
     }
 
     // link damages enemies
     if (linkHitbox) {
       const hitVector = isOverlapping(enemyHitbox, linkHitbox)
       if (hitVector) {
-        enemy.takeDamage(hitVector)
+        enemy.takeDamage(enemy.getDamage(), hitVector)
       }
     }
 
@@ -127,13 +127,13 @@ function nextFrame() {
       // projectiles damage link
       const hurtVector = isOverlapping(linkHurtbox, projectileHitbox)
       if (hurtVector) {
-        link.takeDamage(hurtVector)
+        link.takeDamage(0.5, hurtVector)
       }
 
       // projectiles damage enemies
       const hitVector = isOverlapping(enemyHitbox, projectileHitbox)
       if (hitVector) {
-        enemy.takeDamage(hitVector)
+        enemy.takeDamage(0.5, hitVector)
       }
     })
   })
