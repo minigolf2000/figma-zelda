@@ -1,6 +1,6 @@
 import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode } from './lib'
 import { loadEnemies } from './enemies/enemies'
-import { Tiles, isOverlapping, Rectangle, snapTilesToGrid } from './tiles'
+import { Tiles, isOverlapping, snapTilesToGrid } from './tiles'
 import { onKeyPressed, keysPressed, paused } from './buttons'
 import { Link } from './link'
 import { Actor } from './actor'
@@ -99,15 +99,7 @@ function nextFrame() {
 
   const linkHurtbox = link.nextFrame()
   const linkHitbox = link.hitBox()
-  const projectileHitboxes = projectiles.map((projectile: Actor, projectileIndex: number) => {
-    const projectileHitbox = projectile.nextFrame(linkNode)
-    if (!projectileHitbox) {
-      projectiles.splice(projectileIndex, 1)
-      return null
-    }
-
-    return projectileHitbox
-  }).filter(Boolean)
+  projectiles = projectiles.filter((projectile: Actor) => !!projectile.nextFrame(linkNode))
 
   enemies.forEach((enemy: Actor, enemyIndex: number) => {
     const enemyHitbox = enemy.nextFrame(linkNode)
@@ -130,19 +122,26 @@ function nextFrame() {
       }
     }
 
-    projectileHitboxes.forEach((projectileHitbox: Rectangle) => {
+    projectiles = projectiles.filter((projectile: Actor) => {
 
       // projectiles damage link
-      const hurtVector = isOverlapping(linkHurtbox, projectileHitbox)
+      const hurtVector = isOverlapping(linkHurtbox, projectile.getNode())
       if (hurtVector) {
-        link.takeDamage(0.5, hurtVector)
+        if (!link.isShielding(projectile)) {
+          link.takeDamage(projectile.getDamage(), hurtVector)
+        }
+        projectile.getNode().remove()
+        return false
       }
 
       // projectiles damage enemies
-      const hitVector = isOverlapping(enemyHitbox, projectileHitbox)
+      const hitVector = isOverlapping(enemyHitbox, projectile.getNode())
       if (hitVector) {
-        enemy.takeDamage(0.5, hitVector)
+        enemy.takeDamage(projectile.getDamage(), hitVector)
+        projectile.getNode().remove()
+        return false
       }
+      return true
     })
   })
 

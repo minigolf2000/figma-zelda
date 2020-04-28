@@ -1,7 +1,7 @@
 import { Sprite } from "./sprite"
 import { Tiles } from "./tiles"
 import { Actor } from "./actor"
-import { rotation, displayHealth } from "./lib"
+import { rotation, displayHealth, facingOpposite } from "./lib"
 import { keysPressed, changeFacing, getMovementDirection } from "./buttons"
 import { multiply } from "./vector"
 import { Arrow } from "./arrow"
@@ -53,6 +53,10 @@ export class Link extends Actor {
       figma.closePlugin()
     }
     return health
+  }
+
+  public isShielding(projectile: Actor) {
+    return this.swordActiveFrame === null && this.bowActiveFrame === null && facingOpposite(this.facing, projectile.facing)
   }
 
   public nextFrame() {

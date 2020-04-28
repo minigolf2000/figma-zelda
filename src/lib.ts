@@ -7,6 +7,14 @@ export interface Invulnerability {
 }
 
 export type Facing = 'up' | 'down' | 'left' | 'right'
+
+export function facingOpposite(f1: Facing, f2: Facing) {
+  return f1 === 'up' && f2 === 'down' ||
+    f1 === 'down' && f2 === 'up' ||
+    f1 === 'left' && f2 === 'right' ||
+    f1 === 'right' && f2 === 'left'
+}
+
 const pluginApiPage = figma.root.findOne((node: BaseNode) => node.type === 'PAGE' && node.name === 'plugin-data') as PageNode
 
 let worldNode: FrameNode

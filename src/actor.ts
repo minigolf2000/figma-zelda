@@ -4,7 +4,7 @@ import { multiply, add } from "./vector"
 
 export abstract class Actor {
   protected node: InstanceNode
-  protected facing: Facing
+  public facing: Facing
   protected collision: Tiles
   protected health: number
   private invulnerability: Invulnerability | null = null

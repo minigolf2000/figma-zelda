@@ -11,13 +11,14 @@ const WALK_SPEED = 1.0
 const ROCK_SPEED = 4.0
 const DAMAGE = 0.5
 
-
 class Rock extends Actor {
   private frames: number = 0
   public constructor(collision: Tiles, position: Vector, facing: Facing) {
     super(createNewLibSprite('octorok-rock'), collision, Infinity, facing)
     this.node.x = position.x - this.node.width / 2
     this.node.y = position.y - this.node.height / 2
+    this.damage = DAMAGE
+    this.move(multiply(this.facingVector(), ROCK_SPEED))
   }
 
   public nextFrame() {
@@ -44,6 +45,18 @@ class Octorok extends Actor {
     this.damage = DAMAGE
   }
 
+  private turnAround() {
+    if (this.facing === 'up') {
+      this.facing = 'down'
+    } else if (this.facing === 'down') {
+      this.facing = 'up'
+    } else if (this.facing === 'left') {
+      this.facing = 'right'
+    } else if (this.facing === 'right') {
+      this.facing = 'left'
+    }
+  }
+
   public nextFrame() {
     if (this.health <= 0) {
       this.getNode().visible = false
@@ -61,7 +74,9 @@ class Octorok extends Actor {
     this.sprite.setSprite(['basic', this.facing, Math.floor(this.walkingFrame / 4) % 2])
 
     if (this.walkingFrame < 30) {
-      this.move(multiply(this.facingVector(), WALK_SPEED))
+      if (!this.move(multiply(this.facingVector(), WALK_SPEED))) {
+        this.turnAround()
+      }
     }
     if (this.walkingFrame === MAX_WALK_FRAMES - 1) {
       this.addProjectile(new Rock(this.collision, this.getProjectileStartPosition(), this.facing))
@@ -76,6 +91,7 @@ export class OctorokRed extends Octorok {
     super(node, collision, RED_HEALTH, addProjectile)
   }
 }
+
 export class OctorokBlue extends Octorok {
   public constructor(node: InstanceNode, collision: Tiles, addProjectile: (projectile: Actor) => void) {
     super(node, collision, BLUE_HEALTH, addProjectile)
