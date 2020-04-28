@@ -2,6 +2,7 @@ import { normalize, direction } from "./vector"
 
 const ITEM_TILES = new Set(['triforce', 'bow'])
 const COLLISION_TILES = new Set(['tree', 'rock', 'water', 'rock_se', 'rock_s', 'rock_sw', 'rock_ne', 'rock_n', 'rock_nw'])
+const DECORATIVE_TILES = new Set(['dirt', 'bridge', 'stairs'])
 
 interface Items {
   [x: number]: {
@@ -38,6 +39,10 @@ export class Tiles {
         this.walls[node.x][node.y] = true
         tilesFrame.appendChild(node)
       }
+
+      if (DECORATIVE_TILES.has(node.name)) {
+        tilesFrame.appendChild(node)
+      }
       return false
     })
 
@@ -57,21 +62,42 @@ export class Tiles {
       imageHash: figma.createImage(await tilesFrame.exportAsync()).hash,
     }
 
-    // TODO: this call is async currently, causing flicker on game start. can we fix the flash?
     this.worldNode.fills = [backgroundFill, rasterizedPaintFill]
     tilesFrame.visible = false
     tilesFrame.remove()
   }
 
+  //
+  public moveToPositionRespectingCollision(rect: Rectangle, vector: Vector) {
+    const newMoveX = this.moveToPositionRespectingCollision1D(rect.x, rect.x + rect.width, vector.x, (x) => this.isColliding(x, rect.y) || this.isColliding(x, rect.y + rect.height - 1))
+    const newMoveY = this.moveToPositionRespectingCollision1D(rect.y, rect.y + rect.height, vector.y, (y) => this.isColliding(rect.x, y) || this.isColliding(rect.x + rect.width - 1, y))
+
+    return {x: newMoveX, y: newMoveY}
+  }
+
+  public moveToPositionRespectingCollision1D(left: number, right: number, move: number, isCollidingFunc: (coord: number) => boolean) {
+    if (move > 0) {
+      if (isCollidingFunc(right + move)) {
+        return Math.ceil((left + move) / 16) * 16 - (right - left) - 1
+      }
+      return left + move
+    }
+    if (move < 0) {
+      if (isCollidingFunc(left + move)) {
+        return Math.ceil((left + move) / 16) * 16
+      }
+      return left + move
+    }
+    return left
+  }
+
+  // make this take a rect and move vector?
   public isColliding(x: number, y: number) {
-    if (x < 0 || y < 0 || x > this.worldNode.width - 16 || y > this.worldNode.height - 16) {
+    if (x < 0 || y < 0 || x > this.worldNode.width || y > this.worldNode.height) {
       return true
     }
     return (
-      this.walls[Math.floor((x+1) / 16) * 16]?.[Math.floor((y+1) / 16) * 16] ||
-      this.walls[Math.floor((x+1) / 16) * 16]?.[Math.ceil((y-1) / 16) * 16] ||
-      this.walls[Math.ceil((x-1) / 16) * 16]?.[Math.floor((y+1) / 16) * 16] ||
-      this.walls[Math.ceil((x-1) / 16) * 16]?.[Math.ceil((y-1) / 16) * 16]
+      this.walls[Math.floor((x) / 16) * 16]?.[Math.floor((y) / 16) * 16]
     )
   }
 
@@ -82,6 +108,7 @@ export class Tiles {
       this.items[Math.floor((x+1) / 16) * 16]?.[Math.ceil((y-1) / 16) * 16] ||
       this.items[Math.ceil((x-1) / 16) * 16]?.[Math.floor((y+1) / 16) * 16] ||
       this.items[Math.ceil((x-1) / 16) * 16]?.[Math.ceil((y-1) / 16) * 16]
+
     )
     if (item) {
       this.items[item.x][item.y] = null

@@ -8,7 +8,7 @@ const HEALTH = 3.0
 const WALK_SPEED = 1.5
 const DAMAGE = 1.0
 
-const PURSUIT_DISTANCE = 150
+const PURSUIT_DISTANCE = 120
 
 export class LynelRed extends Actor {
   private sprite: Sprite

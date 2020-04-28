@@ -29,12 +29,13 @@ export abstract class Actor {
   }
 
   protected move(vector: Vector) {
-    if (!this.collision.isColliding(this.node.x + vector.x, this.node.y + vector.y)) {
-      this.node.x += vector.x
-      this.node.y += vector.y
-      return true
-    }
-    return false
+    const newPosition = this.collision.moveToPositionRespectingCollision(this.node, vector)
+    const successfulMove = this.node.x + vector.x === newPosition.x && this.node.y + vector.y === newPosition.y
+
+    this.node.x = newPosition.x
+    this.node.y = newPosition.y
+
+    return successfulMove
   }
 
   public takeDamage(damage: number, vector: Vector) {
@@ -88,6 +89,6 @@ export abstract class Actor {
     return add(center, multiply(this.facingVector(), 8))
   }
 
-  abstract nextFrame(linkNode: SceneNode): Rectangle | null;
+  abstract nextFrame(linkNode: SceneNode): Rectangle | null
 
 }

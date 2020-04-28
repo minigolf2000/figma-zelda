@@ -4,7 +4,7 @@ import { Tiles } from "../tiles"
 import { Actor } from "../actor"
 import { multiply } from "../vector"
 
-const MAX_WALK_FRAMES = 28
+const MAX_WALK_FRAMES = 48
 const RED_HEALTH = 0.5
 const BLUE_HEALTH = 1.0
 const WALK_SPEED = 1.0
@@ -60,7 +60,9 @@ class Octorok extends Actor {
     if (this.walkingFrame === MAX_WALK_FRAMES) this.walkingFrame = 0
     this.sprite.setSprite(['basic', this.facing, Math.floor(this.walkingFrame / 4) % 2])
 
-    this.move(multiply(this.facingVector(), WALK_SPEED))
+    if (this.walkingFrame < 30) {
+      this.move(multiply(this.facingVector(), WALK_SPEED))
+    }
     if (this.walkingFrame === MAX_WALK_FRAMES - 1) {
       this.addProjectile(new Rock(this.collision, this.getProjectileStartPosition(), this.facing))
     }

@@ -71,7 +71,9 @@ export class Link extends Actor {
       }
       const direction = getMovementDirection()
       walking = direction.x !== 0 || direction.y !== 0
-      this.move(multiply(direction, WALK_SPEED))
+      if (walking) {
+        this.move(multiply(direction, WALK_SPEED))
+      }
       this.sprite.setSprite(['basic', this.facing, walking && this.walkingFrame > 2 ? 1 : 0])
     }
 
