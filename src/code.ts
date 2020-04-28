@@ -47,11 +47,17 @@ function main() {
   }
 
   const templateWorldNode = linkNode.parent
+  if (templateWorldNode.getPluginData("running-world") ===  "true") {
+    figma.closePlugin("Multiplayer is not supported yet!")
+    return false
+  }
+
   snapTilesToGrid(templateWorldNode)
   templateWorldNode.setPluginData("original-world", "true")
   templateWorldNode.visible = false
 
   const worldNode = templateWorldNode.clone()
+  worldNode.setPluginData("running-world", "true")
   setWorldNode(worldNode)
   worldNode.visible = true
   figma.currentPage.selection = [worldNode]
