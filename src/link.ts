@@ -1,7 +1,7 @@
 import { Sprite } from "./sprite"
 import { Tiles } from "./tiles"
 import { Actor } from "./actor"
-import { rotation, displayHealth, facingOpposite } from "./lib"
+import { rotation, facingOpposite } from "./lib"
 import { keysPressed, changeFacing, getMovementDirection } from "./buttons"
 import { multiply } from "./vector"
 import { Arrow } from "./arrow"
@@ -44,19 +44,35 @@ export class Link extends Actor {
     }
   }
 
-  public takeDamage(damage: number, vector: Vector) {
-    const health = super.takeDamage(damage, vector)
-
-    if (health > 0) {
-      figma.ui.postMessage({health: displayHealth(health, 3)})
-    } else {
-      figma.closePlugin()
-    }
-    return health
-  }
-
   public isShielding(projectile: Actor) {
     return this.swordActiveFrame === null && this.bowActiveFrame === null && facingOpposite(this.facing, projectile.facing)
+  }
+
+  private deathAnimationFrame: number = 0
+  public deathAnimation() {
+    if (this.deathAnimationFrame <= 64) {
+      switch (Math.floor(this.deathAnimationFrame / 2) % 4) {
+        case 0:
+          this.facing = 'down'
+          break
+        case 1:
+          this.facing = 'right'
+          break
+        case 2:
+          this.facing = 'up'
+          break
+        case 3:
+          this.facing = 'left'
+          break
+      }
+      this.sprite.setSprite(['basic', this.facing, 0])
+    }
+    if (this.deathAnimationFrame === 60) {
+      this.getNode().blendMode = "LUMINOSITY"
+    }
+
+    this.deathAnimationFrame++
+    return this.deathAnimationFrame < 100
   }
 
   public nextFrame() {

@@ -89,6 +89,12 @@ function nextFrame() {
     return
   }
 
+  if (link.getHealth() <= 0) {
+    if (!link.deathAnimation()) {
+      figma.closePlugin()
+    }
+    return
+  }
   const onItem = tiles.onItem({x: linkNode.x, y: linkNode.y})
   if (onItem) {
     switch (onItem.name) {
@@ -117,7 +123,8 @@ function nextFrame() {
     // enemies damage link
     const hurtVector = isOverlapping(linkHurtbox, enemyHitbox)
     if (hurtVector) {
-      link.takeDamage(enemy.getDamage(), hurtVector)
+      const health = link.takeDamage(enemy.getDamage(), hurtVector)
+      figma.ui.postMessage({health: displayHealth(health, 3)})
     }
 
     // link damages enemies

@@ -28,6 +28,10 @@ export abstract class Actor {
     return this.damage
   }
 
+  public getHealth() {
+    return this.health
+  }
+
   protected move(vector: Vector) {
     const newPosition = this.collision.moveToPositionRespectingCollision(this.node, vector)
     const successfulMove = this.node.x + vector.x === newPosition.x && this.node.y + vector.y === newPosition.y
@@ -42,7 +46,7 @@ export abstract class Actor {
     if (this.invulnerability !== null) {
       return this.health
     }
-    this.health -= damage
+    this.health = Math.max(0, this.health - damage)
     this.invulnerability = {numFrames: 0, knockback: multiply(vector, KNOCKBACK_MAGNITUDE)}
     return this.health
   }
