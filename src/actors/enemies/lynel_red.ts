@@ -1,7 +1,7 @@
-import { Sprite } from "../sprite"
-import { Tiles } from "../tiles"
+import { Sprite } from "../../sprite"
+import { Tiles } from "../../tiles"
 import { Actor } from "../actor"
-import { multiply, normalize, vectorToFacing, distance, magnitude } from "../vector"
+import { multiply, normalize, vectorToFacing, distance, magnitude } from "../../vector"
 
 const MAX_WALK_FRAMES = 28
 const HEALTH = 3.0
@@ -17,7 +17,7 @@ export class LynelRed extends Actor {
 
   public constructor(node: InstanceNode, collision: Tiles) {
     super(node, collision, HEALTH)
-    this.sprite = new Sprite(node)
+    this.sprite = new Sprite(node, ['basic', 'down', 0])
     this.walkingFrame = Math.floor(Math.random() * MAX_WALK_FRAMES)
     this.homeVector = {x: node.x, y: node.y}
     this.damage = DAMAGE

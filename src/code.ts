@@ -1,14 +1,18 @@
 import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode } from './lib'
-import { loadEnemies } from './enemies/enemies'
+import { loadEnemies } from './actors/enemies/enemies'
 import { Tiles, isOverlapping, snapTilesToGrid } from './tiles'
 import { onKeyPressed, keysPressed, paused } from './buttons'
 import { Link } from './link'
-import { Actor } from './actor'
+import { Actor } from './actors/actor'
+import { MasterSword } from './actors/master-sword'
+import { Triforce } from './actors/triforce'
+import { loadItems } from './actors/items'
 
 let linkNode: InstanceNode
 let link: Link
 let tiles: Tiles
 let enemies: Actor[]
+let items: (MasterSword | Triforce)[]
 let projectiles: Actor[] = []
 let gameWon = false
 let gameLost = false
@@ -18,17 +22,29 @@ function addProjectile(projectile: Actor) {
 }
 
 function findLinkNode() {
-  const firstSelectedNode = figma.currentPage.selection[0]
-  if (firstSelectedNode?.type === 'INSTANCE' && firstSelectedNode.name === 'link') {
-    return firstSelectedNode
+  const isPlayableLink = (node: BaseNode) => node.type === 'INSTANCE' && node.name === 'link' && node.parent?.type !== 'PAGE'
+  let firstSelectedNode: (BaseNode & ChildrenMixin) | null = figma.currentPage.selection[0] as BaseNode & ChildrenMixin
+
+  // Search for link starting from Page if no selection
+  if (!firstSelectedNode) {
+    return figma.currentPage.findOne(node => isPlayableLink(node)) as InstanceNode
   }
 
-  if (firstSelectedNode?.type === 'FRAME') {
-    return firstSelectedNode.findOne((node: SceneNode) => node.name === 'link' && node.type === 'INSTANCE') as InstanceNode
+  // If selecting an invalid search point, walk up the tree until selecting a valid search point
+  while (firstSelectedNode && firstSelectedNode.type !== 'PAGE' && firstSelectedNode.type !== 'FRAME' && firstSelectedNode.name !== 'link') {
+    firstSelectedNode = firstSelectedNode.parent!
   }
 
-  if (figma.currentPage.selection.length === 0) {
-    return figma.currentPage.findOne((node: SceneNode) => node.name === 'link' && node.type === 'INSTANCE') as InstanceNode
+  // Now we are selecting a valid search point
+
+  // Return this node
+  if (isPlayableLink(firstSelectedNode)) {
+    return firstSelectedNode as InstanceNode
+  }
+
+  // Search for a valid link
+  if (firstSelectedNode.type === 'FRAME') {
+    return firstSelectedNode.findOne(node => isPlayableLink(node)) as InstanceNode
   }
 
   return null
@@ -44,7 +60,7 @@ function main() {
   }
 
   if (!linkNode.parent || linkNode.parent.type !== 'FRAME') {
-    figma.closePlugin("Link must be inside a 'World' Frame")
+    figma.closePlugin("Could not find a 'link' node inside a frame")
     return false
   }
 
@@ -65,14 +81,12 @@ function main() {
   figma.currentPage.selection = [worldNode]
   linkNode = findLinkNode()!
   tiles = new Tiles(worldNode)
-  const swordNode = worldNode.findOne((node: SceneNode) => node.name === 'sword') as InstanceNode
-  link = new Link(linkNode, tiles, swordNode, addProjectile)
+  link = new Link(linkNode, tiles, addProjectile)
 
-
-  // link.getItem('sword')
   figma.ui.postMessage({item: "sword"})
 
   enemies = loadEnemies(worldNode, tiles, linkNode, addProjectile)
+  items = loadItems(worldNode)
   figma.currentPage.setRelaunchData({relaunch: ''})
   linkNode.masterComponent.setRelaunchData({relaunch: ''})
   worldNode.setRelaunchData({relaunch: ''})
@@ -103,25 +117,26 @@ function nextFrame() {
     }
     return
   }
-  const onItem = tiles.onItem({x: linkNode.x, y: linkNode.y})
-  if (onItem) {
-    switch (onItem.name) {
+  const item = tiles.onItem({x: linkNode.x, y: linkNode.y})
+  if (item) {
+    link.getItem(item)
+    items = items.filter(i => i.node.id !== item.id) // remove from items array
+    switch (item.name) {
       case 'triforce':
-        link.getItem('triforce')
         gameWon = true
-        onItem.remove()
-        return
+        break
       case 'bow':
-        link.getItem('bow')
         figma.ui.postMessage({addItem: "bow"})
-        onItem.remove()
         break
     }
+    item.remove()
   }
 
   const linkHurtbox = link.nextFrame()
   const linkHitbox = link.hitBox()
   projectiles = projectiles.filter((projectile: Actor) => !!projectile.nextFrame(linkNode))
+
+  items.forEach(item => item.nextFrame())
 
   enemies.forEach((enemy: Actor, enemyIndex: number) => {
     const enemyHitbox = enemy.nextFrame(linkNode)
@@ -142,7 +157,7 @@ function nextFrame() {
     if (linkHitbox) {
       const hitVector = isOverlapping(enemyHitbox, linkHitbox)
       if (hitVector) {
-        enemy.takeDamage(enemy.getDamage(), hitVector)
+        enemy.takeDamage(link.getDamage(), hitVector)
       }
     }
 

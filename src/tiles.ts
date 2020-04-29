@@ -1,6 +1,6 @@
 import { normalize, direction } from "./vector"
 
-const ITEM_TILES = new Set(['triforce', 'bow'])
+const ITEM_TILES = new Set(['triforce', 'bow', 'master-sword'])
 const COLLISION_TILES = new Set(['tree', 'rock', 'water', 'rock_se', 'rock_s', 'rock_sw', 'rock_ne', 'rock_n', 'rock_nw'])
 const DECORATIVE_TILES = new Set(['dirt', 'bridge', 'stairs'])
 

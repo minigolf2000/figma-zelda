@@ -1,5 +1,5 @@
 export const FPS = 30
-export const KNOCKBACK_MAGNITUDE = 8.0
+export const KNOCKBACK_MAGNITUDE = 16.0
 
 export interface Invulnerability {
   numFrames: number
@@ -15,7 +15,6 @@ export function facingOpposite(f1: Facing, f2: Facing) {
     f1 === 'right' && f2 === 'left'
 }
 
-const pluginApiPage = figma.root.findOne((node: BaseNode) => node.type === 'PAGE' && node.name === 'plugin-data') as PageNode
 
 let worldNode: FrameNode
 export function setWorldNode(w: FrameNode) {
@@ -26,11 +25,13 @@ export function getWorldNode() {
   return worldNode
 }
 
+const libSpritesPage = figma.root.findOne((node: BaseNode) => node.type === 'PAGE' && node.name === 'lib-sprites') as PageNode
 export function createNewLibSprite(name: String) {
-  const component = pluginApiPage.findOne((node: SceneNode) => node.name === name) as ComponentNode
-  const instance = component.createInstance()
-  getWorldNode().appendChild(instance)
-  return instance
+  const instanceClone = (libSpritesPage.findOne((node: SceneNode) => node.name === name) as InstanceNode).clone()
+
+  const insertIndex = 0 // insert to the bottom
+  getWorldNode().insertChild(insertIndex, instanceClone)
+  return instanceClone
 }
 
 export function displayHealth(current: number, max: number) {

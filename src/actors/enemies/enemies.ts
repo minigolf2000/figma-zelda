@@ -1,4 +1,4 @@
-import { Tiles } from "../tiles"
+import { Tiles } from "../../tiles"
 import { OctorokRed, OctorokBlue } from "./octorok"
 import { MoblinBlue, MoblinRed } from "./moblin"
 import { Actor } from "../actor"
@@ -27,4 +27,3 @@ export function loadEnemies(worldNode: FrameNode, collision: Tiles, linkNode: In
   })
   return enemies
 }
-

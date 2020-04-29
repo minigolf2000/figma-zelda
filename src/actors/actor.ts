@@ -1,6 +1,6 @@
-import { Facing, KNOCKBACK_MAGNITUDE, Invulnerability } from "./lib"
-import { Tiles, Rectangle } from "./tiles"
-import { multiply, add } from "./vector"
+import { Facing, KNOCKBACK_MAGNITUDE, Invulnerability } from "../lib"
+import { Tiles, Rectangle } from "../tiles"
+import { multiply, add } from "../vector"
 
 export abstract class Actor {
   protected node: InstanceNode

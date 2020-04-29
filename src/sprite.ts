@@ -6,7 +6,7 @@ export class Sprite {
   private currentSpriteNode: SceneNode
   private sprites: SpriteMap
 
-  public constructor(characterNode: InstanceNode) {
+  public constructor(characterNode: InstanceNode, initialSpriteArray: (string|number)[]) {
     let firstSprite: string[] | null = null
     this.sprites = characterNode
         .findAll((node: SceneNode) => node.type === 'INSTANCE' || node.type === 'FRAME')
@@ -19,9 +19,7 @@ export class Sprite {
       return map
     }, {})
 
-    if (firstSprite) {
-      this.setSprite(firstSprite)
-    }
+    if (initialSpriteArray) this.setSprite(initialSpriteArray)
   }
 
   public setSprite(spriteArray: (string|number)[]) {

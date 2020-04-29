@@ -1,13 +1,15 @@
 import { Sprite } from "./sprite"
 import { Tiles } from "./tiles"
-import { Actor } from "./actor"
-import { rotation, facingOpposite } from "./lib"
+import { Actor } from "./actors/actor"
+import { rotation, facingOpposite, createNewLibSprite } from "./lib"
 import { keysPressed, changeFacing, getMovementDirection } from "./buttons"
 import { multiply } from "./vector"
-import { Arrow } from "./arrow"
+import { Arrow } from "./actors/arrow"
 
 const HEALTH = 3.0
 const WALK_SPEED = 2.5
+const WOODEN_SWORD_DAMAGE = 0.5
+const MASTER_SWORD_DAMAGE = 1.0
 
 export class Link extends Actor {
   private walkingFrame: number = 0
@@ -16,12 +18,13 @@ export class Link extends Actor {
   private swordNode: SceneNode
   private sprite: Sprite
   private hasBowAndArrow: boolean = false
+  private hasMasterSword: boolean = false
 
-  public constructor(node: InstanceNode, collision: Tiles, swordNode: InstanceNode, addProjectile: (projectile: Actor) => void) {
+  public constructor(node: InstanceNode, collision: Tiles, addProjectile: (projectile: Actor) => void) {
     super(node, collision, HEALTH, 'down', addProjectile)
-    this.sprite = new Sprite(node)
+    this.sprite = new Sprite(node, ['basic', 'down', 0])
     this.walkingFrame = 0
-    this.swordNode = swordNode
+    this.swordNode = createNewLibSprite('wooden-sword')
     this.swordNode.visible = false
   }
 
@@ -38,13 +41,23 @@ export class Link extends Actor {
     return null
   }
 
-  public getItem(item: string) {
-    if (item === 'bow') {
+  public getItem(item: SceneNode) {
+    if (item.name === 'bow') {
       this.hasBowAndArrow = true
     }
-    if (item === 'triforce') {
+    if (item.name === 'triforce') {
       this.winAnimationFrame =  0
     }
+    if (item.name === 'master-sword') {
+      this.swordNode.remove()
+      this.swordNode = createNewLibSprite('master-sword')
+      this.swordNode.visible = false
+      this.hasMasterSword = true
+    }
+  }
+
+  public getDamage() {
+    return this.hasMasterSword ? MASTER_SWORD_DAMAGE : WOODEN_SWORD_DAMAGE
   }
 
   public isShielding(projectile: Actor) {
@@ -76,7 +89,7 @@ export class Link extends Actor {
 
   public winAnimationFrame = 0
   public winAnimation() {
-    const spriteName = (this.winAnimationFrame % 4 < 2) ? 'win-0' : 'win-1'
+    const spriteName = (this.winAnimationFrame % 8 < 4) ? 'win-0' : 'win-1'
     this.sprite.setSprite([spriteName])
     this.winAnimationFrame++
     return this.winAnimationFrame < 200

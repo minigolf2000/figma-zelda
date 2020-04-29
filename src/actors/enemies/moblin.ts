@@ -1,8 +1,8 @@
-import { Sprite } from "../sprite"
-import { Facing } from "../lib"
-import { Tiles } from "../tiles"
+import { Sprite } from "../../sprite"
+import { Facing } from "../../lib"
+import { Tiles } from "../../tiles"
 import { Actor } from "../actor"
-import { multiply } from "../vector"
+import { multiply } from "../../vector"
 import { Arrow } from "../arrow"
 
 const MAX_WALK_FRAMES = 28
@@ -16,7 +16,7 @@ class Moblin extends Actor {
 
   public constructor(node: InstanceNode, collision: Tiles, health: number, addProjectile: (projectile: Actor) => void) {
     super(node, collision, health, 'down', addProjectile)
-    this.sprite = new Sprite(node)
+    this.sprite = new Sprite(node, ['basic', 'down', 0])
     this.walkingFrame = Math.floor(Math.random() * MAX_WALK_FRAMES)
     this.damage = DAMAGE
   }
