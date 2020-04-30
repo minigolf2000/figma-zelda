@@ -1,5 +1,5 @@
 import { Actor } from "./actor"
-import { Tiles } from "../tiles"
+import { Tiles, Rectangle } from "../tiles"
 import { Facing, createNewLibSprite } from "../lib"
 import { multiply } from "../vector"
 import { Sprite } from "../sprite"
@@ -7,11 +7,20 @@ const ARROW_SPEED = 4.0
 export class Arrow extends Actor {
   private frames: number = 0
 
-  public constructor(collision: Tiles, position: Vector, facing: Facing) {
+  public constructor(collision: Tiles, shooterRectangle: Rectangle, facing: Facing) {
     super(createNewLibSprite('arrow'), collision, Infinity, facing)
     new Sprite(this.node, ['basic', this.facing])
-    this.node.x = position.x - this.node.width / 2
-    this.node.y = position.y - this.node.height / 2
+    this.node.x = shooterRectangle.x + shooterRectangle.width / 2 - this.node.width / 2
+    this.node.y = shooterRectangle.y + shooterRectangle.height / 2 - this.node.height / 2
+    // this.damage = DAMAGE
+  }
+
+  public initialMove() {
+    if (this.move(multiply(this.facingVector(), 16))) {
+      return this
+    }
+    this.getNode().remove()
+    return null
   }
 
   public nextFrame() {

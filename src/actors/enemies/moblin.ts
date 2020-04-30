@@ -40,7 +40,7 @@ class Moblin extends Actor {
       this.move(multiply(this.facingVector(), WALK_SPEED))
     }
     if (this.walkingFrame === MAX_WALK_FRAMES - 1) {
-      this.addProjectile(new Arrow(this.collision, this.getProjectileStartPosition(), this.facing))
+      this.addProjectile((new Arrow(this.collision, this.getNode(), this.facing)).initialMove())
     }
 
     return this.getCurrentCollision()

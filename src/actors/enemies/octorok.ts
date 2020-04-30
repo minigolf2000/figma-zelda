@@ -1,6 +1,6 @@
 import { Sprite } from "../../sprite"
 import { Facing, createNewLibSprite } from "../../lib"
-import { Tiles } from "../../tiles"
+import { Tiles, Rectangle } from "../../tiles"
 import { Actor } from "../actor"
 import { multiply } from "../../vector"
 
@@ -13,12 +13,19 @@ const DAMAGE = 0.5
 
 class Rock extends Actor {
   private frames: number = 0
-  public constructor(collision: Tiles, position: Vector, facing: Facing) {
+  public constructor(collision: Tiles, shooterRectangle: Rectangle, facing: Facing) {
     super(createNewLibSprite('octorok-rock'), collision, Infinity, facing)
-    this.node.x = position.x - this.node.width / 2
-    this.node.y = position.y - this.node.height / 2
+    this.node.x = shooterRectangle.x + shooterRectangle.width / 2 - this.node.width / 2
+    this.node.y = shooterRectangle.y + shooterRectangle.height / 2 - this.node.height / 2
     this.damage = DAMAGE
-    this.move(multiply(this.facingVector(), ROCK_SPEED))
+  }
+
+  public initialMove() {
+    if (this.move(multiply(this.facingVector(), 16))) {
+      return this
+    }
+    this.getNode().remove()
+    return null
   }
 
   public nextFrame() {
@@ -79,7 +86,7 @@ class Octorok extends Actor {
       }
     }
     if (this.walkingFrame === MAX_WALK_FRAMES - 1) {
-      this.addProjectile(new Rock(this.collision, this.getProjectileStartPosition(), this.facing))
+      this.addProjectile((new Rock(this.collision, this.getNode(), this.facing)).initialMove())
     }
 
     return this.getCurrentCollision()

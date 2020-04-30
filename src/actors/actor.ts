@@ -1,6 +1,6 @@
 import { Facing, KNOCKBACK_MAGNITUDE, Invulnerability } from "../lib"
 import { Tiles, Rectangle } from "../tiles"
-import { multiply, add } from "../vector"
+import { multiply } from "../vector"
 
 export abstract class Actor {
   protected node: InstanceNode
@@ -9,7 +9,7 @@ export abstract class Actor {
   protected health: number
   private invulnerability: Invulnerability | null = null
   protected projectiles: Actor[]
-  protected addProjectile: (projectile: Actor) => void
+  protected addProjectile: (projectile: Actor | null) => void
   protected damage: number
 
   public constructor(node: InstanceNode, collision: Tiles, health: number, facing: Facing = 'down', addProjectile?: (projectile: Actor) => void) {
@@ -61,8 +61,8 @@ export abstract class Actor {
         return {x: -1, y: 0}
       case 'right':
         return {x: 1, y: 0}
-      // default:
-      //   assertNever()
+      default:
+        throw 'Invalid facing'
     }
   }
 
@@ -85,12 +85,6 @@ export abstract class Actor {
   protected getCurrentCollision() {
     const {x, y, width, height} = this.getNode()
     return {x, y, width, height}
-  }
-
-  protected getProjectileStartPosition() {
-    const {x, y, width, height} = this.getNode()
-    const center = {x: x + width / 2, y: y + height / 2}
-    return add(center, multiply(this.facingVector(), 8))
   }
 
   abstract nextFrame(linkNode: SceneNode): Rectangle | null

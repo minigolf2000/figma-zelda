@@ -149,7 +149,7 @@ export class Link extends Actor {
 
   private doBowStuff(frame: number) {
     if (frame === 5) {
-      this.addProjectile(new Arrow(this.collision, this.getProjectileStartPosition(), this.facing))
+      this.addProjectile((new Arrow(this.collision, this.getNode(), this.facing)).initialMove())
     }
   }
 

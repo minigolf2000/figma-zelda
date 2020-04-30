@@ -17,8 +17,10 @@ let projectiles: Actor[] = []
 let gameWon = false
 let gameLost = false
 
-function addProjectile(projectile: Actor) {
-  projectiles.push(projectile)
+function addProjectile(projectile: Actor | null) {
+  if (projectile) {
+    projectiles.push(projectile)
+  }
 }
 
 function findLinkNode() {
@@ -134,7 +136,10 @@ function nextFrame() {
 
   const linkHurtbox = link.nextFrame()
   const linkHitbox = link.hitBox()
+
+  // move projectiles
   projectiles = projectiles.filter((projectile: Actor) => !!projectile.nextFrame(linkNode))
+  console.log(projectiles)
 
   items.forEach(item => item.nextFrame())
 
@@ -145,7 +150,7 @@ function nextFrame() {
       return
     }
 
-    // enemies damage link
+    // enemy damages link
     const hurtVector = isOverlapping(linkHurtbox, enemyHitbox)
     if (hurtVector) {
       const health = link.takeDamage(enemy.getDamage(), hurtVector)
@@ -153,7 +158,7 @@ function nextFrame() {
       if (health <= 0) { gameLost = true }
     }
 
-    // link damages enemies
+    // link damages enemy
     if (linkHitbox) {
       const hitVector = isOverlapping(enemyHitbox, linkHitbox)
       if (hitVector) {
@@ -162,19 +167,7 @@ function nextFrame() {
     }
 
     projectiles = projectiles.filter((projectile: Actor) => {
-
-      // projectiles damage link
-      const hurtVector = isOverlapping(linkHurtbox, projectile.getNode())
-      if (hurtVector) {
-        if (!link.isShielding(projectile)) {
-          const health = link.takeDamage(projectile.getDamage(), hurtVector)
-          if (health <= 0) { gameLost = true }
-        }
-        projectile.getNode().remove()
-        return false
-      }
-
-      // projectiles damage enemies
+      // projectiles damage enemy
       const hitVector = isOverlapping(enemyHitbox, projectile.getNode())
       if (hitVector) {
         enemy.takeDamage(projectile.getDamage(), hitVector)
@@ -184,6 +177,21 @@ function nextFrame() {
       return true
     })
   })
+
+  projectiles = projectiles.filter((projectile: Actor) => {
+    // projectiles damage link
+    const hurtVector = isOverlapping(linkHurtbox, projectile.getNode())
+    if (hurtVector) {
+      if (!link.isShielding(projectile)) {
+        const health = link.takeDamage(projectile.getDamage(), hurtVector)
+        if (health <= 0) { gameLost = true }
+      }
+      projectile.getNode().remove()
+      return false
+    }
+    return true
+  })
+
 
   updateCamera(linkNode, getWorldNode())
   printFPS()
