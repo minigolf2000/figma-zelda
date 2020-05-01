@@ -1,3 +1,5 @@
+import { Link } from "./link"
+
 export const FPS = 30
 export const KNOCKBACK_MAGNITUDE = 16.0
 
@@ -23,6 +25,14 @@ export function setWorldNode(w: FrameNode) {
 
 export function getWorldNode() {
   return worldNode
+}
+
+let link: Link
+export function setLink(l: Link) {
+  link = l
+}
+export function getLink() {
+  return link
 }
 
 const libSpritesPage = figma.root.findOne((node: BaseNode) => node.type === 'PAGE' && node.name === 'lib-sprites') as PageNode

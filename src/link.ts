@@ -1,7 +1,7 @@
 import { Sprite } from "./sprite"
 import { Tiles } from "./tiles"
 import { Actor } from "./actors/actor"
-import { rotation, facingOpposite, createNewLibSprite } from "./lib"
+import { rotation, facingOpposite, createNewLibSprite, getWorldNode } from "./lib"
 import { keysPressed, changeFacing, getMovementDirection } from "./buttons"
 import { multiply } from "./vector"
 import { Arrow } from "./actors/arrow"
@@ -66,7 +66,21 @@ export class Link extends Actor {
 
   private deathAnimationFrame = 0
   public deathAnimation() {
-    if (this.deathAnimationFrame <= 64) {
+    if (this.deathAnimationFrame <= 30) {
+      if (this.deathAnimationFrame % 2 === 0) {
+        this.node.visible = !this.node.visible
+      }
+      this.sprite.setSprite(['basic', 'down', Math.floor(this.deathAnimationFrame / 4) % 2 ])
+    }
+    if (this.deathAnimationFrame === 38) {
+      const redFill: SolidPaint = {
+        type: "SOLID",
+        color: {r: 216 / 255, g: 40 / 255, b: 0 / 255},
+        opacity: .2
+      }
+      getWorldNode().fills = [...getWorldNode().fills as readonly Paint[], redFill]
+    }
+    if (this.deathAnimationFrame > 38 && this.deathAnimationFrame <= 80) {
       switch (Math.floor(this.deathAnimationFrame / 2) % 4) {
         case 0:
           this.facing = 'down'; break
@@ -79,12 +93,12 @@ export class Link extends Actor {
       }
       this.sprite.setSprite(['basic', this.facing, 0])
     }
-    if (this.deathAnimationFrame === 60) {
+    if (this.deathAnimationFrame === 80) {
       this.getNode().blendMode = "LUMINOSITY"
     }
 
     this.deathAnimationFrame++
-    return this.deathAnimationFrame < 100
+    return this.deathAnimationFrame < 120
   }
 
   public winAnimationFrame = 0

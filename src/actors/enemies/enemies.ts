@@ -4,7 +4,7 @@ import { MoblinBlue, MoblinRed } from "./moblin"
 import { Actor } from "../actor"
 import { LynelRed } from "./lynel_red"
 
-export function loadEnemies(worldNode: FrameNode, collision: Tiles, linkNode: InstanceNode, addProjectile: (projectile: Actor) => void) {
+export function loadEnemies(worldNode: FrameNode, collision: Tiles, addProjectile: (projectile: Actor) => void) {
   const enemies: Actor[] = []
   worldNode.findAll((node: SceneNode) => node.type === 'INSTANCE').forEach((node: InstanceNode) => {
     switch (node.name) {

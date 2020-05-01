@@ -1,4 +1,4 @@
-import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode } from './lib'
+import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode, setLink, getLink } from './lib'
 import { loadEnemies } from './actors/enemies/enemies'
 import { Tiles, isOverlapping, snapTilesToGrid } from './tiles'
 import { onKeyPressed, keysPressed, paused } from './buttons'
@@ -8,8 +8,6 @@ import { MasterSword } from './actors/master-sword'
 import { Triforce } from './actors/triforce'
 import { loadItems } from './actors/items'
 
-let linkNode: InstanceNode
-let link: Link
 let tiles: Tiles
 let enemies: Actor[]
 let items: (MasterSword | Triforce)[]
@@ -53,20 +51,18 @@ function findLinkNode() {
 }
 
 function main() {
-  const linkNodeOrNull = findLinkNode()
-  if (linkNodeOrNull) {
-    linkNode = linkNodeOrNull
-  } else {
+  let linkNodeOrNull = findLinkNode()
+  if (!linkNodeOrNull) {
     figma.closePlugin("Please have Link selected while running the Plugin")
     return false
   }
 
-  if (!linkNode.parent || linkNode.parent.type !== 'FRAME') {
+  if (!linkNodeOrNull.parent || linkNodeOrNull.parent.type !== 'FRAME') {
     figma.closePlugin("Could not find a 'link' node inside a frame")
     return false
   }
 
-  const templateWorldNode = linkNode.parent
+  const templateWorldNode = linkNodeOrNull.parent
   if (templateWorldNode.getPluginData("running-world") ===  "true") {
     figma.closePlugin("Multiplayer is not supported yet!")
     return false
@@ -81,16 +77,16 @@ function main() {
   setWorldNode(worldNode)
   worldNode.visible = true
   figma.currentPage.selection = [worldNode]
-  linkNode = findLinkNode()!
+  linkNodeOrNull = findLinkNode()!
   tiles = new Tiles(worldNode)
-  link = new Link(linkNode, tiles, addProjectile)
+  setLink(new Link(linkNodeOrNull, tiles, addProjectile))
 
   figma.ui.postMessage({item: "sword"})
 
-  enemies = loadEnemies(worldNode, tiles, linkNode, addProjectile)
+  enemies = loadEnemies(worldNode, tiles, addProjectile)
   items = loadItems(worldNode)
   figma.currentPage.setRelaunchData({relaunch: ''})
-  linkNode.masterComponent.setRelaunchData({relaunch: ''})
+  linkNodeOrNull.masterComponent.setRelaunchData({relaunch: ''})
   worldNode.setRelaunchData({relaunch: ''})
   figma.ui.postMessage({addItem: 'sword'})
   figma.currentPage.selection = []
@@ -98,6 +94,9 @@ function main() {
 }
 
 function nextFrame() {
+  const link = getLink()
+  const linkNode = link.getNode()
+
   if (paused) {
     figma.ui.postMessage({message: "Game paused. Click here to resume."})
     return
@@ -108,12 +107,14 @@ function nextFrame() {
   }
 
   if (gameWon) {
+    enemies.forEach(e => e.getNode().visible = false)
     if (!link.winAnimation()) {
       figma.closePlugin()
     }
     return
   }
   if (gameLost) {
+    enemies.forEach(e => e.getNode().visible = false)
     if (!link.deathAnimation()) {
       figma.closePlugin()
     }
@@ -138,8 +139,7 @@ function nextFrame() {
   const linkHitbox = link.hitBox()
 
   // move projectiles
-  projectiles = projectiles.filter((projectile: Actor) => !!projectile.nextFrame(linkNode))
-  console.log(projectiles)
+  projectiles = projectiles.filter(projectile => !!projectile.nextFrame(linkNode))
 
   items.forEach(item => item.nextFrame())
 
@@ -184,6 +184,7 @@ function nextFrame() {
     if (hurtVector) {
       if (!link.isShielding(projectile)) {
         const health = link.takeDamage(projectile.getDamage(), hurtVector)
+        figma.ui.postMessage({health: displayHealth(health, 3)})
         if (health <= 0) { gameLost = true }
       }
       projectile.getNode().remove()
