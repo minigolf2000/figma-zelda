@@ -47,8 +47,15 @@ export abstract class Actor {
       return this.health
     }
     this.health = Math.max(0, this.health - damage)
+    if (this.health === 0) {
+      this.onDeath()
+    }
     this.invulnerability = {numFrames: 0, knockback: multiply(vector, KNOCKBACK_MAGNITUDE)}
     return this.health
+  }
+
+  protected onDeath() {
+    this.node.remove()
   }
 
   protected facingVector() {

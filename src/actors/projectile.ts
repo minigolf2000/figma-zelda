@@ -6,6 +6,7 @@ import { Sprite } from "../sprite"
 
 const PROJECTILE_SPEED = 4.0
 const DAMAGE = 0.5
+const BOW_DAMAGE = 0.25
 const LIFESPAN_FRAMES = 100
 
 export class Projectile extends Actor {
@@ -43,6 +44,7 @@ export class Arrow extends Projectile {
   public constructor(collision: Tiles, shooterRectangle: Rectangle, facing: Facing) {
     super('arrow', collision, shooterRectangle, facing)
     new Sprite(this.node, ['basic', this.facing])
+    this.damage = BOW_DAMAGE
   }
 }
 

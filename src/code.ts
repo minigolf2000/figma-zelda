@@ -139,13 +139,10 @@ function nextFrame() {
   setProjectiles(getProjectiles().filter(projectile => !!projectile.nextFrame()))
 
   items.forEach(item => item.nextFrame())
+  enemies.forEach(enemy => enemy.nextFrame())
 
-  enemies.forEach((enemy: Actor, enemyIndex: number) => {
-    const enemyHitbox = enemy.nextFrame()
-    if (!enemyHitbox) {
-      enemies.splice(enemyIndex, 1)
-      return
-    }
+  enemies = enemies.filter((enemy: Actor) => {
+    const enemyHitbox = enemy.getNode()
 
     // enemy damages link
     const hurtVector = isOverlapping(linkHurtbox, enemyHitbox)
@@ -159,20 +156,28 @@ function nextFrame() {
     if (linkHitbox) {
       const hitVector = isOverlapping(enemyHitbox, linkHitbox)
       if (hitVector) {
-        enemy.takeDamage(link.getDamage(), hitVector)
+        const enemyHealth = enemy.takeDamage(link.getDamage(), hitVector)
+        if (enemyHealth <= 0) {
+          return false
+        }
       }
     }
 
+    let enemyKilledByProjectile = false
     setProjectiles(getProjectiles().filter((projectile: Actor) => {
       // projectiles damage enemy
       const hitVector = isOverlapping(enemyHitbox, projectile.getNode())
       if (hitVector) {
-        enemy.takeDamage(projectile.getDamage(), hitVector)
+        const enemyHealth = enemy.takeDamage(projectile.getDamage(), hitVector)
+        if (enemyHealth <= 0) {
+          enemyKilledByProjectile = true
+        }
         projectile.getNode().remove()
         return false
       }
       return true
     }))
+    return !enemyKilledByProjectile
   })
 
   setProjectiles(getProjectiles().filter((projectile: Actor) => {

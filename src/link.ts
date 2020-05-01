@@ -119,10 +119,8 @@ export class Link extends Actor {
     }
 
     let walking = false
-    if (this.swordActiveFrame === null) {
-      if (this.bowActiveFrame === null) {
-        this.facing = changeFacing(this.facing)
-      }
+    if (this.swordActiveFrame === null && this.bowActiveFrame === null) {
+      this.facing = changeFacing(this.facing)
       const direction = getMovementDirection()
       walking = direction.x !== 0 || direction.y !== 0
       if (walking) {
@@ -143,13 +141,7 @@ export class Link extends Actor {
         this.swordActiveFrame = null
       }
     }
-    if (this.bowActiveFrame !== null) {
-      this.doBowStuff(this.bowActiveFrame)
-      this.bowActiveFrame++
-      if (this.bowActiveFrame > 10) {
-        this.bowActiveFrame = null
-      }
-    }
+    this.bowAnimation()
 
     const leniency = 1
     return {
@@ -161,11 +153,23 @@ export class Link extends Actor {
 
   }
 
-  private doBowStuff(frame: number) {
-    if (frame === 5) {
+  private bowAnimation() {
+    if (this.bowActiveFrame === null) {
+      return
+    }
+
+    if (this.bowActiveFrame === 3) {
       addProjectile((new Arrow(this.collision, this.getNode(), this.facing)).initialMove())
     }
+
+    if (this.bowActiveFrame > 6) {
+      this.bowActiveFrame = null
+    } else {
+      this.bowActiveFrame++
+    }
   }
+
+  protected onDeath() {} // do not remove link node on death
 
   private setSwordPosition(frame: number) {
     const node = this.getNode()

@@ -10,6 +10,8 @@ const BLUE_HEALTH = 1.0
 const WALK_SPEED = 1.0
 const DAMAGE = 0.5
 
+const SIGHT_DISTANCE = 15 * 16 // 15 tiles
+
 class Octorok extends Actor {
   private sprite: Sprite
   private spriteAnimationFrame: number
@@ -44,7 +46,7 @@ class Octorok extends Actor {
   }
 
   private shootBehavior() {
-    if (this.shootingFrame === 8) {
+    if (this.shootingFrame === 12) {
       addProjectile((new OctorokRock(this.collision, this.getNode(), this.facing)).initialMove())
     }
 
@@ -119,7 +121,9 @@ class Octorok extends Actor {
     }
 
     return linkX + linkWidth / 2 > octorokX + octorokWidth / 2 &&
-      linkY + linkHeight > octorokY && linkY < octorokY + octorokHeight
+      linkX - octorokX <= SIGHT_DISTANCE &&
+      linkY + linkHeight > octorokY &&
+      linkY < octorokY + octorokHeight
   }
 }
 

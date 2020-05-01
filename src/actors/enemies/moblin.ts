@@ -7,7 +7,7 @@ import { multiply } from "../../vector"
 const MAX_WALK_FRAMES = 28
 const RED_HEALTH = 1.0
 const BLUE_HEALTH = 1.5
-const WALK_SPEED = 1
+const WALK_SPEED = 1.25
 const DAMAGE = 0.5
 class Moblin extends Actor {
   private sprite: Sprite
@@ -35,7 +35,7 @@ class Moblin extends Actor {
     if (this.walkingFrame === MAX_WALK_FRAMES) this.walkingFrame = 0
     this.sprite.setSprite(['basic', this.facing, Math.floor(this.walkingFrame / 4) % 2])
 
-    if (this.walkingFrame < 8) {
+    if (this.walkingFrame < 16) {
       this.move(multiply(this.facingVector(), WALK_SPEED))
     }
 

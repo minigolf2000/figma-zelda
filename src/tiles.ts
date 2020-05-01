@@ -150,17 +150,19 @@ export function isOverlapping(rect1: Rectangle, rect2: Rectangle): Vector | null
 }
 
 export function snapTilesToGrid(worldNode: FrameNode) {
-  let numNodesSnappedToGrid = 0
+  let numTilesSnappedToGrid = 0
 
   worldNode.children.forEach((node: SceneNode) => {
-    if (node.x % 16 !== 0 || node.y % 16 !== 0) {
-      node.x = Math.round(node.x / 16) * 16
-      node.y = Math.round(node.y / 16) * 16
-      numNodesSnappedToGrid++
+    const snappedX = Math.round(node.x / 16) * 16 + Math.round((16 - node.width) / 2)
+    const snappedY = Math.round(node.y / 16) * 16 + Math.round((16 - node.height) / 2)
+    if (snappedX !== node.x || snappedY !== node.y) {
+      node.x = snappedX
+      node.y = snappedY
+      numTilesSnappedToGrid++
     }
   })
 
-  if (numNodesSnappedToGrid > 0) {
-    figma.notify(`${numNodesSnappedToGrid} tiles snapped to the 16px grid`)
+  if (numTilesSnappedToGrid > 0) {
+    figma.notify(`${numTilesSnappedToGrid} tiles snapped to the 16px grid`)
   }
 }
