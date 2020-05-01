@@ -3,7 +3,8 @@ interface SpriteMap {
 }
 
 export class Sprite {
-  private currentSpriteNode: SceneNode
+  private currentSpriteNodeName: string
+  private nodeNamesMap: Set<string> = new Set()
   private sprites: SpriteMap
 
   public constructor(characterNode: InstanceNode, initialSpriteArray: (string|number)[]) {
@@ -15,6 +16,9 @@ export class Sprite {
         firstSprite = node.name.split("-")
       }
       map[node.name] = node
+
+      this.nodeNamesMap.add(node.name)
+
       node.visible = false
       return map
     }, {})
@@ -23,18 +27,18 @@ export class Sprite {
   }
 
   public setSprite(spriteArray: (string|number)[]) {
-    const node = this.sprites[spriteArray.join("-")]
+    const spriteName = spriteArray.join("-")
 
-    if (!node) {
+    if (!this.nodeNamesMap.has(spriteName)) {
       throw `Could not find sprite name ${spriteArray.join("-")} in list ${JSON.stringify(this.sprites)}`
     }
 
-    if (node.name === this.currentSpriteNode?.name) {
+    if (spriteName === this.currentSpriteNodeName) {
       return
     }
 
-    if (this.currentSpriteNode) this.currentSpriteNode.visible = false
-    node.visible = true
-    this.currentSpriteNode = node
+    if (this.currentSpriteNodeName) this.sprites[this.currentSpriteNodeName].visible = false
+    this.sprites[spriteName].visible = true
+    this.currentSpriteNodeName = spriteName
   }
 }
