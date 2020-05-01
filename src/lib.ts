@@ -56,7 +56,7 @@ const libSpritesPage = figma.root.findOne((node: BaseNode) => node.type === 'PAG
 export function createNewLibSprite(name: String) {
   const libInstanceNode = (libSpritesPage.findOne((node: SceneNode) => node.name === name) as InstanceNode)
   if (!libInstanceNode) { throw `could not find lib sprite named ${name}`}
-  const libInstanceClone = libInstanceNode.clone()
+  const libInstanceClone = detachNode(libInstanceNode.clone())
 
   const insertIndex = 0 // insert to the bottom
   getWorldNode().insertChild(insertIndex, libInstanceClone)
@@ -116,3 +116,20 @@ export function rotation(facing: Facing) {
   }
 }
 
+// It turns out fetching node data for InstanceNodes is really slow, but fetching
+// node data for FrameNodes is pretty fast. This is a helper function to detach
+// instances to frames for performance
+// Once Plugin API support detaching, replace this function with the official function
+export function detachNode(node: InstanceNode) {
+  const detached = figma.createFrame()
+  detached.name = node.name
+  detached.x = node.x
+  detached.y = node.y
+  detached.fills = node.fills
+  detached.clipsContent = node.clipsContent
+  detached.resize(node.width, node.height)
+  node.parent?.appendChild(detached)
+  node.children.forEach(c => detached.appendChild(c.clone()))
+  node.remove()
+  return detached
+}

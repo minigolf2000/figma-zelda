@@ -7,7 +7,7 @@ export class Sprite {
   private nodeNamesMap: Set<string> = new Set()
   private sprites: SpriteMap
 
-  public constructor(characterNode: InstanceNode, initialSpriteArray: (string|number)[]) {
+  public constructor(characterNode: FrameNode, initialSpriteArray: (string|number)[]) {
     let firstSprite: string[] | null = null
     this.sprites = characterNode
         .findAll((node: SceneNode) => node.type === 'INSTANCE' || node.type === 'FRAME')

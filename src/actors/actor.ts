@@ -3,7 +3,7 @@ import { Tiles, Rectangle, CollisionLevel } from "../tiles"
 import { multiply } from "../vector"
 
 export abstract class Actor {
-  protected node: InstanceNode
+  protected node: FrameNode
   public facing: Facing
   protected collision: Tiles
   protected health: number
@@ -12,7 +12,7 @@ export abstract class Actor {
   protected damage: number
   protected collisionLevel: CollisionLevel
 
-  public constructor(node: InstanceNode, collision: Tiles, health: number, facing: Facing = 'down') {
+  public constructor(node: FrameNode, collision: Tiles, health: number, facing: Facing = 'down') {
     this.node = node
     this.collision = collision
     this.health = health

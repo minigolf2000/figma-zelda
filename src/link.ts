@@ -20,7 +20,7 @@ export class Link extends Actor {
   private hasBowAndArrow: boolean = false
   private hasMasterSword: boolean = false
 
-  public constructor(node: InstanceNode, collision: Tiles) {
+  public constructor(node: FrameNode, collision: Tiles) {
     super(node, collision, HEALTH, 'down')
     this.sprite = new Sprite(node, ['basic', 'down', 0])
     this.walkingFrame = 0

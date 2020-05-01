@@ -3,9 +3,9 @@ import { Sprite } from "../sprite"
 export class MasterSword {
   private animationFrame: number = 0
   private sprite: Sprite
-  public node: InstanceNode
+  public node: FrameNode
 
-  public constructor(node: InstanceNode) {
+  public constructor(node: FrameNode) {
     this.node = node
     this.sprite = new Sprite(node, ['basic', 'down', 0])
   }

@@ -16,7 +16,7 @@ class Octorok extends Actor {
   private walkingFrame: number = 0
   private shootingFrame: number | null = null
 
-  public constructor(node: InstanceNode, collision: Tiles, health: number) {
+  public constructor(node: FrameNode, collision: Tiles, health: number) {
     super(node, collision, health, 'down')
     this.sprite = new Sprite(node, ['basic', 'down', 0])
     this.spriteAnimationFrame = Math.floor(Math.random() * 4)
@@ -124,13 +124,13 @@ class Octorok extends Actor {
 }
 
 export class OctorokRed extends Octorok {
-  public constructor(node: InstanceNode, collision: Tiles) {
+  public constructor(node: FrameNode, collision: Tiles) {
     super(node, collision, RED_HEALTH)
   }
 }
 
 export class OctorokBlue extends Octorok {
-  public constructor(node: InstanceNode, collision: Tiles) {
+  public constructor(node: FrameNode, collision: Tiles) {
     super(node, collision, BLUE_HEALTH)
   }
 }

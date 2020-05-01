@@ -16,7 +16,7 @@ export class LynelRed extends Actor {
   private walkingFrame: number = 0
   private homeVector: Vector
 
-  public constructor(node: InstanceNode, collision: Tiles) {
+  public constructor(node: FrameNode, collision: Tiles) {
     super(node, collision, HEALTH)
     this.sprite = new Sprite(node, ['basic', 'down', 0])
     this.walkingFrame = Math.floor(Math.random() * MAX_WALK_FRAMES)

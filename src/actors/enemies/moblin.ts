@@ -13,7 +13,7 @@ class Moblin extends Actor {
   private sprite: Sprite
   private walkingFrame: number = 0
 
-  public constructor(node: InstanceNode, collision: Tiles, health: number) {
+  public constructor(node: FrameNode, collision: Tiles, health: number) {
     super(node, collision, health, 'down')
     this.sprite = new Sprite(node, ['basic', 'down', 0])
     this.walkingFrame = Math.floor(Math.random() * MAX_WALK_FRAMES)
@@ -44,12 +44,12 @@ class Moblin extends Actor {
 }
 
 export class MoblinRed extends Moblin {
-  public constructor(node: InstanceNode, collision: Tiles) {
+  public constructor(node: FrameNode, collision: Tiles) {
     super(node, collision, RED_HEALTH)
   }
 }
 export class MoblinBlue extends Moblin {
-  public constructor(node: InstanceNode, collision: Tiles) {
+  public constructor(node: FrameNode, collision: Tiles) {
     super(node, collision, BLUE_HEALTH)
   }
 }

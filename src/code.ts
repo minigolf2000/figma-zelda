@@ -1,4 +1,4 @@
-import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode, setLink, getLink, setProjectiles, getProjectiles } from './lib'
+import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode, setLink, getLink, setProjectiles, getProjectiles, detachNode } from './lib'
 import { loadEnemies } from './actors/enemies/enemies'
 import { Tiles, isOverlapping, snapTilesToGrid } from './tiles'
 import { onKeyPressed, keysPressed, paused } from './buttons'
@@ -71,15 +71,17 @@ function main() {
   worldNode.visible = true
   figma.currentPage.selection = [worldNode]
   linkNodeOrNull = findLinkNode()!
+  linkNodeOrNull.masterComponent.setRelaunchData({relaunch: ''})
   tiles = new Tiles(worldNode)
-  setLink(new Link(linkNodeOrNull, tiles))
+  setLink(new Link(detachNode(linkNodeOrNull), tiles))
 
   figma.ui.postMessage({item: "sword"})
 
   enemies = loadEnemies(worldNode, tiles)
+  // TODO: currently picking up animated items is broken because this is
+  // loaded after new Tiles
   items = loadItems(worldNode)
   figma.currentPage.setRelaunchData({relaunch: ''})
-  linkNodeOrNull.masterComponent.setRelaunchData({relaunch: ''})
   worldNode.setRelaunchData({relaunch: ''})
   figma.ui.postMessage({addItem: 'sword'})
   figma.currentPage.selection = []
