@@ -1,4 +1,4 @@
-import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode, setLink, getLink } from './lib'
+import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode, setLink, getLink, setProjectiles, getProjectiles } from './lib'
 import { loadEnemies } from './actors/enemies/enemies'
 import { Tiles, isOverlapping, snapTilesToGrid } from './tiles'
 import { onKeyPressed, keysPressed, paused } from './buttons'
@@ -11,15 +11,8 @@ import { loadItems } from './actors/items'
 let tiles: Tiles
 let enemies: Actor[]
 let items: (MasterSword | Triforce)[]
-let projectiles: Actor[] = []
 let gameWon = false
 let gameLost = false
-
-function addProjectile(projectile: Actor | null) {
-  if (projectile) {
-    projectiles.push(projectile)
-  }
-}
 
 function findLinkNode() {
   const isPlayableLink = (node: BaseNode) => node.type === 'INSTANCE' && node.name === 'link' && node.parent?.type !== 'PAGE'
@@ -79,11 +72,11 @@ function main() {
   figma.currentPage.selection = [worldNode]
   linkNodeOrNull = findLinkNode()!
   tiles = new Tiles(worldNode)
-  setLink(new Link(linkNodeOrNull, tiles, addProjectile))
+  setLink(new Link(linkNodeOrNull, tiles))
 
   figma.ui.postMessage({item: "sword"})
 
-  enemies = loadEnemies(worldNode, tiles, addProjectile)
+  enemies = loadEnemies(worldNode, tiles)
   items = loadItems(worldNode)
   figma.currentPage.setRelaunchData({relaunch: ''})
   linkNodeOrNull.masterComponent.setRelaunchData({relaunch: ''})
@@ -107,14 +100,16 @@ function nextFrame() {
   }
 
   if (gameWon) {
-    enemies.forEach(e => e.getNode().visible = false)
+    enemies.forEach(e => e.getNode().remove())
+    enemies = []
     if (!link.winAnimation()) {
       figma.closePlugin()
     }
     return
   }
   if (gameLost) {
-    enemies.forEach(e => e.getNode().visible = false)
+    enemies.forEach(e => e.getNode().remove())
+    enemies = []
     if (!link.deathAnimation()) {
       figma.closePlugin()
     }
@@ -139,12 +134,12 @@ function nextFrame() {
   const linkHitbox = link.hitBox()
 
   // move projectiles
-  projectiles = projectiles.filter(projectile => !!projectile.nextFrame(linkNode))
+  setProjectiles(getProjectiles().filter(projectile => !!projectile.nextFrame()))
 
   items.forEach(item => item.nextFrame())
 
   enemies.forEach((enemy: Actor, enemyIndex: number) => {
-    const enemyHitbox = enemy.nextFrame(linkNode)
+    const enemyHitbox = enemy.nextFrame()
     if (!enemyHitbox) {
       enemies.splice(enemyIndex, 1)
       return
@@ -166,7 +161,7 @@ function nextFrame() {
       }
     }
 
-    projectiles = projectiles.filter((projectile: Actor) => {
+    setProjectiles(getProjectiles().filter((projectile: Actor) => {
       // projectiles damage enemy
       const hitVector = isOverlapping(enemyHitbox, projectile.getNode())
       if (hitVector) {
@@ -175,10 +170,10 @@ function nextFrame() {
         return false
       }
       return true
-    })
+    }))
   })
 
-  projectiles = projectiles.filter((projectile: Actor) => {
+  setProjectiles(getProjectiles().filter((projectile: Actor) => {
     // projectiles damage link
     const hurtVector = isOverlapping(linkHurtbox, projectile.getNode())
     if (hurtVector) {
@@ -191,7 +186,7 @@ function nextFrame() {
       return false
     }
     return true
-  })
+  }))
 
 
   updateCamera(linkNode, getWorldNode())

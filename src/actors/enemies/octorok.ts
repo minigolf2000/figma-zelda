@@ -1,44 +1,14 @@
 import { Sprite } from "../../sprite"
-import { Facing, createNewLibSprite, getLink } from "../../lib"
-import { Tiles, Rectangle, CollisionLevel } from "../../tiles"
+import { Facing, getLink, addProjectile } from "../../lib"
+import { Tiles, Rectangle } from "../../tiles"
 import { Actor } from "../actor"
 import { multiply } from "../../vector"
+import { OctorokRock } from "../projectile"
 
 const RED_HEALTH = 0.5
 const BLUE_HEALTH = 1.0
 const WALK_SPEED = 1.0
-const ROCK_SPEED = 4.0
 const DAMAGE = 0.5
-
-class Rock extends Actor {
-  private frames: number = 0
-  public constructor(collision: Tiles, shooterRectangle: Rectangle, facing: Facing) {
-    super(createNewLibSprite('octorok-rock'), collision, Infinity, facing)
-    this.node.x = shooterRectangle.x + shooterRectangle.width / 2 - this.node.width / 2
-    this.node.y = shooterRectangle.y + shooterRectangle.height / 2 - this.node.height / 2
-    this.collisionLevel = CollisionLevel.Wall
-    this.damage = DAMAGE
-  }
-
-  public initialMove() {
-    if (this.move(multiply(this.facingVector(), 16))) {
-      return this
-    }
-    this.getNode().remove()
-    return null
-  }
-
-  public nextFrame() {
-    this.frames++
-    const successfulMove = this.move(multiply(this.facingVector(), ROCK_SPEED))
-    if (this.frames <= 100 && successfulMove) {
-      return this.getCurrentCollision()
-    } else {
-      this.getNode().remove()
-      return null
-    }
-  }
-}
 
 class Octorok extends Actor {
   private sprite: Sprite
@@ -46,34 +16,17 @@ class Octorok extends Actor {
   private walkingFrame: number = 0
   private shootingFrame: number | null = null
 
-  public constructor(node: InstanceNode, collision: Tiles, health: number, addProjectile: (projectile: Actor) => void) {
-    super(node, collision, health, 'down', addProjectile)
+  public constructor(node: InstanceNode, collision: Tiles, health: number) {
+    super(node, collision, health, 'down')
     this.sprite = new Sprite(node, ['basic', 'down', 0])
     this.spriteAnimationFrame = Math.floor(Math.random() * 4)
     this.walkingFrame = Math.floor(Math.random() * 48)
-    this.addProjectile = addProjectile
     this.damage = DAMAGE
-  }
-
-  private turnRandomly() {
-    this.facing = ['up', 'down', 'left', 'right'][Math.floor(Math.random() * 4)] as Facing
-  }
-
-  private forceTurn() {
-    if (this.facing === 'up') {
-      this.facing = ['down', 'left', 'right'][Math.floor(Math.random() * 3)] as Facing
-    } else if (this.facing === 'down') {
-      this.facing = ['up', 'left', 'right'][Math.floor(Math.random() * 3)] as Facing
-    } else if (this.facing === 'left') {
-      this.facing = ['up', 'down', 'right'][Math.floor(Math.random() * 3)] as Facing
-    } else if (this.facing === 'right') {
-      this.facing = ['up', 'down', 'left'][Math.floor(Math.random() * 3)] as Facing
-    }
   }
 
   public nextFrame() {
     if (this.health <= 0) {
-      this.getNode().visible = false
+      this.getNode().remove()
       return null
     }
 
@@ -83,7 +36,7 @@ class Octorok extends Actor {
     if (this.shootingFrame !== null) {
       this.shootBehavior()
     } else {
-      this.wanderingBehavior()
+      this.wanderBehavior()
     }
 
     this.spriteAnimationFrame++
@@ -92,7 +45,7 @@ class Octorok extends Actor {
 
   private shootBehavior() {
     if (this.shootingFrame === 8) {
-      this.addProjectile((new Rock(this.collision, this.getNode(), this.facing)).initialMove())
+      addProjectile((new OctorokRock(this.collision, this.getNode(), this.facing)).initialMove())
     }
 
     this.shootingFrame!++
@@ -102,17 +55,19 @@ class Octorok extends Actor {
     }
   }
 
-  private wanderingBehavior() {
+  private wanderBehavior() {
     if (this.walkingFrame === 0) {
-      this.turnRandomly()
+      // Turn randomly
+      this.facing = ['up', 'down', 'left', 'right'][Math.floor(Math.random() * 4)] as Facing
     }
 
     if (!this.move(multiply(this.facingVector(), WALK_SPEED))) {
-      this.forceTurn()
+      // Force turn to another direction
+      this.facing = ['up', 'down', 'left', 'right'].filter(f => f !== this.facing)[Math.floor(Math.random() * 3)] as Facing
     }
 
     // Any time after 16, Octorok can lock on and enter shooting mode
-    if (this.walkingFrame > 16 && this.shouldShoot()) {
+    if (this.walkingFrame > 16 && this.seesLinkInLineOfSight()) {
       this.shootingFrame = 0
       this.walkingFrame = 0
     } else if (this.walkingFrame === 32) {
@@ -122,8 +77,7 @@ class Octorok extends Actor {
     }
   }
 
-  // Octorok will only shoot when facing toward Link
-  private shouldShoot() {
+  private seesLinkInLineOfSight() {
     const linkNode: Rectangle = getLink().getNode()
 
     // Assign variables assuming Octorok is facing right. Then reassign if the facing is different
@@ -170,13 +124,13 @@ class Octorok extends Actor {
 }
 
 export class OctorokRed extends Octorok {
-  public constructor(node: InstanceNode, collision: Tiles, addProjectile: (projectile: Actor) => void) {
-    super(node, collision, RED_HEALTH, addProjectile)
+  public constructor(node: InstanceNode, collision: Tiles) {
+    super(node, collision, RED_HEALTH)
   }
 }
 
 export class OctorokBlue extends Octorok {
-  public constructor(node: InstanceNode, collision: Tiles, addProjectile: (projectile: Actor) => void) {
-    super(node, collision, BLUE_HEALTH, addProjectile)
+  public constructor(node: InstanceNode, collision: Tiles) {
+    super(node, collision, BLUE_HEALTH)
   }
 }

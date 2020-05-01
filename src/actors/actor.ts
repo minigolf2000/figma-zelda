@@ -9,17 +9,15 @@ export abstract class Actor {
   protected health: number
   private invulnerability: Invulnerability | null = null
   protected projectiles: Actor[]
-  protected addProjectile: (projectile: Actor | null) => void
   protected damage: number
   protected collisionLevel: CollisionLevel
 
-  public constructor(node: InstanceNode, collision: Tiles, health: number, facing: Facing = 'down', addProjectile?: (projectile: Actor) => void) {
+  public constructor(node: InstanceNode, collision: Tiles, health: number, facing: Facing = 'down') {
     this.node = node
     this.collision = collision
     this.health = health
     this.facing = facing
     this.collisionLevel = CollisionLevel.Water
-    this.addProjectile = addProjectile || (() => {})
   }
 
   public getNode() {
@@ -89,6 +87,6 @@ export abstract class Actor {
     return {x, y, width, height}
   }
 
-  abstract nextFrame(linkNode: SceneNode): Rectangle | null
+  abstract nextFrame(): Rectangle | null
 
 }

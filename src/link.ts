@@ -1,10 +1,10 @@
 import { Sprite } from "./sprite"
 import { Tiles } from "./tiles"
 import { Actor } from "./actors/actor"
-import { rotation, facingOpposite, createNewLibSprite, getWorldNode } from "./lib"
+import { rotation, facingOpposite, createNewLibSprite, getWorldNode, addProjectile } from "./lib"
 import { keysPressed, changeFacing, getMovementDirection } from "./buttons"
 import { multiply } from "./vector"
-import { Arrow } from "./actors/arrow"
+import { Arrow } from "./actors/projectile"
 
 const HEALTH = 3.0
 const WALK_SPEED = 2.5
@@ -20,8 +20,8 @@ export class Link extends Actor {
   private hasBowAndArrow: boolean = false
   private hasMasterSword: boolean = false
 
-  public constructor(node: InstanceNode, collision: Tiles, addProjectile: (projectile: Actor) => void) {
-    super(node, collision, HEALTH, 'down', addProjectile)
+  public constructor(node: InstanceNode, collision: Tiles) {
+    super(node, collision, HEALTH, 'down')
     this.sprite = new Sprite(node, ['basic', 'down', 0])
     this.walkingFrame = 0
     this.swordNode = createNewLibSprite('wooden-sword')
@@ -163,7 +163,7 @@ export class Link extends Actor {
 
   private doBowStuff(frame: number) {
     if (frame === 5) {
-      this.addProjectile((new Arrow(this.collision, this.getNode(), this.facing)).initialMove())
+      addProjectile((new Arrow(this.collision, this.getNode(), this.facing)).initialMove())
     }
   }
 

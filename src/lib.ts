@@ -1,4 +1,5 @@
 import { Link } from "./link"
+import { Projectile } from "./actors/projectile"
 
 export const FPS = 30
 export const KNOCKBACK_MAGNITUDE = 16.0
@@ -35,13 +36,31 @@ export function getLink() {
   return link
 }
 
+
+let projectiles: Projectile[] = []
+export function setProjectiles(l: Projectile[]) {
+  projectiles = l
+}
+export function getProjectiles() {
+  return projectiles
+}
+
+export function addProjectile(projectile: Projectile | null) {
+  if (projectile) {
+    projectiles.push(projectile)
+  }
+}
+
+
 const libSpritesPage = figma.root.findOne((node: BaseNode) => node.type === 'PAGE' && node.name === 'lib-sprites') as PageNode
 export function createNewLibSprite(name: String) {
-  const instanceClone = (libSpritesPage.findOne((node: SceneNode) => node.name === name) as InstanceNode).clone()
+  const libInstanceNode = (libSpritesPage.findOne((node: SceneNode) => node.name === name) as InstanceNode)
+  if (!libInstanceNode) { throw `could not find lib sprite named ${name}`}
+  const libInstanceClone = libInstanceNode.clone()
 
   const insertIndex = 0 // insert to the bottom
-  getWorldNode().insertChild(insertIndex, instanceClone)
-  return instanceClone
+  getWorldNode().insertChild(insertIndex, libInstanceClone)
+  return libInstanceClone
 }
 
 export function displayHealth(current: number, max: number) {

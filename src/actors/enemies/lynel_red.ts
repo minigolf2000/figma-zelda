@@ -2,6 +2,7 @@ import { Sprite } from "../../sprite"
 import { Tiles } from "../../tiles"
 import { Actor } from "../actor"
 import { multiply, normalize, vectorToFacing, distance, magnitude } from "../../vector"
+import { getLink } from "../../lib"
 
 const MAX_WALK_FRAMES = 28
 const HEALTH = 3.0
@@ -23,9 +24,10 @@ export class LynelRed extends Actor {
     this.damage = DAMAGE
   }
 
-  public nextFrame(linkNode: SceneNode) {
+  public nextFrame() {
+    const linkNode = getLink().getNode()
     if (this.health <= 0) {
-      this.getNode().visible = false
+      this.getNode().remove()
       return null
     }
     this.incrementInvulnerability()
