@@ -1,6 +1,6 @@
 import { Sprite } from "../../sprite"
 import { Facing, createNewLibSprite, getLink } from "../../lib"
-import { Tiles, Rectangle } from "../../tiles"
+import { Tiles, Rectangle, CollisionLevel } from "../../tiles"
 import { Actor } from "../actor"
 import { multiply } from "../../vector"
 
@@ -16,6 +16,7 @@ class Rock extends Actor {
     super(createNewLibSprite('octorok-rock'), collision, Infinity, facing)
     this.node.x = shooterRectangle.x + shooterRectangle.width / 2 - this.node.width / 2
     this.node.y = shooterRectangle.y + shooterRectangle.height / 2 - this.node.height / 2
+    this.collisionLevel = CollisionLevel.Wall
     this.damage = DAMAGE
   }
 

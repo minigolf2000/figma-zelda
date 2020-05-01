@@ -1,8 +1,13 @@
 import { normalize, direction } from "./vector"
 
 const ITEM_TILES = new Set(['triforce', 'bow', 'master-sword'])
-const COLLISION_TILES = new Set(['tree', 'rock', 'water', 'rock_se', 'rock_s', 'rock_sw', 'rock_ne', 'rock_n', 'rock_nw'])
+const COLLISION_TILES = new Set(['tree', 'rock', 'rock_se', 'rock_s', 'rock_sw', 'rock_ne', 'rock_n', 'rock_nw'])
+const WATER_TILES = new Set(['water'])
 const DECORATIVE_TILES = new Set(['dirt', 'bridge', 'stairs'])
+export enum CollisionLevel {
+  Water = 1, // blocks ground units
+  Wall = 2 // blocks ground units and air units
+}
 
 interface Items {
   [x: number]: {
@@ -11,7 +16,7 @@ interface Items {
 }
 interface Walls {
   [x: number]: {
-    [y: number]: boolean
+    [y: number]: CollisionLevel
   }
 }
 
@@ -36,7 +41,13 @@ export class Tiles {
 
       if (COLLISION_TILES.has(node.name)) {
         if (!this.walls[node.x]) {this.walls[node.x] = {}}
-        this.walls[node.x][node.y] = true
+        this.walls[node.x][node.y] = CollisionLevel.Wall
+        tilesFrame.appendChild(node)
+      }
+
+      if (WATER_TILES.has(node.name)) {
+        if (!this.walls[node.x]) {this.walls[node.x] = {}}
+        this.walls[node.x][node.y] = CollisionLevel.Water
         tilesFrame.appendChild(node)
       }
 
@@ -68,9 +79,9 @@ export class Tiles {
   }
 
   //
-  public moveToPositionRespectingCollision(rect: Rectangle, vector: Vector) {
-    const newMoveX = this.moveToPositionRespectingCollision1D(rect.x, rect.x + rect.width, vector.x, (x) => this.isColliding(x, rect.y) || this.isColliding(x, rect.y + rect.height - 1))
-    const newMoveY = this.moveToPositionRespectingCollision1D(rect.y, rect.y + rect.height, vector.y, (y) => this.isColliding(rect.x, y) || this.isColliding(rect.x + rect.width - 1, y))
+  public moveToPositionRespectingCollision(rect: Rectangle, vector: Vector, collisionLevel: CollisionLevel) {
+    const newMoveX = this.moveToPositionRespectingCollision1D(rect.x, rect.x + rect.width, vector.x, (x) => this.isColliding(x, rect.y) >= collisionLevel || this.isColliding(x, rect.y + rect.height - 1) >= collisionLevel)
+    const newMoveY = this.moveToPositionRespectingCollision1D(rect.y, rect.y + rect.height, vector.y, (y) => this.isColliding(rect.x, y) >= collisionLevel || this.isColliding(rect.x + rect.width - 1, y) >= collisionLevel)
 
     return {x: newMoveX, y: newMoveY}
   }

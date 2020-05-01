@@ -1,5 +1,5 @@
 import { Actor } from "./actor"
-import { Tiles, Rectangle } from "../tiles"
+import { Tiles, Rectangle, CollisionLevel } from "../tiles"
 import { Facing, createNewLibSprite } from "../lib"
 import { multiply } from "../vector"
 import { Sprite } from "../sprite"
@@ -12,6 +12,7 @@ export class Arrow extends Actor {
     new Sprite(this.node, ['basic', this.facing])
     this.node.x = shooterRectangle.x + shooterRectangle.width / 2 - this.node.width / 2
     this.node.y = shooterRectangle.y + shooterRectangle.height / 2 - this.node.height / 2
+    this.collisionLevel = CollisionLevel.Wall
     // this.damage = DAMAGE
   }
 

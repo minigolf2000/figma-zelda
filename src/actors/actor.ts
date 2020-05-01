@@ -1,5 +1,5 @@
 import { Facing, KNOCKBACK_MAGNITUDE, Invulnerability } from "../lib"
-import { Tiles, Rectangle } from "../tiles"
+import { Tiles, Rectangle, CollisionLevel } from "../tiles"
 import { multiply } from "../vector"
 
 export abstract class Actor {
@@ -11,12 +11,14 @@ export abstract class Actor {
   protected projectiles: Actor[]
   protected addProjectile: (projectile: Actor | null) => void
   protected damage: number
+  protected collisionLevel: CollisionLevel
 
   public constructor(node: InstanceNode, collision: Tiles, health: number, facing: Facing = 'down', addProjectile?: (projectile: Actor) => void) {
     this.node = node
     this.collision = collision
     this.health = health
     this.facing = facing
+    this.collisionLevel = CollisionLevel.Water
     this.addProjectile = addProjectile || (() => {})
   }
 
@@ -33,7 +35,7 @@ export abstract class Actor {
   }
 
   protected move(vector: Vector) {
-    const newPosition = this.collision.moveToPositionRespectingCollision(this.node, vector)
+    const newPosition = this.collision.moveToPositionRespectingCollision(this.node, vector, this.collisionLevel)
     const successfulMove = this.node.x + vector.x === newPosition.x && this.node.y + vector.y === newPosition.y
 
     this.node.x = newPosition.x
