@@ -4,6 +4,7 @@ import { MoblinBlue, MoblinRed } from "./moblin"
 import { Actor } from "../actor"
 import { LynelRed } from "./lynel_red"
 import { detachNode } from "../../lib"
+import { Scarecrow } from "./scarecrow"
 
 export function loadEnemies(worldNode: FrameNode, collision: Tiles) {
   const enemies: Actor[] = []
@@ -24,6 +25,9 @@ export function loadEnemies(worldNode: FrameNode, collision: Tiles) {
           break
         case 'lynel-red':
           enemies.push(new LynelRed(detachNode(node), collision))
+          break
+        case 'scarecrow':
+          enemies.push(new Scarecrow(detachNode(node), collision))
           break
       }
     }

@@ -1,7 +1,7 @@
 import { Sprite } from "./sprite"
 import { Tiles } from "./tiles"
 import { Actor } from "./actors/actor"
-import { rotation, facingOpposite, createNewLibSprite, getWorldNode, addProjectile } from "./lib"
+import { facingOpposite, createNewLibSprite, getWorldNode, addProjectile } from "./lib"
 import { keysPressed, changeFacing, getMovementDirection } from "./buttons"
 import { multiply } from "./vector"
 import { Arrow } from "./actors/projectile"
@@ -17,7 +17,8 @@ export class Link extends Actor {
   private bowActiveFrame: number | null = null
   private swordNode: SceneNode
   private sprite: Sprite
-  private hasBowAndArrow: boolean = false
+  private swordSprite: Sprite
+  private hasBowAndArrow: boolean = true
   private hasMasterSword: boolean = false
 
   public constructor(node: FrameNode, collision: Tiles) {
@@ -25,20 +26,11 @@ export class Link extends Actor {
     this.sprite = new Sprite(node, ['basic', 'down', 0])
     this.walkingFrame = 0
     this.swordNode = createNewLibSprite('wooden-sword')
-    this.swordNode.visible = false
+    this.swordSprite = new Sprite(this.swordNode)
   }
 
   public hitBox() {
-    const leniency = 1
-    if (this.swordNode.visible) {
-      return {
-        x: this.swordNode.x - leniency,
-        y: this.swordNode.y + leniency,
-        width: this.swordNode.width + leniency,
-        height: this.swordNode.height + leniency,
-      }
-    }
-    return null
+    return this.swordActiveFrame !== null ? this.swordNode : null
   }
 
   public getItem(item: SceneNode) {
@@ -51,7 +43,7 @@ export class Link extends Actor {
     if (item.name === 'master-sword') {
       this.swordNode.remove()
       this.swordNode = createNewLibSprite('master-sword')
-      this.swordNode.visible = false
+      this.swordSprite = new Sprite(this.swordNode)
       this.hasMasterSword = true
     }
   }
@@ -63,6 +55,8 @@ export class Link extends Actor {
   public isShielding(projectile: Actor) {
     return this.swordActiveFrame === null && this.bowActiveFrame === null && facingOpposite(this.facing, projectile.facing)
   }
+
+  protected onDeath() {} // do not remove link node on death
 
   private deathAnimationFrame = 0
   public deathAnimation() {
@@ -126,7 +120,7 @@ export class Link extends Actor {
       if (walking) {
         this.move(multiply(direction, WALK_SPEED))
       }
-      this.sprite.setSprite(['basic', this.facing, walking && this.walkingFrame > 2 ? 1 : 0])
+      this.sprite.setSprite(['basic', this.facing, walking && this.walkingFrame < 2 ? 1 : 0])
     }
 
     // Increment state
@@ -134,26 +128,98 @@ export class Link extends Actor {
       if (this.walkingFrame === 3) this.walkingFrame = 0
       else this.walkingFrame++
     }
-    if (this.swordActiveFrame !== null && this.swordNode) {
-      this.setSwordPosition(this.swordActiveFrame)
-      this.swordActiveFrame++
-      if (this.swordActiveFrame > 4) {
-        this.swordActiveFrame = null
-      }
-    }
-    this.bowAnimation()
+    this.swordAttack()
+    this.bowAttack()
 
-    const leniency = 1
-    return {
-      x: this.getNode().x + leniency,
-      y: this.getNode().y + leniency,
-      width: 16 - leniency,
-      height: 16 - leniency,
-    }
-
+    return this.node
   }
 
-  private bowAnimation() {
+  private swordAttack() {
+    if (this.swordActiveFrame === null) {
+      return
+    }
+
+    if (this.swordActiveFrame === 0) {
+      this.sprite.setSprite(['action', this.facing])
+      this.swordSprite.setSprite([this.facing])
+    }
+
+    if (this.swordActiveFrame === 1) {
+      this.swordNode.visible = true
+    }
+    const node = this.getNode()
+    if (this.facing === 'up') {
+      switch (this.swordActiveFrame) {
+        case 0:
+          this.swordNode.x = node.x + 1; this.swordNode.y = node.y - 16
+          break
+        case 4:
+          this.swordNode.x = node.x + 1; this.swordNode.y = node.y - 15
+          this.sprite.setSprite(['basic', this.facing, 0])
+          break
+        case 5:
+          this.swordNode.x = node.x + 1; this.swordNode.y = node.y - 7
+          this.sprite.setSprite(['basic', this.facing, 1])
+          break
+      }
+    }
+
+    if (this.facing === 'right') {
+      switch (this.swordActiveFrame) {
+        case 0:
+          this.swordNode.x = node.x + 20; this.swordNode.y = node.y + 3
+          break
+        case 4:
+          this.swordNode.x = node.x + 16; this.swordNode.y = node.y + 3
+          this.sprite.setSprite(['basic', this.facing, 1])
+          break
+        case 5:
+          this.swordNode.x = node.x + 12; this.swordNode.y = node.y + 4
+          this.sprite.setSprite(['basic', this.facing, 0])
+          break
+      }
+    }
+
+    if (this.facing === 'down') {
+      switch (this.swordActiveFrame) {
+        case 0:
+          this.swordNode.x = node.x + 3; this.swordNode.y = node.y + 20
+          break
+        case 4:
+          this.swordNode.x = node.x + 3; this.swordNode.y = node.y + 16
+          this.sprite.setSprite(['basic', this.facing, 0])
+          break
+        case 5:
+          this.swordNode.x = node.x + 3; this.swordNode.y = node.y + 12
+          this.sprite.setSprite(['basic', this.facing, 1])
+          break
+      }
+    }
+
+    if (this.facing === 'left') {
+      switch (this.swordActiveFrame) {
+        case 0:
+          this.swordNode.x = node.x - 15; this.swordNode.y = node.y + 3
+          break
+        case 4:
+          this.swordNode.x = node.x - 11; this.swordNode.y = node.y + 3
+          this.sprite.setSprite(['basic', this.facing, 1])
+          break
+        case 5:
+          this.swordNode.x = node.x - 7; this.swordNode.y = node.y + 4
+          this.sprite.setSprite(['basic', this.facing, 0])
+          break
+      }
+    }
+    if (this.swordActiveFrame === 6) {
+      this.swordNode.visible = false
+      this.swordActiveFrame = null
+    } else {
+      this.swordActiveFrame++
+    }
+  }
+
+  private bowAttack() {
     if (this.bowActiveFrame === null) {
       return
     }
@@ -166,56 +232,6 @@ export class Link extends Actor {
       this.bowActiveFrame = null
     } else {
       this.bowActiveFrame++
-    }
-  }
-
-  protected onDeath() {} // do not remove link node on death
-
-  private setSwordPosition(frame: number) {
-    const node = this.getNode()
-    switch (frame) {
-      case 0:
-        this.sprite.setSprite(['action', this.facing])
-        this.swordNode.visible = true
-        this.swordNode.rotation = rotation(this.facing)
-        if (this.facing === 'up') {
-          this.swordNode.x = node.x + 3; this.swordNode.y = node.y - 12;
-        } else if (this.facing === 'right') {
-          this.swordNode.x = node.x + 27; this.swordNode.y = node.y + 6;
-        } else if (this.facing === 'down') {
-          this.swordNode.x = node.x + 12; this.swordNode.y = node.y + 27;
-        } else if (this.facing === 'left') {
-          this.swordNode.x = node.x - 11; this.swordNode.y = node.y + 13;
-        }
-        break
-      case 2:
-        if (this.facing === 'up') {
-          this.swordNode.x = node.x + 3; this.swordNode.y = node.y - 11
-        } else if (this.facing === 'right') {
-          this.swordNode.x = node.x + 23; this.swordNode.y = node.y + 6
-        } else if (this.facing === 'down') {
-          this.swordNode.x = node.x + 12; this.swordNode.y = node.y + 23
-        } else if (this.facing === 'left') {
-          this.swordNode.x = node.x - 7; this.swordNode.y = node.y + 13
-        }
-        this.sprite.setSprite(['basic', this.facing, 1])
-        break
-      case 3:
-        if (this.facing === 'up') {
-          this.swordNode.x = node.x + 3; this.swordNode.y = node.y - 3
-        } else if (this.facing === 'right') {
-          this.swordNode.x = node.x + 19; this.swordNode.y = node.y + 6
-        } else if (this.facing === 'down') {
-          this.swordNode.x = node.x + 12; this.swordNode.y = node.y + 19
-        } else if (this.facing === 'left') {
-          this.swordNode.x = node.x - 4; this.swordNode.y = node.y + 13
-        }
-        this.sprite.setSprite(['basic', this.facing, 0])
-        break
-      case 4:
-        this.swordNode.visible = false
-      default:
-        break
     }
   }
 }

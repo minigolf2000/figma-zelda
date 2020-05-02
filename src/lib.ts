@@ -103,23 +103,10 @@ export function updateCamera(linkNode: SceneNode, worldNode: FrameNode) {
   }
 }
 
-export function rotation(facing: Facing) {
-  switch (facing) {
-    case 'up':
-      return 0
-    case 'left':
-      return 90
-    case 'down':
-      return 180
-    case 'right':
-      return 270
-  }
-}
-
 // It turns out fetching node data for InstanceNodes is really slow, but fetching
 // node data for FrameNodes is pretty fast. This is a helper function to detach
 // instances to frames for performance
-// Once Plugin API support detaching, replace this function with the official function
+// Once Plugin API supports detaching, replace this function with the official function
 export function detachNode(node: InstanceNode) {
   const detached = figma.createFrame()
   detached.name = node.name
