@@ -1,4 +1,4 @@
-import { Facing, KNOCKBACK_MAGNITUDE, Invulnerability } from "../lib"
+import { Facing, Invulnerability } from "../lib"
 import { Tiles, Rectangle, CollisionLevel } from "../tiles"
 import { multiply } from "../vector"
 
@@ -11,6 +11,8 @@ export abstract class Actor {
   protected projectiles: Actor[]
   protected damage: number
   protected collisionLevel: CollisionLevel
+  protected invulnerabilityKnockbackDuration = 9
+  protected invulnerabilityKnockbackMagnitude = 6.0
 
   public constructor(node: FrameNode, collision: Tiles, health: number, facing: Facing = 'down') {
     this.node = node
@@ -42,7 +44,7 @@ export abstract class Actor {
     return successfulMove
   }
 
-  public takeDamage(damage: number, vector: Vector) {
+  public takeDamage(damage: number, direction: Vector) {
     if (this.invulnerability !== null) {
       return this.health
     }
@@ -50,7 +52,7 @@ export abstract class Actor {
     if (this.health === 0) {
       this.onDeath()
     }
-    this.invulnerability = {numFrames: 0, knockback: multiply(vector, KNOCKBACK_MAGNITUDE)}
+    this.invulnerability = {numFrames: 0, direction}
     return this.health
   }
 
@@ -74,18 +76,21 @@ export abstract class Actor {
   }
 
   protected incrementInvulnerability() {
-    if (this.invulnerability !== null) {
+    if (this.invulnerability === null) {
+      return
+    }
+
+    if (this.invulnerability.numFrames % 2 === 0) {
+      this.node.visible = !this.node.visible
+    }
+    if (this.invulnerability.numFrames < this.invulnerabilityKnockbackDuration) {
+      this.move(multiply(this.invulnerability.direction, this.invulnerabilityKnockbackMagnitude))
+    }
+    if (this.invulnerability.numFrames === 20) {
+      this.node.visible = true
+      this.invulnerability = null
+    } else {
       this.invulnerability.numFrames++
-      if (this.invulnerability && this.invulnerability.numFrames % 2 === 0) {
-        this.node.visible = !this.node.visible
-      }
-      if (this.invulnerability.numFrames < 4) {
-        this.move(this.invulnerability.knockback)
-      }
-      if (this.invulnerability.numFrames === 20) {
-        this.node.visible = true
-        this.invulnerability = null
-      }
     }
   }
 

@@ -2,11 +2,10 @@ import { Link } from "./link"
 import { Projectile } from "./actors/projectile"
 
 export const FPS = 30
-export const KNOCKBACK_MAGNITUDE = 16.0
 
 export interface Invulnerability {
   numFrames: number
-  knockback: Vector
+  direction: Vector
 }
 
 export type Facing = 'up' | 'down' | 'left' | 'right'

@@ -27,6 +27,9 @@ export class Link extends Actor {
     this.walkingFrame = 0
     this.swordNode = createNewLibSprite('wooden-sword')
     this.swordSprite = new Sprite(this.swordNode)
+
+    this.invulnerabilityKnockbackDuration = 6
+    this.invulnerabilityKnockbackMagnitude = 8.0
   }
 
   public hitBox() {
