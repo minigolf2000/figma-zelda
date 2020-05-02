@@ -13,3 +13,7 @@ Local dev server will watch local Typescript files and auto-compile when they ch
 npm run start
 ```
 Now go run the development plugin in Figma Desktop app
+
+
+## Publishing
+Run `npm run start` to build latest JS files, then publish to Community Hub

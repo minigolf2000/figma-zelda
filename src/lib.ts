@@ -50,7 +50,6 @@ export function addProjectile(projectile: Projectile | null) {
   }
 }
 
-
 const libSpritesPage = figma.root.findOne((node: BaseNode) => node.type === 'PAGE' && node.name === 'lib-sprites') as PageNode
 export function createNewLibSprite(name: String) {
   const libInstanceNode = (libSpritesPage.findOne((node: SceneNode) => node.name === name) as InstanceNode)

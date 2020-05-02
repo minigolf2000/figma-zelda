@@ -62,7 +62,7 @@ export abstract class Actor {
     this.node.remove()
   }
 
-  protected facingVector() {
+  public facingVector() {
     switch (this.facing) {
       case 'up':
         return {x: 0, y: -1}

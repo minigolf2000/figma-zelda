@@ -156,7 +156,7 @@ function nextFrame() {
     if (linkHitbox) {
       const hitVector = isOverlapping(enemyHitbox, linkHitbox)
       if (hitVector) {
-        const enemyHealth = enemy.takeDamage(link.getDamage(), hitVector)
+        const enemyHealth = enemy.takeDamage(link.getDamage(), link.facingVector())
         if (enemyHealth <= 0) {
           return false
         }
@@ -168,7 +168,7 @@ function nextFrame() {
       // projectiles damage enemy
       const hitVector = isOverlapping(enemyHitbox, projectile.getNode())
       if (hitVector) {
-        const enemyHealth = enemy.takeDamage(projectile.getDamage(), hitVector)
+        const enemyHealth = enemy.takeDamage(projectile.getDamage(), projectile.facingVector())
         if (enemyHealth <= 0) {
           enemyKilledByProjectile = true
         }
