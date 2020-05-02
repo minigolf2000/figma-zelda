@@ -13,6 +13,7 @@ export abstract class Actor {
   protected collisionLevel: CollisionLevel
   protected invulnerabilityKnockbackDuration = 9
   protected invulnerabilityKnockbackMagnitude = 6.0
+  protected homeVector: Vector
 
   public constructor(node: FrameNode, collision: Tiles, health: number, facing: Facing = 'down') {
     this.node = node
@@ -20,6 +21,7 @@ export abstract class Actor {
     this.health = health
     this.facing = facing
     this.collisionLevel = CollisionLevel.Water
+    this.homeVector = {x: node.x, y: node.y}
   }
 
   public getNode() {

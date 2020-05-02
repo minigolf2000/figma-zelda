@@ -79,7 +79,7 @@ export function displayHealth(current: number, max: number) {
 }
 
 export function updateCamera(linkNode: SceneNode, worldNode: FrameNode) {
-  const distFromCenter = 250 / figma.viewport.zoom
+  const distFromCenter = 150 / figma.viewport.zoom
   const currentX = linkNode.x + worldNode.x
   const currentY = linkNode.y + worldNode.y
 

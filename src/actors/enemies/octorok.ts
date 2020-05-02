@@ -2,7 +2,7 @@ import { Sprite } from "../../sprite"
 import { Facing, getLink, addProjectile } from "../../lib"
 import { Tiles, Rectangle } from "../../tiles"
 import { Actor } from "../actor"
-import { multiply } from "../../vector"
+import { multiply, vectorToFacing } from "../../vector"
 import { OctorokRock } from "../projectile"
 
 const RED_HEALTH = 0.5
@@ -59,8 +59,12 @@ class Octorok extends Actor {
 
   private wanderBehavior() {
     if (this.walkingFrame === 0) {
-      // Turn randomly
-      this.facing = ['up', 'down', 'left', 'right'][Math.floor(Math.random() * 4)] as Facing
+      if (Math.random() < 0.8) {
+        this.facing = ['up', 'down', 'left', 'right'][Math.floor(Math.random() * 4)] as Facing
+      } else {
+        // Every once in a while, walk toward home
+        this.facing = vectorToFacing({x: this.homeVector.x - this.node.x, y: this.homeVector.y - this.node.y})
+      }
     }
 
     if (!this.move(multiply(this.facingVector(), WALK_SPEED))) {

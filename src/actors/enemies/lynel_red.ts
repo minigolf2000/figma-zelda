@@ -14,13 +14,11 @@ const PURSUIT_DISTANCE = 120
 export class LynelRed extends Actor {
   private sprite: Sprite
   private walkingFrame: number = 0
-  private homeVector: Vector
 
   public constructor(node: FrameNode, collision: Tiles) {
     super(node, collision, HEALTH)
     this.sprite = new Sprite(node, ['basic', 'down', 0])
     this.walkingFrame = Math.floor(Math.random() * MAX_WALK_FRAMES)
-    this.homeVector = {x: node.x, y: node.y}
     this.damage = DAMAGE
   }
 

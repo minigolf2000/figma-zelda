@@ -2,7 +2,7 @@ import { Sprite } from "../../sprite"
 import { Facing } from "../../lib"
 import { Tiles } from "../../tiles"
 import { Actor } from "../actor"
-import { multiply } from "../../vector"
+import { multiply, vectorToFacing } from "../../vector"
 
 const MAX_WALK_FRAMES = 28
 const RED_HEALTH = 1.0
@@ -27,8 +27,12 @@ class Moblin extends Actor {
     }
     this.incrementInvulnerability()
     if (this.walkingFrame === 0) {
-      const choices: Facing[] = ['up', 'down', 'left', 'right']
-      this.facing = choices[Math.floor(Math.random() * choices.length)]
+      if (Math.random() < 0.8) {
+        this.facing = ['up', 'down', 'left', 'right'][Math.floor(Math.random() * 4)] as Facing
+      } else {
+        // Every once in a while, walk toward home
+        this.facing = vectorToFacing({x: this.homeVector.x - this.node.x, y: this.homeVector.y - this.node.y})
+      }
     }
 
     this.walkingFrame++
