@@ -1,24 +1,19 @@
 <div tabindex="0" id="ui">
-  <div id="top-bar">
-    <span id="health"></span>
-    <div class="item" id="bow">
-      <div class="item-top">
-        <span class="bracket">[</span>
-        <span class="item-svg"></span>
-        <span class="bracket">]</span>
-      </div>
-      <div class="item-bottom">z</div>
+  <div class="row">
+    <div id="sword">
+      <div class="item-svg"></div>
+      <div class="label">z</div>
     </div>
-    <div class="item" id="sword">
-      <div class="item-top">
-        <span class="bracket">[</span>
-        <span class="item-svg"></span>
-        <span class="bracket">]</span>
-      </div>
-      <div class="item-bottom">x</div>
+    <div id="bow">
+      <div class="item-svg"></div>
+      <div class="label">x</div>
     </div>
+    <div id="health"></div>
   </div>
-  <div id="message"></div>
+  <div class="row">
+    <div id="triforce-shards"></div>
+    <div id="message"></div>
+  </div>
 </div>
 
 <img src="<%= require('./logo.svg') %>">

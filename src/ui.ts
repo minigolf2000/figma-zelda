@@ -24,8 +24,10 @@ uiEl.onblur = (e) => {
 onmessage = (event) => {
   if (event.data.pluginMessage.health) {
     document.getElementById('health')!.innerHTML = event.data.pluginMessage.health
-  } else if (event.data.pluginMessage.addItem) {
-    document.getElementById(event.data.pluginMessage.addItem)!.className = 'item visible'
+  } else if (event.data.pluginMessage.setSword) {
+    document.getElementById('sword')!.className = `${event.data.pluginMessage.setSword} visible`
+  } else if (event.data.pluginMessage.setBow) {
+    document.getElementById('bow')!.className = `${event.data.pluginMessage.setBow} visible`
   } else if (event.data.pluginMessage.message) {
     document.getElementById("message")!.innerText = event.data.pluginMessage.message
   }

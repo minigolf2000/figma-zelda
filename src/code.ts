@@ -8,6 +8,7 @@ import { MasterSword } from './actors/master-sword'
 import { Triforce } from './actors/triforce'
 import { loadItems } from './actors/items'
 
+let templateWorldNode: FrameNode
 let tiles: Tiles
 let enemies: Actor[]
 let items: (MasterSword | Triforce)[]
@@ -55,14 +56,13 @@ function main() {
     return false
   }
 
-  const templateWorldNode = linkNodeOrNull.parent
+  templateWorldNode = linkNodeOrNull.parent
   if (templateWorldNode.getPluginData("running-world") ===  "true") {
     figma.closePlugin("Multiplayer is not supported yet!")
     return false
   }
 
   snapTilesToGrid(templateWorldNode)
-  templateWorldNode.setPluginData("original-world", "true")
   templateWorldNode.visible = false
 
   const worldNode = templateWorldNode.clone()
@@ -83,7 +83,7 @@ function main() {
   items = loadItems(worldNode)
   figma.currentPage.setRelaunchData({relaunch: ''})
   worldNode.setRelaunchData({relaunch: ''})
-  figma.ui.postMessage({addItem: 'sword'})
+  figma.ui.postMessage({setSword: 'wooden-sword'})
   figma.currentPage.selection = []
   return true
 }
@@ -126,7 +126,7 @@ function nextFrame() {
         gameWon = true
         break
       case 'bow':
-        figma.ui.postMessage({addItem: "bow"})
+        figma.ui.postMessage({setBow: "bow"})
         break
     }
     item.remove()
@@ -204,7 +204,7 @@ let lastFrameTimestamp: number = Date.now()
 function printFPS() {
   const currentFrameTimestamp = Date.now()
   const fps = Math.round(1000 / (currentFrameTimestamp - lastFrameTimestamp))
-  figma.ui.postMessage({message: `FPS: ${fps}`})
+  figma.ui.postMessage({message: `${fps} fps`})
   lastFrameTimestamp = currentFrameTimestamp
 }
 
@@ -215,13 +215,7 @@ figma.ui.onmessage = onKeyPressed
 
 figma.on("close", () => {
   getWorldNode().remove()
-
-  const original = figma.currentPage.findOne((node: SceneNode) => node.getPluginData("original-world") === "true")
-  if (original) {
-    original.visible = true
-    original.setPluginData("original-world", "true")
-    // figma.currentPage.selection = [linkNode]
-  }
+  templateWorldNode.visible = true
 })
 
 if (main()) {

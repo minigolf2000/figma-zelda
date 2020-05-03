@@ -25,7 +25,7 @@ export class Link extends Actor {
     super(node, collision, HEALTH, 'down')
     this.sprite = new Sprite(node, ['basic', 'down', 0])
     this.walkingFrame = 0
-    this.swordNode = createNewLibSprite('wooden-sword')
+    this.swordNode = createNewLibSprite('wooden-sword-held')
     this.swordSprite = new Sprite(this.swordNode)
 
     this.invulnerabilityKnockbackDuration = 6
@@ -45,7 +45,7 @@ export class Link extends Actor {
     }
     if (item.name === 'master-sword') {
       this.swordNode.remove()
-      this.swordNode = createNewLibSprite('master-sword')
+      this.swordNode = createNewLibSprite('master-sword-held')
       this.swordSprite = new Sprite(this.swordNode)
       this.hasMasterSword = true
     }
