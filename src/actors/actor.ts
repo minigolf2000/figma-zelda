@@ -58,7 +58,7 @@ export abstract class Actor {
   }
 
   protected onDeath() {
-    if (getLink().health < 3 && Math.random() < 0.25) getItems().addHeart(this.node)
+    if (getLink().health < 3 && Math.random() < 0.25) getItems().spawnHeart(this.node)
     this.node.remove()
   }
 

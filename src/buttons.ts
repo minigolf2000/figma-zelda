@@ -16,11 +16,11 @@ export const keysPressed: Buttons = {
 }
 
 export function onKeyPressed(msg: any) {
-  if (msg.type === 'pause') {
+  if (msg.type === 'blur') {
     paused = true
     return
   }
-  if (msg.type === 'resume') {
+  if (msg.type === 'focus') {
     paused = false
     return
   }

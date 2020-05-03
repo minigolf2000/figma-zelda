@@ -3,7 +3,7 @@ import { Link } from "../link"
 import { Rectangle, isOverlapping } from "../tiles"
 import { Sprite } from "../sprite"
 
-let items: any = 3
+let items: Items
 export function setItems(l: Items) {
   items = l
 }
@@ -34,7 +34,11 @@ export class Items {
     })
   }
 
-  public addHeart(dropLocation: Rectangle) {
+  public triforceShardTotal() {
+    return this.items.filter(i => i.getNode().name === 'triforce').length
+  }
+
+  public spawnHeart(dropLocation: Rectangle) {
     this.items.push(new Heart(dropLocation))
   }
 
@@ -159,7 +163,7 @@ class Triforce extends Item {
   }
 
   public get(link: Link) {
-    link.getTriforce()
+    link.getTriforceShard()
   }
 
   public nextFrame() {

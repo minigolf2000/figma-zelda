@@ -1,4 +1,4 @@
-import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode, setLink, getLink, setProjectiles, getProjectiles, detachNode } from './lib'
+import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode, setLink, getLink, setProjectiles, getProjectiles, detachNode, displayTriforceShards, setTriforceShardsTotal } from './lib'
 import { loadEnemies } from './actors/enemies/enemies'
 import { Tiles, isOverlapping, snapTilesToGrid, setTiles } from './tiles'
 import { onKeyPressed, keysPressed, paused } from './buttons'
@@ -8,7 +8,6 @@ import { Items, getItems, setItems } from './actors/items'
 
 let templateWorldNode: FrameNode
 let enemies: Actor[]
-let gameWon = false
 let gameLost = false
 
 function findLinkNode() {
@@ -71,12 +70,12 @@ function main() {
   setTiles(new Tiles(worldNode))
 
   setItems(new Items(worldNode))
+  setTriforceShardsTotal(getItems().triforceShardTotal())
   enemies = loadEnemies(worldNode)
   setLink(new Link(detachNode(linkNodeOrNull)))
 
   figma.currentPage.setRelaunchData({relaunch: ''})
   worldNode.setRelaunchData({relaunch: ''})
-  figma.ui.postMessage({setSword: 'wooden-sword'})
   figma.currentPage.selection = []
   return true
 }
@@ -95,7 +94,7 @@ function nextFrame() {
     return
   }
 
-  if (gameWon) {
+  if (link.winAnimationFrame !== null) {
     enemies.forEach(e => e.getNode().remove())
     enemies = []
     if (!link.winAnimation()) {
@@ -187,16 +186,17 @@ function printFPS() {
   lastFrameTimestamp = currentFrameTimestamp
 }
 
-figma.showUI(__html__, {height: 160})
-figma.ui.postMessage({health: displayHealth(3, 3)})
-
-figma.ui.onmessage = onKeyPressed
-
 figma.on("close", () => {
   getWorldNode().remove()
   templateWorldNode.visible = true
 })
 
 if (main()) {
+  figma.showUI(__html__, {height: 160})
+  figma.ui.postMessage({health: displayHealth(3, 3)})
+  figma.ui.postMessage({triforceShards: displayTriforceShards()})
+  figma.ui.postMessage({setSword: 'wooden-sword'})
+  figma.ui.onmessage = onKeyPressed
+
   setInterval(nextFrame, 1000 / FPS)
 }

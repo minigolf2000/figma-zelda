@@ -1,6 +1,6 @@
 import { Sprite } from "./sprite"
 import { Actor } from "./actors/actor"
-import { facingOpposite, createNewLibSprite, getWorldNode, addProjectile, displayHealth } from "./lib"
+import { facingOpposite, createNewLibSprite, getWorldNode, addProjectile, displayHealth, incrementTriforceShardsCurrent, displayTriforceShards } from "./lib"
 import { keysPressed, changeFacing, getMovementDirection } from "./buttons"
 import { multiply } from "./vector"
 import { Arrow } from "./actors/projectile"
@@ -35,8 +35,12 @@ export class Link extends Actor {
     return this.swordActiveFrame !== null ? this.swordNode : null
   }
 
-  public getTriforce() {
-    this.winAnimationFrame = 0
+  public getTriforceShard() {
+    const hasWon = incrementTriforceShardsCurrent()
+    figma.ui.postMessage({triforceShards: displayTriforceShards()})
+    if (hasWon) {
+      this.winAnimationFrame = 0
+    }
   }
 
   public getBow() {
@@ -102,12 +106,12 @@ export class Link extends Actor {
     return this.deathAnimationFrame < 120
   }
 
-  public winAnimationFrame = 0
+  public winAnimationFrame: number | null = null
   public winAnimation() {
-    const spriteName = (this.winAnimationFrame % 8 < 4) ? 'win-0' : 'win-1'
+    const spriteName = (this.winAnimationFrame! % 8 < 4) ? 'win-0' : 'win-1'
     this.sprite.setSprite([spriteName])
-    this.winAnimationFrame++
-    return this.winAnimationFrame < 200
+    this.winAnimationFrame!++
+    return this.winAnimationFrame! < 200
   }
 
   public nextFrame() {

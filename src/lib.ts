@@ -17,7 +17,6 @@ export function facingOpposite(f1: Facing, f2: Facing) {
     f1 === 'right' && f2 === 'left'
 }
 
-
 let worldNode: FrameNode
 export function setWorldNode(w: FrameNode) {
   worldNode = w
@@ -61,19 +60,39 @@ export function createNewLibSprite(name: String) {
   return libInstanceClone
 }
 
-export function displayHealth(current: number, max: number) {
-  const missing = max - current
-  let displayHealth = ''
-  while (current >= 1) {
-    displayHealth += '<span class="full"></span>'
-    current -= 1
+let triforceShardsTotal: number
+let triforceShardsCurrent = 0
+export function setTriforceShardsTotal(t: number) {
+  triforceShardsTotal = t
+}
+
+export function incrementTriforceShardsCurrent() {
+  triforceShardsCurrent++
+  return triforceShardsCurrent === triforceShardsTotal
+}
+
+export function displayTriforceShards() {
+  let displayTriforceShards = ''
+  for (let i = 0; i < triforceShardsCurrent; i++) {
+    displayTriforceShards += '<span class="full"></span>'
   }
-  if (current >= .5) {
+  for (let i = 0; i < triforceShardsTotal - triforceShardsCurrent; i++) {
+    displayTriforceShards += '<span class="empty"></span>'
+  }
+  return displayTriforceShards
+}
+
+export function displayHealth(current: number, total: number) {
+  let displayHealth = ''
+  for (let i = 0; i < Math.floor(current); i++) {
+    displayHealth += '<span class="full"></span>'
+  }
+  if (current - Math.floor(current) >= .5) {
     displayHealth += '<span class="half"></span>'
   }
-  Array.from(Array(Math.floor(missing))).forEach((x, i) => {
+  for (let i = 0; i < Math.floor(total - current); i++) {
     displayHealth += '<span class="empty"></span>'
-  })
+  }
   return displayHealth
 }
 

@@ -9,10 +9,10 @@ uiEl.onkeyup = (e) => {
   parent.postMessage({ pluginMessage: { type: 'keyup', keyCode: e.keyCode } }, '*')
 }
 uiEl.onfocus = (e) => {
-  parent.postMessage({ pluginMessage: { type: 'resume' } }, '*')
+  parent.postMessage({ pluginMessage: { type: 'focus' } }, '*')
 }
 uiEl.onblur = (e) => {
-  parent.postMessage({ pluginMessage: { type: 'pause' } }, '*')
+  parent.postMessage({ pluginMessage: { type: 'blur' } }, '*')
 }
 
 // window.addEventListener("gamepadconnected", function(e) {
@@ -24,6 +24,8 @@ uiEl.onblur = (e) => {
 onmessage = (event) => {
   if (event.data.pluginMessage.health) {
     document.getElementById('health')!.innerHTML = event.data.pluginMessage.health
+  } else if (event.data.pluginMessage.triforceShards) {
+    document.getElementById('triforce-shards')!.innerHTML = event.data.pluginMessage.triforceShards
   } else if (event.data.pluginMessage.setSword) {
     document.getElementById('sword')!.className = `${event.data.pluginMessage.setSword} visible`
   } else if (event.data.pluginMessage.setBow) {
