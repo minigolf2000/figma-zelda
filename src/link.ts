@@ -153,7 +153,7 @@ export class Link extends Actor {
     const node = this.getNode()
     if (this.facing === 'up') {
       switch (this.swordActiveFrame) {
-        case 0:
+        case 0: case 1: case 2: case 3: // increment on multiple frames incase getting knocked back
           this.swordNode.x = node.x + 1; this.swordNode.y = node.y - 16
           break
         case 4:
@@ -169,7 +169,7 @@ export class Link extends Actor {
 
     if (this.facing === 'right') {
       switch (this.swordActiveFrame) {
-        case 0:
+        case 0: case 1: case 2: case 3: // increment on multiple frames incase getting knocked back
           this.swordNode.x = node.x + 20; this.swordNode.y = node.y + 3
           break
         case 4:
@@ -185,7 +185,7 @@ export class Link extends Actor {
 
     if (this.facing === 'down') {
       switch (this.swordActiveFrame) {
-        case 0:
+        case 0: case 1: case 2: case 3: // increment on multiple frames incase getting knocked back
           this.swordNode.x = node.x + 3; this.swordNode.y = node.y + 20
           break
         case 4:
@@ -201,7 +201,7 @@ export class Link extends Actor {
 
     if (this.facing === 'left') {
       switch (this.swordActiveFrame) {
-        case 0:
+        case 0: case 1: case 2: case 3: // increment on multiple frames incase getting knocked back
           this.swordNode.x = node.x - 15; this.swordNode.y = node.y + 3
           break
         case 4:
