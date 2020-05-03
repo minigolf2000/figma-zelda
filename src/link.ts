@@ -142,7 +142,7 @@ export class Link extends Actor {
     this.swordAttack()
     this.bowAttack()
 
-    return this.node
+    return true
   }
 
   public takeDamage(damage: number, direction: Vector) {

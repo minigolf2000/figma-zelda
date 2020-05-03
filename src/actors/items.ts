@@ -104,18 +104,19 @@ class Heart extends Item {
   }
 
   public nextFrame() {
+    if (this.animationFrame % 30 === 25) {
+      this.sprite.setSprite(['red'])
+    } else if (this.animationFrame % 30 === 10) {
+      this.sprite.setSprite(['black'])
+    }
+
     if (this.animationFrame === HEART_LIFESPAN) {
       this.node.remove()
       return false
+    } else {
+      this.animationFrame++
+      return true
     }
-
-    if (this.animationFrame % 30 === 0) {
-      this.sprite.setSprite(['red'])
-    } else if (this.animationFrame % 30 === 15) {
-      this.sprite.setSprite(['black'])
-    }
-    this.animationFrame++
-    return true
   }
 }
 

@@ -29,7 +29,7 @@ class Octorok extends Actor {
   public nextFrame() {
     if (this.health <= 0) {
       this.getNode().remove()
-      return null
+      return false
     }
 
     this.incrementInvulnerability()
@@ -42,7 +42,7 @@ class Octorok extends Actor {
     }
 
     this.spriteAnimationFrame++
-    return this.getCurrentCollision()
+    return true
   }
 
   private shootBehavior() {

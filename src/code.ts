@@ -113,7 +113,8 @@ function nextFrame() {
   items.getIfOverlapping(link, linkNode)
   items.nextFrame()
 
-  const linkHurtbox = link.nextFrame()
+  link.nextFrame()
+  const linkHurtbox = link.getCurrentCollision()
   const linkHitbox = link.hitBox()
 
   // move projectiles
@@ -122,7 +123,7 @@ function nextFrame() {
   enemies.forEach(enemy => enemy.nextFrame())
 
   enemies = enemies.filter((enemy: Actor) => {
-    const enemyHitbox = enemy.getNode()
+    const enemyHitbox = enemy.getCurrentCollision()
 
     // enemy damages link
     const hurtVector = isOverlapping(linkHurtbox, enemyHitbox)

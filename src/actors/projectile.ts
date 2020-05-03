@@ -32,10 +32,10 @@ export class Projectile extends Actor {
     this.frames++
     const successfulMove = this.move(multiply(this.facingVector(), PROJECTILE_SPEED))
     if (this.frames <= LIFESPAN_FRAMES && successfulMove) {
-      return this.getCurrentCollision()
+      return true
     } else {
       this.getNode().remove()
-      return null
+      return false
     }
   }
 }

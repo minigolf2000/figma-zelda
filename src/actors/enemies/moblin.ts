@@ -22,7 +22,7 @@ class Moblin extends Actor {
   public nextFrame() {
     if (this.health <= 0) {
       this.getNode().remove()
-      return null
+      return false
     }
     this.incrementInvulnerability()
     if (this.walkingFrame === 0) {
@@ -42,7 +42,7 @@ class Moblin extends Actor {
       this.move(multiply(this.facingVector(), WALK_SPEED))
     }
 
-    return this.getCurrentCollision()
+    return true
   }
 }
 

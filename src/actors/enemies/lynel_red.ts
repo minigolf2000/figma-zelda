@@ -25,7 +25,7 @@ export class LynelRed extends Actor {
     const linkNode = getLink().getNode()
     if (this.health <= 0) {
       this.getNode().remove()
-      return null
+      return false
     }
     this.incrementInvulnerability()
 
@@ -37,7 +37,7 @@ export class LynelRed extends Actor {
     const vector = {x: destination.x - this.getNode().x, y: destination.y - this.getNode().y}
     if (magnitude(vector) < 1) {
       // Lynel is already at home
-      return this.getCurrentCollision()
+      return true
     }
 
     this.facing = vectorToFacing(vector)
@@ -49,6 +49,6 @@ export class LynelRed extends Actor {
     const moveVector = multiply(normalize(vector), WALK_SPEED)
     this.move(moveVector)
 
-    return this.getCurrentCollision()
+    return true
   }
 }

@@ -1,5 +1,5 @@
 import { Facing, Invulnerability, getLink } from "../lib"
-import { Rectangle, CollisionLevel, getTiles } from "../tiles"
+import { CollisionLevel, getTiles } from "../tiles"
 import { multiply } from "../vector"
 import { getItems } from "./items"
 
@@ -96,11 +96,11 @@ export abstract class Actor {
     }
   }
 
-  protected getCurrentCollision() {
+  public getCurrentCollision() {
     const {x, y, width, height} = this.getNode()
     return {x, y, width, height}
   }
 
-  abstract nextFrame(): Rectangle | null
+  abstract nextFrame(): boolean
 
 }

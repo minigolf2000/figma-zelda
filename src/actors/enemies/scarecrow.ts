@@ -13,10 +13,10 @@ export class Scarecrow extends Actor {
   public nextFrame() {
     if (this.health <= 0) {
       this.getNode().remove()
-      return null
+      return false
     }
 
     this.incrementInvulnerability()
-    return this.getCurrentCollision()
+    return true
   }
 }
