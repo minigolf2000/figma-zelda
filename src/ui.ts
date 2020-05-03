@@ -8,11 +8,11 @@ uiEl.onkeydown = (e) => {
 uiEl.onkeyup = (e) => {
   parent.postMessage({ pluginMessage: { type: 'keyup', keyCode: e.keyCode } }, '*')
 }
-uiEl.onfocus = (e) => {
-  parent.postMessage({ pluginMessage: { type: 'focus' } }, '*')
-}
 uiEl.onblur = (e) => {
   parent.postMessage({ pluginMessage: { type: 'blur' } }, '*')
+}
+uiEl.onfocus = (e) => {
+  parent.postMessage({ pluginMessage: { type: 'focus' } }, '*')
 }
 
 // window.addEventListener("gamepadconnected", function(e) {
@@ -31,6 +31,6 @@ onmessage = (event) => {
   } else if (event.data.pluginMessage.setBow) {
     document.getElementById('bow')!.className = `${event.data.pluginMessage.setBow} visible`
   } else if (event.data.pluginMessage.message) {
-    document.getElementById("message")!.innerText = event.data.pluginMessage.message
+
   }
 }

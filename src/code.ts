@@ -86,7 +86,6 @@ function nextFrame() {
   const items = getItems()
 
   if (paused) {
-    figma.ui.postMessage({message: "Game paused. Click here to resume."})
     return
   }
   if (keysPressed.esc) {
@@ -176,15 +175,15 @@ function nextFrame() {
 
 
   updateCamera(linkNode, getWorldNode())
-  printFPS()
+  // printFPS()
 }
 
 let lastFrameTimestamp: number = Date.now()
-function printFPS() {
+export function printFPS() {
   const currentFrameTimestamp = Date.now()
   const fps = Math.round(1000 / (currentFrameTimestamp - lastFrameTimestamp))
-  figma.ui.postMessage({message: `${fps} fps`})
   lastFrameTimestamp = currentFrameTimestamp
+  console.info(`fps: ${fps}`)
 }
 
 figma.on("close", () => {
@@ -193,7 +192,7 @@ figma.on("close", () => {
 })
 
 if (main()) {
-  figma.showUI(__html__, {height: 160})
+  figma.showUI(__html__, {width: 260, height: 160})
   figma.ui.postMessage({health: displayHealth(3, 3)})
   figma.ui.postMessage({triforceShards: displayTriforceShards()})
   figma.ui.postMessage({setSword: 'wooden-sword'})

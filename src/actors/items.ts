@@ -104,9 +104,9 @@ class Heart extends Item {
   }
 
   public nextFrame() {
-    if (this.animationFrame % 30 === 25) {
+    if (this.animationFrame % 30 === 26) {
       this.sprite.setSprite(['red'])
-    } else if (this.animationFrame % 30 === 10) {
+    } else if (this.animationFrame % 30 === 11) {
       this.sprite.setSprite(['black'])
     }
 

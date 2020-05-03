@@ -1,6 +1,10 @@
 body {
-  font: 12px sans-serif;
+  font: 12px "Inter", sans-serif;
   margin: 0;
+}
+
+#ui:not(:focus) #sword, #ui:not(:focus) #bow, #ui:not(:focus) #health {
+  opacity: .2;
 }
 
 #ui {
@@ -16,17 +20,6 @@ body {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
-}
-
-#message {
-  pointer-events: none;
-  user-select: none;
-  font-size: 14px;
-  margin-bottom: 0px;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 0px;
 }
 
 #health {
@@ -72,6 +65,15 @@ body {
 
 #sword.visible, #bow.visible {
   visibility: visible;
+}
+
+.hidden {
+  display: none;
+}
+
+#triforce-shards {
+  cursor: default;
+  margin-top: 32px;
 }
 
 #triforce-shards .empty {

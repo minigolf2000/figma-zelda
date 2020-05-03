@@ -1,4 +1,4 @@
-import { Facing } from "./lib"
+import { Facing, displayTriforceShards } from "./lib"
 
 interface Buttons {
   up: boolean
@@ -18,10 +18,12 @@ export const keysPressed: Buttons = {
 export function onKeyPressed(msg: any) {
   if (msg.type === 'blur') {
     paused = true
+    figma.ui.postMessage({triforceShards: "Game paused. Click here to resume."})
     return
   }
   if (msg.type === 'focus') {
     paused = false
+    figma.ui.postMessage({triforceShards: displayTriforceShards()})
     return
   }
 
