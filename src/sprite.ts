@@ -5,23 +5,19 @@ interface SpriteMap {
 export class Sprite {
   private currentSpriteNodeName: string
   private nodeNamesMap: Set<string> = new Set()
-  private sprites: SpriteMap
+  private sprites: SpriteMap = {}
 
   public constructor(characterNode: FrameNode, initialSpriteArray?: (string|number)[]) {
     let firstSprite: string[] | null = null
-    this.sprites = characterNode
-        .findAll((node: SceneNode) => node.type === 'INSTANCE' || node.type === 'FRAME')
-        .reduce((map: SpriteMap, node: SceneNode) => {
+    characterNode.children.forEach((node: SceneNode) => {
       if (!firstSprite) {
         firstSprite = node.name.split("-")
       }
-      map[node.name] = node
 
+      this.sprites[node.name] = node
       this.nodeNamesMap.add(node.name)
-
       node.visible = false
-      return map
-    }, {})
+    })
 
     if (initialSpriteArray) this.setSprite(initialSpriteArray)
   }

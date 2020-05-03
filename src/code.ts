@@ -1,17 +1,13 @@
 import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode, setLink, getLink, setProjectiles, getProjectiles, detachNode } from './lib'
 import { loadEnemies } from './actors/enemies/enemies'
-import { Tiles, isOverlapping, snapTilesToGrid } from './tiles'
+import { Tiles, isOverlapping, snapTilesToGrid, setTiles } from './tiles'
 import { onKeyPressed, keysPressed, paused } from './buttons'
 import { Link } from './link'
 import { Actor } from './actors/actor'
-import { MasterSword } from './actors/master-sword'
-import { Triforce } from './actors/triforce'
-import { loadItems } from './actors/items'
+import { Items, getItems, setItems } from './actors/items'
 
 let templateWorldNode: FrameNode
-let tiles: Tiles
 let enemies: Actor[]
-let items: (MasterSword | Triforce)[]
 let gameWon = false
 let gameLost = false
 
@@ -72,15 +68,12 @@ function main() {
   figma.currentPage.selection = [worldNode]
   linkNodeOrNull = findLinkNode()!
   linkNodeOrNull.masterComponent.setRelaunchData({relaunch: ''})
-  tiles = new Tiles(worldNode)
-  setLink(new Link(detachNode(linkNodeOrNull), tiles))
+  setTiles(new Tiles(worldNode))
 
-  figma.ui.postMessage({item: "sword"})
+  setItems(new Items(worldNode))
+  enemies = loadEnemies(worldNode)
+  setLink(new Link(detachNode(linkNodeOrNull)))
 
-  enemies = loadEnemies(worldNode, tiles)
-  // TODO: currently picking up animated items is broken because this is
-  // loaded after new Tiles
-  items = loadItems(worldNode)
   figma.currentPage.setRelaunchData({relaunch: ''})
   worldNode.setRelaunchData({relaunch: ''})
   figma.ui.postMessage({setSword: 'wooden-sword'})
@@ -91,6 +84,7 @@ function main() {
 function nextFrame() {
   const link = getLink()
   const linkNode = link.getNode()
+  const items = getItems()
 
   if (paused) {
     figma.ui.postMessage({message: "Game paused. Click here to resume."})
@@ -117,20 +111,8 @@ function nextFrame() {
     }
     return
   }
-  const item = tiles.onItem({x: linkNode.x, y: linkNode.y})
-  if (item) {
-    link.getItem(item)
-    items = items.filter(i => i.node.id !== item.id) // remove from items array
-    switch (item.name) {
-      case 'triforce':
-        gameWon = true
-        break
-      case 'bow':
-        figma.ui.postMessage({setBow: "bow"})
-        break
-    }
-    item.remove()
-  }
+  items.getIfOverlapping(link, linkNode)
+  items.nextFrame()
 
   const linkHurtbox = link.nextFrame()
   const linkHitbox = link.hitBox()
@@ -138,7 +120,6 @@ function nextFrame() {
   // move projectiles
   setProjectiles(getProjectiles().filter(projectile => !!projectile.nextFrame()))
 
-  items.forEach(item => item.nextFrame())
   enemies.forEach(enemy => enemy.nextFrame())
 
   enemies = enemies.filter((enemy: Actor) => {
@@ -148,7 +129,6 @@ function nextFrame() {
     const hurtVector = isOverlapping(linkHurtbox, enemyHitbox)
     if (hurtVector) {
       const health = link.takeDamage(enemy.getDamage(), hurtVector)
-      figma.ui.postMessage({health: displayHealth(health, 3)})
       if (health <= 0) { gameLost = true }
     }
 
@@ -186,7 +166,6 @@ function nextFrame() {
     if (hurtVector) {
       if (!link.isShielding(projectile)) {
         const health = link.takeDamage(projectile.getDamage(), hurtVector)
-        figma.ui.postMessage({health: displayHealth(health, 3)})
         if (health <= 0) { gameLost = true }
       }
       projectile.getNode().remove()

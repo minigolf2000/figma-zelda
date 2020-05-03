@@ -1,6 +1,5 @@
 import { normalize, direction } from "./vector"
 
-const ITEM_TILES = new Set(['triforce', 'bow', 'master-sword'])
 const COLLISION_TILES = new Set(['tree', 'rock', 'rock_se', 'rock_s', 'rock_sw', 'rock_ne', 'rock_n', 'rock_nw'])
 const WATER_TILES = new Set(['water'])
 const DECORATIVE_TILES = new Set(['dirt', 'bridge', 'stairs'])
@@ -9,20 +8,23 @@ export enum CollisionLevel {
   Wall = 2 // blocks ground units and air units
 }
 
-interface Items {
-  [x: number]: {
-    [y: number]: SceneNode | null
-  }
-}
 interface Walls {
   [x: number]: {
     [y: number]: CollisionLevel
   }
 }
 
+
+let tiles: Tiles
+export function setTiles(l: Tiles) {
+  tiles = l
+}
+export function getTiles() {
+  return tiles
+}
+
 export class Tiles {
   private walls: Walls = {}
-  private items: Items = {}
   private worldNode: FrameNode
 
   public constructor(worldNode: FrameNode) {
@@ -34,11 +36,6 @@ export class Tiles {
     tilesFrame.fills = []
 
     worldNode.findAll((node: SceneNode) => {
-      if (ITEM_TILES.has(node.name)) {
-        if (!this.items[node.x]) {this.items[node.x] = {}}
-        this.items[node.x][node.y] = node
-      }
-
       if (COLLISION_TILES.has(node.name)) {
         if (!this.walls[node.x]) {this.walls[node.x] = {}}
         this.walls[node.x][node.y] = CollisionLevel.Wall
@@ -103,28 +100,13 @@ export class Tiles {
   }
 
   // make this take a rect and move vector?
-  public isColliding(x: number, y: number) {
+  private isColliding(x: number, y: number) {
     if (x < 0 || y < 0 || x > this.worldNode.width || y > this.worldNode.height) {
       return true
     }
     return (
       this.walls[Math.floor((x) / 16) * 16]?.[Math.floor((y) / 16) * 16]
     )
-  }
-
-  public onItem(linkVector: Vector) {
-    const {x, y} = linkVector
-    const item = (
-      this.items[Math.floor((x+1) / 16) * 16]?.[Math.floor((y+1) / 16) * 16] ||
-      this.items[Math.floor((x+1) / 16) * 16]?.[Math.ceil((y-1) / 16) * 16] ||
-      this.items[Math.ceil((x-1) / 16) * 16]?.[Math.floor((y+1) / 16) * 16] ||
-      this.items[Math.ceil((x-1) / 16) * 16]?.[Math.ceil((y-1) / 16) * 16]
-
-    )
-    if (item) {
-      this.items[item.x][item.y] = null
-    }
-    return item
   }
 }
 

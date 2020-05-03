@@ -1,6 +1,5 @@
 import { Sprite } from "../../sprite"
 import { Facing } from "../../lib"
-import { Tiles } from "../../tiles"
 import { Actor } from "../actor"
 import { multiply, vectorToFacing } from "../../vector"
 
@@ -13,8 +12,8 @@ class Moblin extends Actor {
   private sprite: Sprite
   private walkingFrame: number = 0
 
-  public constructor(node: FrameNode, collision: Tiles, health: number) {
-    super(node, collision, health, 'down')
+  public constructor(node: FrameNode, health: number) {
+    super(node, health, 'down')
     this.sprite = new Sprite(node, ['basic', 'down', 0])
     this.walkingFrame = Math.floor(Math.random() * MAX_WALK_FRAMES)
     this.damage = DAMAGE
@@ -48,12 +47,12 @@ class Moblin extends Actor {
 }
 
 export class MoblinRed extends Moblin {
-  public constructor(node: FrameNode, collision: Tiles) {
-    super(node, collision, RED_HEALTH)
+  public constructor(node: FrameNode) {
+    super(node, RED_HEALTH)
   }
 }
 export class MoblinBlue extends Moblin {
-  public constructor(node: FrameNode, collision: Tiles) {
-    super(node, collision, BLUE_HEALTH)
+  public constructor(node: FrameNode) {
+    super(node, BLUE_HEALTH)
   }
 }

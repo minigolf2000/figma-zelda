@@ -1,5 +1,4 @@
 import { Sprite } from "../../sprite"
-import { Tiles } from "../../tiles"
 import { Actor } from "../actor"
 import { multiply, normalize, vectorToFacing, distance, magnitude } from "../../vector"
 import { getLink } from "../../lib"
@@ -15,8 +14,8 @@ export class LynelRed extends Actor {
   private sprite: Sprite
   private walkingFrame: number = 0
 
-  public constructor(node: FrameNode, collision: Tiles) {
-    super(node, collision, HEALTH)
+  public constructor(node: FrameNode) {
+    super(node, HEALTH)
     this.sprite = new Sprite(node, ['basic', 'down', 0])
     this.walkingFrame = Math.floor(Math.random() * MAX_WALK_FRAMES)
     this.damage = DAMAGE

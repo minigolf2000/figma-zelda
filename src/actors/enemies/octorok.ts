@@ -1,6 +1,6 @@
 import { Sprite } from "../../sprite"
 import { Facing, getLink, addProjectile } from "../../lib"
-import { Tiles, Rectangle } from "../../tiles"
+import { Rectangle } from "../../tiles"
 import { Actor } from "../actor"
 import { multiply, vectorToFacing } from "../../vector"
 import { OctorokRock } from "../projectile"
@@ -18,8 +18,8 @@ class Octorok extends Actor {
   private walkingFrame: number = 0
   private shootingFrame: number | null = null
 
-  public constructor(node: FrameNode, collision: Tiles, health: number) {
-    super(node, collision, health, 'down')
+  public constructor(node: FrameNode, health: number) {
+    super(node, health, 'down')
     this.sprite = new Sprite(node, ['basic', 'down', 0])
     this.spriteAnimationFrame = Math.floor(Math.random() * 4)
     this.walkingFrame = Math.floor(Math.random() * 48)
@@ -47,7 +47,7 @@ class Octorok extends Actor {
 
   private shootBehavior() {
     if (this.shootingFrame === 12) {
-      addProjectile((new OctorokRock(this.collision, this.getNode(), this.facing)).initialMove())
+      addProjectile((new OctorokRock(this.getNode(), this.facing)).initialMove())
     }
 
     this.shootingFrame!++
@@ -132,13 +132,13 @@ class Octorok extends Actor {
 }
 
 export class OctorokRed extends Octorok {
-  public constructor(node: FrameNode, collision: Tiles) {
-    super(node, collision, RED_HEALTH)
+  public constructor(node: FrameNode) {
+    super(node, RED_HEALTH)
   }
 }
 
 export class OctorokBlue extends Octorok {
-  public constructor(node: FrameNode, collision: Tiles) {
-    super(node, collision, BLUE_HEALTH)
+  public constructor(node: FrameNode) {
+    super(node, BLUE_HEALTH)
   }
 }

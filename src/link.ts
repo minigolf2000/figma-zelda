@@ -1,12 +1,11 @@
 import { Sprite } from "./sprite"
-import { Tiles } from "./tiles"
 import { Actor } from "./actors/actor"
-import { facingOpposite, createNewLibSprite, getWorldNode, addProjectile } from "./lib"
+import { facingOpposite, createNewLibSprite, getWorldNode, addProjectile, displayHealth } from "./lib"
 import { keysPressed, changeFacing, getMovementDirection } from "./buttons"
 import { multiply } from "./vector"
 import { Arrow } from "./actors/projectile"
 
-const HEALTH = 3.0
+const HEALTH_MAX = 3.0
 const WALK_SPEED = 2.5
 const WOODEN_SWORD_DAMAGE = 0.5
 const MASTER_SWORD_DAMAGE = 1.0
@@ -18,11 +17,11 @@ export class Link extends Actor {
   private swordNode: SceneNode
   private sprite: Sprite
   private swordSprite: Sprite
-  private hasBowAndArrow: boolean = true
+  private hasBowAndArrow: boolean = false
   private hasMasterSword: boolean = false
 
-  public constructor(node: FrameNode, collision: Tiles) {
-    super(node, collision, HEALTH, 'down')
+  public constructor(node: FrameNode) {
+    super(node, HEALTH_MAX, 'down')
     this.sprite = new Sprite(node, ['basic', 'down', 0])
     this.walkingFrame = 0
     this.swordNode = createNewLibSprite('wooden-sword-held')
@@ -36,19 +35,24 @@ export class Link extends Actor {
     return this.swordActiveFrame !== null ? this.swordNode : null
   }
 
-  public getItem(item: SceneNode) {
-    if (item.name === 'bow') {
-      this.hasBowAndArrow = true
-    }
-    if (item.name === 'triforce') {
-      this.winAnimationFrame =  0
-    }
-    if (item.name === 'master-sword') {
-      this.swordNode.remove()
-      this.swordNode = createNewLibSprite('master-sword-held')
-      this.swordSprite = new Sprite(this.swordNode)
-      this.hasMasterSword = true
-    }
+  public getTriforce() {
+    this.winAnimationFrame = 0
+  }
+
+  public getBow() {
+    this.hasBowAndArrow = true
+  }
+
+  public getMasterSword() {
+    this.swordNode.remove()
+    this.swordNode = createNewLibSprite('master-sword-held')
+    this.swordSprite = new Sprite(this.swordNode)
+    this.hasMasterSword = true
+  }
+
+  public getHeart() {
+    this.health = Math.min(HEALTH_MAX, this.health + 1)
+    figma.ui.postMessage({health: displayHealth(this.health, 3)})
   }
 
   public getDamage() {
@@ -108,10 +112,10 @@ export class Link extends Actor {
 
   public nextFrame() {
     this.incrementInvulnerability()
-    if (keysPressed.x && this.swordNode && this.swordActiveFrame === null && this.bowActiveFrame === null) {
+    if (keysPressed.z && this.swordNode && this.swordActiveFrame === null && this.bowActiveFrame === null) {
       this.swordActiveFrame = 0
     }
-    if (keysPressed.z && this.hasBowAndArrow && this.swordActiveFrame === null && this.bowActiveFrame === null) {
+    if (keysPressed.x && this.hasBowAndArrow && this.swordActiveFrame === null && this.bowActiveFrame === null) {
       this.bowActiveFrame = 0
     }
 
@@ -135,6 +139,12 @@ export class Link extends Actor {
     this.bowAttack()
 
     return this.node
+  }
+
+  public takeDamage(damage: number, direction: Vector) {
+    super.takeDamage(damage, direction)
+    figma.ui.postMessage({health: displayHealth(this.health, 3)})
+    return this.health
   }
 
   private swordAttack() {
@@ -228,7 +238,7 @@ export class Link extends Actor {
     }
 
     if (this.bowActiveFrame === 3) {
-      addProjectile((new Arrow(this.collision, this.getNode(), this.facing)).initialMove())
+      addProjectile((new Arrow(this.getNode(), this.facing)).initialMove())
     }
 
     if (this.bowActiveFrame > 6) {

@@ -1,11 +1,11 @@
-import { Facing, Invulnerability } from "../lib"
-import { Tiles, Rectangle, CollisionLevel } from "../tiles"
+import { Facing, Invulnerability, getLink } from "../lib"
+import { Rectangle, CollisionLevel, getTiles } from "../tiles"
 import { multiply } from "../vector"
+import { getItems } from "./items"
 
 export abstract class Actor {
   protected node: FrameNode
   public facing: Facing
-  protected collision: Tiles
   protected health: number
   private invulnerability: Invulnerability | null = null
   protected projectiles: Actor[]
@@ -15,9 +15,8 @@ export abstract class Actor {
   protected invulnerabilityKnockbackMagnitude = 6.0
   protected homeVector: Vector
 
-  public constructor(node: FrameNode, collision: Tiles, health: number, facing: Facing = 'down') {
+  public constructor(node: FrameNode, health: number, facing: Facing = 'down') {
     this.node = node
-    this.collision = collision
     this.health = health
     this.facing = facing
     this.collisionLevel = CollisionLevel.Water
@@ -37,7 +36,7 @@ export abstract class Actor {
   }
 
   protected move(vector: Vector) {
-    const newPosition = this.collision.moveToPositionRespectingCollision(this.node, vector, this.collisionLevel)
+    const newPosition = getTiles().moveToPositionRespectingCollision(this.node, vector, this.collisionLevel)
     const successfulMove = this.node.x + vector.x === newPosition.x && this.node.y + vector.y === newPosition.y
 
     this.node.x = newPosition.x
@@ -59,6 +58,7 @@ export abstract class Actor {
   }
 
   protected onDeath() {
+    if (getLink().health < 3 && Math.random() < 0.25) getItems().addHeart(this.node)
     this.node.remove()
   }
 
