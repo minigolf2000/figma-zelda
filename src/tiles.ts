@@ -148,3 +148,23 @@ export function snapTilesToGrid(worldNode: FrameNode) {
     figma.notify(`${numTilesSnappedToGrid} tiles snapped to the 16px grid`)
   }
 }
+
+
+export function lintWorld(worldNode: FrameNode) {
+  // ensure no tiles in types COLLISION_TILES, WATER_TILES, or DECORATIVE_TILES overlap
+  const tiles: {[position: string]: boolean} = {}
+  const warnings: {[position: string]: boolean} = {}
+
+  worldNode.children.forEach((node: SceneNode) => {
+    if (COLLISION_TILES.has(node.name) || WATER_TILES.has(node.name) || DECORATIVE_TILES.has(node.name)) {
+      const positionString = `${node.x}, ${node.y}`
+      if (tiles[positionString]) {
+        warnings[positionString] = true
+      }
+      tiles[positionString] = true
+    }
+  })
+  if (Object.keys(warnings).length > 0) {
+    figma.notify(`Warning: Please fix overlapping tiles at ${Object.keys(warnings).join(" & ")}`)
+  }
+}

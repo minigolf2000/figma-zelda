@@ -1,6 +1,6 @@
 import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode, setLink, getLink, setProjectiles, getProjectiles, detachNode, displayTriforceShards, setTriforceShardsTotal, CAMERA_BOX_SIZE } from './lib'
 import { loadEnemies } from './actors/enemies/enemies'
-import { Tiles, isOverlapping, snapTilesToGrid, setTiles } from './tiles'
+import { Tiles, isOverlapping, snapTilesToGrid, setTiles, lintWorld } from './tiles'
 import { onKeyPressed, keysPressed, paused } from './buttons'
 import { Link } from './link'
 import { Actor } from './actors/actor'
@@ -58,6 +58,7 @@ function main() {
   }
 
   snapTilesToGrid(templateWorldNode)
+  lintWorld(templateWorldNode)
   templateWorldNode.visible = false
 
   const worldNode = templateWorldNode.clone()
