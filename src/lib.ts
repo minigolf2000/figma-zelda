@@ -2,6 +2,7 @@ import { Link } from "./link"
 import { Projectile } from "./actors/projectile"
 
 export const FPS = 30
+export const CAMERA_BOX_SIZE = 150
 
 export interface Invulnerability {
   numFrames: number
@@ -96,8 +97,8 @@ export function displayHealth(current: number, total: number) {
   return displayHealth
 }
 
-export function updateCamera(linkNode: SceneNode, worldNode: FrameNode) {
-  const distFromCenter = 150 / figma.viewport.zoom
+export function updateCamera(linkNode: SceneNode, worldNode: FrameNode, cameraBoxSize: number) {
+  const distFromCenter = cameraBoxSize / figma.viewport.zoom
   const currentX = linkNode.x + worldNode.x
   const currentY = linkNode.y + worldNode.y
 

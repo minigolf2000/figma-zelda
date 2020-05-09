@@ -1,4 +1,4 @@
-import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode, setLink, getLink, setProjectiles, getProjectiles, detachNode, displayTriforceShards, setTriforceShardsTotal } from './lib'
+import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode, setLink, getLink, setProjectiles, getProjectiles, detachNode, displayTriforceShards, setTriforceShardsTotal, CAMERA_BOX_SIZE } from './lib'
 import { loadEnemies } from './actors/enemies/enemies'
 import { Tiles, isOverlapping, snapTilesToGrid, setTiles } from './tiles'
 import { onKeyPressed, keysPressed, paused } from './buttons'
@@ -64,9 +64,10 @@ function main() {
   worldNode.setPluginData("running-world", "true")
   setWorldNode(worldNode)
   worldNode.visible = true
-  figma.currentPage.selection = [worldNode]
+  figma.currentPage.selection = [worldNode] // used to find the correct linkNode
   linkNodeOrNull = findLinkNode()!
   linkNodeOrNull.masterComponent.setRelaunchData({relaunch: ''})
+
   setTiles(new Tiles(worldNode))
 
   setItems(new Items(worldNode))
@@ -77,6 +78,9 @@ function main() {
   figma.currentPage.setRelaunchData({relaunch: ''})
   worldNode.setRelaunchData({relaunch: ''})
   figma.currentPage.selection = []
+  figma.viewport.zoom = 3.5
+  updateCamera(getLink().getNode(), getWorldNode(), 0)
+
   return true
 }
 
@@ -174,7 +178,7 @@ function nextFrame() {
   }))
 
 
-  updateCamera(linkNode, getWorldNode())
+  updateCamera(linkNode, getWorldNode(), CAMERA_BOX_SIZE)
   // printFPS()
 }
 
