@@ -137,9 +137,10 @@ export function snapTilesToGrid(worldNode: FrameNode) {
   worldNode.children.forEach((node: SceneNode) => {
     const snappedX = Math.round(node.x / 16) * 16 + Math.round((16 - node.width) / 2)
     const snappedY = Math.round(node.y / 16) * 16 + Math.round((16 - node.height) / 2)
-    if (snappedX !== node.x || snappedY !== node.y) {
+    if (snappedX !== node.x || snappedY !== node.y || node.rotation !== 0) {
       node.x = snappedX
       node.y = snappedY
+      node.rotation = 0
       numTilesSnappedToGrid++
     }
   })
