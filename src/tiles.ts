@@ -14,11 +14,7 @@ interface Walls {
   }
 }
 
-
 let tiles: Tiles
-export function setTiles(l: Tiles) {
-  tiles = l
-}
 export function getTiles() {
   return tiles
 }
@@ -61,6 +57,8 @@ export class Tiles {
     worldNode.appendChild(tilesFrame)
 
     this.rasterizeTiles(tilesFrame)
+
+    tiles = this
   }
 
   private async rasterizeTiles(tilesFrame: FrameNode) {

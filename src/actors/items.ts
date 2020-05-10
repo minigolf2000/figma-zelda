@@ -4,10 +4,6 @@ import { Rectangle, isOverlapping } from "../tiles"
 import { Sprite } from "../sprite"
 
 let items: Items
-export function setItems(l: Items) {
-  items = l
-}
-
 export function getItems() {
   return items
 }
@@ -15,9 +11,9 @@ export function getItems() {
 export class Items {
   private items: Item[] = []
 
-  public constructor(items: FrameNode[]) {
+  public constructor(nodes: FrameNode[]) {
     // TODO: flatten groups and move items to bottom
-    items.forEach((node: FrameNode) => {
+    nodes.forEach((node: FrameNode) => {
       switch (node.name) {
         case 'triforce':
           this.items.push(new Triforce(node))
@@ -30,6 +26,8 @@ export class Items {
           break
       }
     })
+
+    items = this
   }
 
   public triforceShardTotal() {

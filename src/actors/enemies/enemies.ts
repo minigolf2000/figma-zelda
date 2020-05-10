@@ -4,31 +4,54 @@ import { Actor } from "../actor"
 import { LynelRed } from "./lynel_red"
 import { Scarecrow } from "./scarecrow"
 
-export function loadEnemies(nodes: FrameNode[]) {
-  const enemies: Actor[] = []
-  nodes.forEach((node: FrameNode) => {
-    if (!node.removed) {
+let e: Enemies
+export function getEnemies() {
+  return e
+}
+
+export class Enemies {
+  private enemies: Actor[] = []
+
+  public constructor(nodes: FrameNode[]) {
+    nodes.forEach((node: FrameNode) => {
       switch (node.name) {
         case 'octorok-red':
-          enemies.push(new OctorokRed(node))
+          this.enemies.push(new OctorokRed(node))
           break
         case 'octorok-blue':
-          enemies.push(new OctorokBlue(node))
+          this.enemies.push(new OctorokBlue(node))
           break
         case 'moblin-red':
-          enemies.push(new MoblinRed(node))
+          this.enemies.push(new MoblinRed(node))
           break
         case 'moblin-blue':
-          enemies.push(new MoblinBlue(node))
+          this.enemies.push(new MoblinBlue(node))
           break
         case 'lynel-red':
-          enemies.push(new LynelRed(node))
+          this.enemies.push(new LynelRed(node))
           break
         case 'scarecrow':
-          enemies.push(new Scarecrow(node))
+          this.enemies.push(new Scarecrow(node))
           break
       }
-    }
-  })
-  return enemies
+    })
+    e = this
+  }
+
+  public getAll() {
+    return this.enemies
+  }
+
+  public setAll(e: Actor[]) {
+    this.enemies = e
+  }
+
+  public removeAll() {
+    this.enemies.forEach(e => e.getNode().remove())
+    this.enemies = []
+  }
+
+  public nextFrame() {
+    this.enemies.forEach(enemy => enemy.nextFrame())
+  }
 }
