@@ -1,9 +1,46 @@
 import { Link } from "./link"
 import { Projectile } from "./actors/projectile"
-import { Rectangle } from "./tiles"
+import { Rectangle, COLLISION_TILES, WATER_TILES, DECORATIVE_TILES } from "./tiles"
 
 export const FPS = 30
 export const CAMERA_BOX_SIZE = 150
+
+interface findNodesInWorldResponse {
+  items: FrameNode[]
+  enemies: FrameNode[]
+  link: FrameNode | null
+  multiplayerLinks: FrameNode[]
+  tiles: InstanceNode[]
+}
+export const findNodesInWorld = (worldNode: FrameNode) => {
+  const response: findNodesInWorldResponse = {
+    items: [],
+    enemies: [],
+    link: null,
+    multiplayerLinks: [],
+    tiles: [],
+  }
+  // findAll is an expensive call so we only do it once
+  worldNode.findAll((node: SceneNode) => node.type === 'INSTANCE').forEach((node: InstanceNode) => {
+    if (!node.removed) { // this deals with nested instances
+      const name = node.name
+      if (name === 'triforce' || name === 'master-sword' || name === 'bow') {
+        response.items.push(detachNode(node))
+      } else if (COLLISION_TILES.has(name) || WATER_TILES.has(name) || DECORATIVE_TILES.has(name)) {
+        response.tiles.push(node)
+      } else if (name === 'octorok-red' || name === 'octorok-blue' || name === 'moblin-red' || name === 'moblin-blue' || name === 'lynel-red' || name === 'scarecrow') {
+        response.enemies.push(detachNode(node))
+      } else if (name === 'link') {
+        if (node.getPluginData("player-one") === "true") {
+          response.link = detachNode(node)
+        } else {
+          response.multiplayerLinks.push(detachNode(node))
+        }
+      }
+    }
+  })
+  return response
+}
 
 export interface Invulnerability {
   numFrames: number
@@ -56,9 +93,9 @@ export function addProjectile(projectile: Projectile | null) {
   }
 }
 
-const libSpritesPage = figma.root.findOne((node: BaseNode) => node.type === 'PAGE' && node.name === 'lib-sprites') as PageNode
+const libSpritesPage = figma.root.children.find((node: BaseNode) => node.type === 'PAGE' && node.name === 'lib-sprites')!
 export function createNewLibSprite(name: String) {
-  const libInstanceNode = (libSpritesPage.findOne((node: SceneNode) => node.name === name) as InstanceNode)
+  const libInstanceNode = libSpritesPage.children.find((node: SceneNode) => node.name === name) as InstanceNode
   if (!libInstanceNode) { throw `could not find lib sprite named ${name}`}
   const libInstanceClone = detachNode(libInstanceNode.clone())
 
@@ -134,7 +171,7 @@ export function updateCamera(linkPosition: Rectangle, cameraBoxSize: number) {
 // node data for FrameNodes is pretty fast. This is a helper function to detach
 // instances to frames for performance
 // Once Plugin API supports detaching, replace this function with the official function
-export function detachNode(node: InstanceNode) {
+function detachNode(node: InstanceNode) {
   const detached = figma.createFrame()
   detached.name = node.name
   detached.x = node.x

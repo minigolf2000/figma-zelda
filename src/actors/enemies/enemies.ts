@@ -2,31 +2,30 @@ import { OctorokRed, OctorokBlue } from "./octorok"
 import { MoblinBlue, MoblinRed } from "./moblin"
 import { Actor } from "../actor"
 import { LynelRed } from "./lynel_red"
-import { detachNode } from "../../lib"
 import { Scarecrow } from "./scarecrow"
 
-export function loadEnemies(worldNode: FrameNode) {
+export function loadEnemies(nodes: FrameNode[]) {
   const enemies: Actor[] = []
-  worldNode.findAll((node: SceneNode) => node.type === 'INSTANCE').forEach((node: InstanceNode) => {
+  nodes.forEach((node: FrameNode) => {
     if (!node.removed) {
       switch (node.name) {
         case 'octorok-red':
-          enemies.push(new OctorokRed(detachNode(node)))
+          enemies.push(new OctorokRed(node))
           break
         case 'octorok-blue':
-          enemies.push(new OctorokBlue(detachNode(node)))
+          enemies.push(new OctorokBlue(node))
           break
         case 'moblin-red':
-          enemies.push(new MoblinRed(detachNode(node)))
+          enemies.push(new MoblinRed(node))
           break
         case 'moblin-blue':
-          enemies.push(new MoblinBlue(detachNode(node)))
+          enemies.push(new MoblinBlue(node))
           break
         case 'lynel-red':
-          enemies.push(new LynelRed(detachNode(node)))
+          enemies.push(new LynelRed(node))
           break
         case 'scarecrow':
-          enemies.push(new Scarecrow(detachNode(node)))
+          enemies.push(new Scarecrow(node))
           break
       }
     }

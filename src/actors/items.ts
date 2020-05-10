@@ -1,4 +1,4 @@
-import { detachNode, createNewLibSprite } from "../lib"
+import { createNewLibSprite } from "../lib"
 import { Link } from "../link"
 import { Rectangle, isOverlapping } from "../tiles"
 import { Sprite } from "../sprite"
@@ -15,21 +15,19 @@ export function getItems() {
 export class Items {
   private items: Item[] = []
 
-  public constructor(worldNode: FrameNode) {
+  public constructor(items: FrameNode[]) {
     // TODO: flatten groups and move items to bottom
-    worldNode.findAll((node: SceneNode) => node.type === 'INSTANCE').forEach((node: InstanceNode) => {
-      if (!node.removed) {
-        switch (node.name) {
-          case 'triforce':
-            this.items.push(new Triforce(detachNode(node)))
-            break
-          case 'master-sword':
-            this.items.push(new MasterSword(detachNode(node)))
-            break
-          case 'bow':
-            this.items.push(new Bow(detachNode(node)))
-            break
-        }
+    items.forEach((node: FrameNode) => {
+      switch (node.name) {
+        case 'triforce':
+          this.items.push(new Triforce(node))
+          break
+        case 'master-sword':
+          this.items.push(new MasterSword(node))
+          break
+        case 'bow':
+          this.items.push(new Bow(node))
+          break
       }
     })
   }

@@ -1,8 +1,8 @@
 import { normalize, direction } from "./vector"
 
-const COLLISION_TILES = new Set(['tree', 'rock', 'rock_se', 'rock_s', 'rock_sw', 'rock_ne', 'rock_n', 'rock_nw'])
-const WATER_TILES = new Set(['water'])
-const DECORATIVE_TILES = new Set(['dirt', 'bridge', 'stairs'])
+export const COLLISION_TILES = new Set(['tree', 'rock', 'rock_se', 'rock_s', 'rock_sw', 'rock_ne', 'rock_n', 'rock_nw'])
+export const WATER_TILES = new Set(['water'])
+export const DECORATIVE_TILES = new Set(['dirt', 'bridge', 'stairs'])
 export enum CollisionLevel {
   Water = 1, // blocks ground units
   Wall = 2 // blocks ground units and air units
@@ -29,7 +29,7 @@ export class Tiles {
   private worldWidth: number
   private worldHeight: number
 
-  public constructor(worldNode: FrameNode) {
+  public constructor(worldNode: FrameNode, tileNodes: InstanceNode[]) {
     this.worldNode = worldNode
     this.worldWidth = worldNode.width
     this.worldHeight = worldNode.height
@@ -39,7 +39,7 @@ export class Tiles {
     tilesFrame.resize(worldNode.width, worldNode.height)
     tilesFrame.fills = []
 
-    worldNode.findAll((node: SceneNode) => {
+    tileNodes.forEach((node: InstanceNode) => {
       if (COLLISION_TILES.has(node.name)) {
         if (!this.walls[node.x]) {this.walls[node.x] = {}}
         this.walls[node.x][node.y] = CollisionLevel.Wall

@@ -1,4 +1,4 @@
-import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode, setLink, getLink, setProjectiles, getProjectiles, detachNode, displayTriforceShards, setTriforceShardsTotal, CAMERA_BOX_SIZE, setWorldPosition } from './lib'
+import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode, setLink, getLink, setProjectiles, getProjectiles, displayTriforceShards, setTriforceShardsTotal, CAMERA_BOX_SIZE, setWorldPosition, findNodesInWorld } from './lib'
 import { loadEnemies } from './actors/enemies/enemies'
 import { Tiles, isOverlapping, snapTilesToGrid, setTiles, lintWorld } from './tiles'
 import { onKeyPressed, keysPressed, paused } from './buttons'
@@ -70,14 +70,13 @@ function main() {
   setWorldNode(worldNode)
   worldNode.visible = true
 
-  setTiles(new Tiles(worldNode))
-
-  setItems(new Items(worldNode))
+  const nodesInWorld = findNodesInWorld(worldNode)
+  setTiles(new Tiles(worldNode, nodesInWorld.tiles))
+  setItems(new Items(nodesInWorld.items))
   setTriforceShardsTotal(getItems().triforceShardTotal())
-  enemies = loadEnemies(worldNode)
+  enemies = loadEnemies(nodesInWorld.enemies)
 
-  const linkNode = worldNode.findOne((node: SceneNode) => node.getPluginData("player-one") === "true")! as InstanceNode
-  setLink(new Link(detachNode(linkNode)))
+  setLink(new Link(nodesInWorld.link!))
   templateLinkNode.setPluginData("player-one", "") // reset this to initial value
 
   figma.currentPage.setRelaunchData({relaunch: ''})
