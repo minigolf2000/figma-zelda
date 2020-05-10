@@ -2,7 +2,7 @@ import { Actor } from './actors/actor'
 import { getItems } from './actors/items'
 import { paused } from './buttons'
 import { init } from './init'
-import { CAMERA_BOX_SIZE, FPS, getLink, getProjectiles, setProjectiles, updateCamera } from './lib'
+import { CAMERA_BOX_SIZE, FPS, getLink, getProjectiles, setProjectiles, updateCamera, displayHealth } from './lib'
 import { isOverlapping } from './tiles'
 import { getEnemies } from './actors/enemies/enemies'
 import { getMultiplayerLinks } from './actors/multiplayer_links'
@@ -16,7 +16,6 @@ function nextFrame() {
   const linkNode = link.getCurrentCollision()
   const items = getItems()
   const enemies = getEnemies()
-  const multiplayerLinks = getMultiplayerLinks()
 
   if (paused) {
     return
@@ -36,36 +35,48 @@ function nextFrame() {
     if (!link.deathAnimation()) { figma.closePlugin() }
     return
   }
+
   items.getIfOverlapping(link, linkNode)
   items.nextFrame()
-
   link.nextFrame()
-  multiplayerLinks.nextFrame()
-  const linkHurtbox = link.getCurrentCollision()
-  const linkHitbox = link.hitBox()
-
-  // move projectiles
+  getMultiplayerLinks().nextFrame()
   setProjectiles(getProjectiles().filter(projectile => !!projectile.nextFrame()))
-
   enemies.nextFrame()
+
+  calculateDamages()
+
+  updateCamera(linkNode, CAMERA_BOX_SIZE)
+  // printFPS()
+}
+
+function calculateDamages() {
+  const link = getLink()
+  const enemies = getEnemies()
+  const allLinks = [link, ...getMultiplayerLinks().getAll()]
 
   enemies.setAll(enemies.getAll().filter((enemy: Actor) => {
     const enemyHitbox = enemy.getCurrentCollision()
 
-    // enemy damages link
-    const hurtVector = isOverlapping(linkHurtbox, enemyHitbox)
-    if (hurtVector) {
-      const health = link.takeDamage(enemy.getDamage(), hurtVector)
-      if (health <= 0) { gameLost = true }
-    }
+    for (let l of allLinks) {
+      // enemy damages link
+      const hurtVector = isOverlapping(l.getCurrentCollision(), enemyHitbox)
+      if (hurtVector) {
+        const health = l.takeDamage(enemy.getDamage(), hurtVector)
+        if (l === link) {
+          figma.ui.postMessage({health: displayHealth(health, 3)})
+        }
+        if (health <= 0) { gameLost = true }
+      }
 
-    // link damages enemy
-    if (linkHitbox) {
-      const hitVector = isOverlapping(enemyHitbox, linkHitbox)
-      if (hitVector) {
-        const enemyHealth = enemy.takeDamage(link.getDamage(), link.facingVector())
-        if (enemyHealth <= 0) {
-          return false
+      const linkHitbox = l.swordCollision()
+      // link damages enemy
+      if (linkHitbox) {
+        const hitVector = isOverlapping(enemyHitbox, linkHitbox)
+        if (hitVector) {
+          const enemyHealth = enemy.takeDamage(l.getDamage(), l.facingVector())
+          if (enemyHealth <= 0) {
+            return false
+          }
         }
       }
     }
@@ -89,20 +100,22 @@ function nextFrame() {
 
   setProjectiles(getProjectiles().filter((projectile: Actor) => {
     // projectiles damage link
-    const hurtVector = isOverlapping(linkHurtbox, projectile.getCurrentCollision())
-    if (hurtVector) {
-      if (!link.isShielding(projectile)) {
-        const health = link.takeDamage(projectile.getDamage(), hurtVector)
-        if (health <= 0) { gameLost = true }
+    for (let l of allLinks) {
+      const hurtVector = isOverlapping(l.getCurrentCollision(), projectile.getCurrentCollision())
+      if (hurtVector) {
+        if (!l.isShielding(projectile)) {
+          const health = l.takeDamage(projectile.getDamage(), hurtVector)
+          if (l === link) {
+            figma.ui.postMessage({health: displayHealth(health, 3)})
+          }
+          if (health <= 0) { gameLost = true }
+        }
+        projectile.getNode().remove()
+        return false
       }
-      projectile.getNode().remove()
-      return false
     }
     return true
   }))
-
-  updateCamera(linkNode, CAMERA_BOX_SIZE)
-  // printFPS()
 }
 
 let lastFrameTimestamp: number = Date.now()

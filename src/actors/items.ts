@@ -1,4 +1,4 @@
-import { createNewLibSprite } from "../lib"
+import { createNewLibSprite, getLink, displayHealth, displayTriforceShards } from "../lib"
 import { Link } from "../link"
 import { Rectangle, isOverlapping } from "../tiles"
 import { Sprite } from "../sprite"
@@ -117,7 +117,10 @@ class Heart extends Item {
   }
 
   public get(link: Link) {
-    link.getHeart()
+    const health = link.getHeart()
+    if (link === getLink()) {
+      figma.ui.postMessage({health: displayHealth(health, 3)})
+    }
   }
 
   public nextFrame() {
@@ -182,6 +185,7 @@ class Triforce extends Item {
 
   public get(link: Link) {
     link.getTriforceShard()
+    figma.ui.postMessage({triforceShards: displayTriforceShards()})
   }
 
   public nextFrame() {

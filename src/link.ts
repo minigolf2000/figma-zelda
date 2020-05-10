@@ -1,9 +1,10 @@
 import { Sprite } from "./sprite"
 import { Actor } from "./actors/actor"
-import { facingOpposite, createNewLibSprite, getWorldNode, addProjectile, displayHealth, incrementTriforceShardsCurrent, displayTriforceShards, Facing } from "./lib"
+import { facingOpposite, createNewLibSprite, getWorldNode, addProjectile, incrementTriforceShardsCurrent, Facing } from "./lib"
 import { Buttons } from "./buttons"
 import { multiply } from "./vector"
 import { Arrow } from "./actors/projectile"
+import { Rectangle } from "./tiles"
 
 const HEALTH_MAX = 3.0
 const WALK_SPEED = 2.5
@@ -32,13 +33,14 @@ export class Link extends Actor {
     this.invulnerabilityKnockbackMagnitude = 8.0
   }
 
-  public hitBox() {
-    return this.swordActiveFrame !== null ? this.swordNode : null
+  public swordCollision(): Rectangle | null {
+    return this.swordActiveFrame !== null ?
+      {x: this.swordNode.x, y: this.swordNode.y, width: this.swordNode.width, height: this.swordNode.height} :
+      null
   }
 
   public getTriforceShard() {
     const hasWon = incrementTriforceShardsCurrent()
-    figma.ui.postMessage({triforceShards: displayTriforceShards()})
     if (hasWon) {
       this.winAnimationFrame = 0
     }
@@ -57,7 +59,7 @@ export class Link extends Actor {
 
   public getHeart() {
     this.health = Math.min(HEALTH_MAX, this.health + 1)
-    figma.ui.postMessage({health: displayHealth(this.health, 3)})
+    return this.health
   }
 
   public getDamage() {
@@ -169,7 +171,6 @@ export class Link extends Actor {
 
   public takeDamage(damage: number, direction: Vector) {
     super.takeDamage(damage, direction)
-    figma.ui.postMessage({health: displayHealth(this.health, 3)})
     return this.health
   }
 
