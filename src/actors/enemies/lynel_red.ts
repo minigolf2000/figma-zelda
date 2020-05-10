@@ -22,7 +22,7 @@ export class LynelRed extends Actor {
   }
 
   public nextFrame() {
-    const linkNode = getLink().getNode()
+    const linkNode = getLink().getCurrentCollision()
     if (this.health <= 0) {
       this.getNode().remove()
       return false
@@ -34,7 +34,7 @@ export class LynelRed extends Actor {
       destination = this.homeVector
     }
 
-    const vector = {x: destination.x - this.getNode().x, y: destination.y - this.getNode().y}
+    const vector = {x: destination.x - this.getCurrentCollision().x, y: destination.y - this.getCurrentCollision().y}
     if (magnitude(vector) < 1) {
       // Lynel is already at home
       return true

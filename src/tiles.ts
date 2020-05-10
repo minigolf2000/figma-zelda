@@ -26,9 +26,13 @@ export function getTiles() {
 export class Tiles {
   private walls: Walls = {}
   private worldNode: FrameNode
+  private worldWidth: number
+  private worldHeight: number
 
   public constructor(worldNode: FrameNode) {
     this.worldNode = worldNode
+    this.worldWidth = worldNode.width
+    this.worldHeight = worldNode.height
 
     const tilesFrame = figma.createFrame()
     tilesFrame.name = "collision tiles"
@@ -76,14 +80,14 @@ export class Tiles {
   }
 
   //
-  public moveToPositionRespectingCollision(rect: Rectangle, vector: Vector, collisionLevel: CollisionLevel) {
-    const newMoveX = this.moveToPositionRespectingCollision1D(rect.x, rect.x + rect.width, vector.x, (x) => this.isColliding(x, rect.y) >= collisionLevel || this.isColliding(x, rect.y + rect.height - 1) >= collisionLevel)
-    const newMoveY = this.moveToPositionRespectingCollision1D(rect.y, rect.y + rect.height, vector.y, (y) => this.isColliding(rect.x, y) >= collisionLevel || this.isColliding(rect.x + rect.width - 1, y) >= collisionLevel)
+  public getMovePositionRespectingCollision(rect: Rectangle, vector: Vector, collisionLevel: CollisionLevel) {
+    const newMoveX = this.getMovePositionRespectingCollision1D(rect.x, rect.x + rect.width, vector.x, (x) => this.isColliding(x, rect.y) >= collisionLevel || this.isColliding(x, rect.y + rect.height - 1) >= collisionLevel)
+    const newMoveY = this.getMovePositionRespectingCollision1D(rect.y, rect.y + rect.height, vector.y, (y) => this.isColliding(rect.x, y) >= collisionLevel || this.isColliding(rect.x + rect.width - 1, y) >= collisionLevel)
 
     return {x: newMoveX, y: newMoveY}
   }
 
-  public moveToPositionRespectingCollision1D(left: number, right: number, move: number, isCollidingFunc: (coord: number) => boolean) {
+  public getMovePositionRespectingCollision1D(left: number, right: number, move: number, isCollidingFunc: (coord: number) => boolean) {
     if (move > 0) {
       if (isCollidingFunc(right + move)) {
         return Math.ceil((left + move) / 16) * 16 - (right - left) - 1
@@ -101,7 +105,7 @@ export class Tiles {
 
   // make this take a rect and move vector?
   private isColliding(x: number, y: number) {
-    if (x < 0 || y < 0 || x > this.worldNode.width || y > this.worldNode.height) {
+    if (x < 0 || y < 0 || x > this.worldWidth || y > this.worldHeight) {
       return true
     }
     return (

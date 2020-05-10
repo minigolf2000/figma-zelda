@@ -164,7 +164,7 @@ export class Link extends Actor {
     if (this.swordActiveFrame === 1) {
       this.swordNode.visible = true
     }
-    const node = this.getNode()
+    const node = this.getCurrentCollision()
     if (this.facing === 'up') {
       switch (this.swordActiveFrame) {
         case 0: case 1: case 2: case 3: // increment on multiple frames incase getting knocked back
@@ -242,7 +242,7 @@ export class Link extends Actor {
     }
 
     if (this.bowActiveFrame === 3) {
-      addProjectile((new Arrow(this.getNode(), this.facing)).initialMove())
+      addProjectile((new Arrow(this.getCurrentCollision(), this.facing)).initialMove())
     }
 
     if (this.bowActiveFrame > 6) {

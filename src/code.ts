@@ -1,4 +1,4 @@
-import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode, setLink, getLink, setProjectiles, getProjectiles, detachNode, displayTriforceShards, setTriforceShardsTotal, CAMERA_BOX_SIZE } from './lib'
+import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode, setLink, getLink, setProjectiles, getProjectiles, detachNode, displayTriforceShards, setTriforceShardsTotal, CAMERA_BOX_SIZE, getWorldPosition, setWorldPosition } from './lib'
 import { loadEnemies } from './actors/enemies/enemies'
 import { Tiles, isOverlapping, snapTilesToGrid, setTiles, lintWorld } from './tiles'
 import { onKeyPressed, keysPressed, paused } from './buttons'
@@ -80,14 +80,15 @@ function main() {
   worldNode.setRelaunchData({relaunch: ''})
   figma.currentPage.selection = []
   figma.viewport.zoom = 3.5
-  updateCamera(getLink().getNode(), getWorldNode(), 0)
+  setWorldPosition(getWorldNode())
+  updateCamera(getLink().getCurrentCollision(), getWorldPosition(), 0)
 
   return true
 }
 
 function nextFrame() {
   const link = getLink()
-  const linkNode = link.getNode()
+  const linkNode = link.getCurrentCollision()
   const items = getItems()
 
   if (paused) {
@@ -150,7 +151,7 @@ function nextFrame() {
     let enemyKilledByProjectile = false
     setProjectiles(getProjectiles().filter((projectile: Actor) => {
       // projectiles damage enemy
-      const hitVector = isOverlapping(enemyHitbox, projectile.getNode())
+      const hitVector = isOverlapping(enemyHitbox, projectile.getCurrentCollision())
       if (hitVector) {
         const enemyHealth = enemy.takeDamage(projectile.getDamage(), projectile.facingVector())
         if (enemyHealth <= 0) {
@@ -166,7 +167,7 @@ function nextFrame() {
 
   setProjectiles(getProjectiles().filter((projectile: Actor) => {
     // projectiles damage link
-    const hurtVector = isOverlapping(linkHurtbox, projectile.getNode())
+    const hurtVector = isOverlapping(linkHurtbox, projectile.getCurrentCollision())
     if (hurtVector) {
       if (!link.isShielding(projectile)) {
         const health = link.takeDamage(projectile.getDamage(), hurtVector)
@@ -179,7 +180,7 @@ function nextFrame() {
   }))
 
 
-  updateCamera(linkNode, getWorldNode(), CAMERA_BOX_SIZE)
+  updateCamera(linkNode, getWorldPosition(), CAMERA_BOX_SIZE)
   // printFPS()
 }
 

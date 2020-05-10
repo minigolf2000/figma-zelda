@@ -16,6 +16,7 @@ export class Projectile extends Actor {
     super(createNewLibSprite(spriteName), Infinity, facing)
     this.node.x = shooterRectangle.x + shooterRectangle.width / 2 - this.node.width / 2
     this.node.y = shooterRectangle.y + shooterRectangle.height / 2 - this.node.height / 2
+    this.setCurrentPosition({x: this.node.x, y: this.node.y})
     this.collisionLevel = CollisionLevel.Wall
     this.damage = DAMAGE
   }
@@ -23,9 +24,10 @@ export class Projectile extends Actor {
   public initialMove() {
     if (this.move(multiply(this.facingVector(), 16))) {
       return this
+    } else {
+      this.getNode().remove()
+      return null
     }
-    this.getNode().remove()
-    return null
   }
 
   public nextFrame() {

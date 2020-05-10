@@ -1,5 +1,6 @@
 import { Link } from "./link"
 import { Projectile } from "./actors/projectile"
+import { Rectangle } from "./tiles"
 
 export const FPS = 30
 export const CAMERA_BOX_SIZE = 150
@@ -25,6 +26,15 @@ export function setWorldNode(w: FrameNode) {
 
 export function getWorldNode() {
   return worldNode
+}
+
+let worldPosition: Vector
+export function setWorldPosition(p: Vector) {
+  worldPosition = p
+}
+
+export function getWorldPosition() {
+  return worldPosition
 }
 
 let link: Link
@@ -97,27 +107,30 @@ export function displayHealth(current: number, total: number) {
   return displayHealth
 }
 
-export function updateCamera(linkNode: SceneNode, worldNode: FrameNode, cameraBoxSize: number) {
-  const distFromCenter = cameraBoxSize / figma.viewport.zoom
-  const currentX = linkNode.x + worldNode.x
-  const currentY = linkNode.y + worldNode.y
+let currentCenter: Vector = figma.viewport.center
+export function updateCamera(linkPosition: Rectangle, worldPosition: Vector, cameraBoxSize: number) {
+  // TODO: does this take link's width/height into account?
+  const distFromCenter = cameraBoxSize / 3.5
+  const currentX = linkPosition.x + worldPosition.x
+  const currentY = linkPosition.y + worldPosition.y
 
-  let newX = figma.viewport.center.x
-  if (figma.viewport.center.x - currentX > distFromCenter) {
-    newX -= figma.viewport.center.x - currentX - distFromCenter
-  } else if (currentX - figma.viewport.center.x > distFromCenter) {
-    newX += currentX - figma.viewport.center.x - distFromCenter
+  let newX = currentCenter.x
+  if (currentCenter.x - currentX > distFromCenter) {
+    newX -= currentCenter.x - currentX - distFromCenter
+  } else if (currentX - currentCenter.x > distFromCenter) {
+    newX += currentX - currentCenter.x - distFromCenter
   }
 
-  let newY = figma.viewport.center.y
-  if (figma.viewport.center.y - currentY > distFromCenter) {
-    newY -= figma.viewport.center.y - currentY - distFromCenter
-  } else if (currentY - figma.viewport.center.y > distFromCenter) {
-    newY += currentY - figma.viewport.center.y - distFromCenter
+  let newY = currentCenter.y
+  if (currentCenter.y - currentY > distFromCenter) {
+    newY -= currentCenter.y - currentY - distFromCenter
+  } else if (currentY - currentCenter.y > distFromCenter) {
+    newY += currentY - currentCenter.y - distFromCenter
   }
 
-  if (newX !== figma.viewport.center.x || newY !== figma.viewport.center.y) {
-    figma.viewport.center = {x: newX, y: newY}
+  if (newX !== currentCenter.x || newY !== currentCenter.y) {
+    currentCenter = {x: newX, y: newY}
+    figma.viewport.center = currentCenter
   }
 }
 

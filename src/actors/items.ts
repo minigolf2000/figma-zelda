@@ -42,10 +42,10 @@ export class Items {
     this.items.push(new Heart(dropLocation))
   }
 
-  public getIfOverlapping(link: Link, linkNode: Rectangle) {
+  public getIfOverlapping(link: Link, linkCollision: Rectangle) {
     this.items = this.items.filter(i => {
-      // Maybe optimize this for performance by storing a hash of positions
-      if (isOverlapping(i.getNode(), linkNode)) {
+      // TODO: Maybe optimize this for performance by storing a hash of positions
+      if (isOverlapping(i.getCurrentCollision(), linkCollision)) {
         i.get(link)
         i.getNode().remove()
         return false
@@ -63,15 +63,35 @@ abstract class Item {
   protected node: FrameNode
   abstract get(link: Link): void
   abstract nextFrame(): boolean
+  private currentPosition: Vector
+  private width: number
+  private height: number
 
   public constructor(node: FrameNode) {
     this.node = node
+    this.currentPosition = {
+      x: this.node.x,
+      y: this.node.y,
+    }
+
+    this.width = this.node.width
+    this.height = this.node.height
+  }
+
+  public getCurrentCollision(): Rectangle {
+    return {...this.currentPosition, width: this.width, height: this.height}
+  }
+
+  public setCurrentPosition(position: Vector) {
+    this.currentPosition = position
+
+    this.node.x = position.x
+    this.node.y = position.y
   }
 
   public getNode() {
     return this.node
   }
-
 }
 
 class Bow extends Item {
@@ -96,6 +116,7 @@ class Heart extends Item {
     super(createNewLibSprite('heart'))
     this.node.x = dropLocation.x + dropLocation.width / 2 - HEART_WIDTH / 2
     this.node.y = dropLocation.y + dropLocation.height / 2 - HEART_HEIGHT / 2
+    this.setCurrentPosition({x: this.node.x, y: this.node.y})
     this.sprite = new Sprite(this.node, ['red'])
   }
 

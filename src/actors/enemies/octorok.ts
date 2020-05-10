@@ -47,7 +47,7 @@ class Octorok extends Actor {
 
   private shootBehavior() {
     if (this.shootingFrame === 12) {
-      addProjectile((new OctorokRock(this.getNode(), this.facing)).initialMove())
+      addProjectile((new OctorokRock(this.getCurrentCollision(), this.facing)).initialMove())
     }
 
     this.shootingFrame!++
@@ -84,43 +84,44 @@ class Octorok extends Actor {
   }
 
   private seesLinkInLineOfSight() {
-    const linkNode: Rectangle = getLink().getNode()
+    const linkNode: Rectangle = getLink().getCurrentCollision()
+    const octorokNode: Rectangle = this.getCurrentCollision()
 
     // Assign variables assuming Octorok is facing right. Then reassign if the facing is different
     let linkX = linkNode.x
     let linkWidth = linkNode.width
     let linkY = linkNode.y
     let linkHeight = linkNode.height
-    let octorokX = this.node.x
-    let octorokWidth = this.node.width
-    let octorokY = this.node.y
-    let octorokHeight = this.node.height
+    let octorokX = octorokNode.x
+    let octorokWidth = octorokNode.width
+    let octorokY = octorokNode.y
+    let octorokHeight = octorokNode.height
     switch (this.facing) {
       case 'right':
         break
       case 'left':
         linkX = -linkNode.x
-        octorokX = -this.node.x
+        octorokX = -octorokNode.x
         break
       case 'down':
         linkX = linkNode.y
         linkWidth = linkNode.height
         linkY = linkNode.x
         linkHeight = linkNode.width
-        octorokX = this.node.y
-        octorokWidth = this.node.height
-        octorokY = this.node.x
-        octorokHeight = this.node.width
+        octorokX = octorokNode.y
+        octorokWidth = octorokNode.height
+        octorokY = octorokNode.x
+        octorokHeight = octorokNode.width
         break
       case 'up':
         linkX = -linkNode.y
         linkWidth = linkNode.height
         linkY = linkNode.x
         linkHeight = linkNode.width
-        octorokX = -this.node.y
-        octorokWidth = this.node.height
-        octorokY = this.node.x
-        octorokHeight = this.node.width
+        octorokX = -octorokNode.y
+        octorokWidth = octorokNode.height
+        octorokY = octorokNode.x
+        octorokHeight = octorokNode.width
         break
     }
 

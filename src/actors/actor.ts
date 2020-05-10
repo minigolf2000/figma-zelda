@@ -1,10 +1,10 @@
 import { Facing, Invulnerability, getLink } from "../lib"
-import { CollisionLevel, getTiles } from "../tiles"
+import { CollisionLevel, getTiles, Rectangle } from "../tiles"
 import { multiply } from "../vector"
 import { getItems } from "./items"
 
 export abstract class Actor {
-  protected node: FrameNode
+  protected node: FrameNode // TODO: make this private and expose a delete function?
   public facing: Facing
   protected health: number
   private invulnerability: Invulnerability | null = null
@@ -14,9 +14,16 @@ export abstract class Actor {
   protected invulnerabilityKnockbackDuration = 9
   protected invulnerabilityKnockbackMagnitude = 6.0
   protected homeVector: Vector
+  private currentPosition: Vector // repeatedly accessing Figma node objects is slow. store this value locally
+  private width: number
+  private height: number
+
 
   public constructor(node: FrameNode, health: number, facing: Facing = 'down') {
     this.node = node
+    this.currentPosition = {x: node.x, y: node.y}
+    this.width = node.width
+    this.height = node.height
     this.health = health
     this.facing = facing
     this.collisionLevel = CollisionLevel.Water
@@ -35,13 +42,23 @@ export abstract class Actor {
     return this.health
   }
 
+  public getCurrentCollision(): Rectangle {
+    return {...this.currentPosition, width: this.width, height: this.height}
+  }
+
+  public setCurrentPosition(position: Vector) {
+    this.currentPosition = position
+
+    this.node.x = position.x
+    this.node.y = position.y
+  }
+
   protected move(vector: Vector) {
-    const newPosition = getTiles().moveToPositionRespectingCollision(this.node, vector, this.collisionLevel)
-    const successfulMove = this.node.x + vector.x === newPosition.x && this.node.y + vector.y === newPosition.y
+    const currentCollision = this.getCurrentCollision()
+    const newPosition = getTiles().getMovePositionRespectingCollision(currentCollision, vector, this.collisionLevel)
+    const successfulMove = currentCollision.x + vector.x === newPosition.x && currentCollision.y + vector.y === newPosition.y
 
-    this.node.x = newPosition.x
-    this.node.y = newPosition.y
-
+    this.setCurrentPosition(newPosition)
     return successfulMove
   }
 
@@ -94,11 +111,6 @@ export abstract class Actor {
     } else {
       this.invulnerability.numFrames++
     }
-  }
-
-  public getCurrentCollision() {
-    const {x, y, width, height} = this.getNode()
-    return {x, y, width, height}
   }
 
   abstract nextFrame(): boolean
