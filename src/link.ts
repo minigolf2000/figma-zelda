@@ -59,7 +59,6 @@ export class Link extends Actor {
 
   public getHeart() {
     this.health = Math.min(HEALTH_MAX, this.health + 1)
-    return this.health
   }
 
   public getDamage() {

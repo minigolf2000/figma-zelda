@@ -13,9 +13,9 @@ let gameLost = false
 // Performs some logic, then delegates logic to each actor's nextFrame()
 function nextFrame() {
   const link = getLink()
-  const linkNode = link.getCurrentCollision()
   const items = getItems()
   const enemies = getEnemies()
+  const allLinks = [link, ...getMultiplayerLinks().getAll()]
 
   if (paused) {
     return
@@ -36,7 +36,7 @@ function nextFrame() {
     return
   }
 
-  items.getIfOverlapping(link, linkNode)
+  items.getIfOverlapping(allLinks)
   items.nextFrame()
   link.nextFrame()
   getMultiplayerLinks().nextFrame()
@@ -45,7 +45,7 @@ function nextFrame() {
 
   calculateDamages()
 
-  updateCamera(linkNode, CAMERA_BOX_SIZE)
+  updateCamera(link.getCurrentCollision(), CAMERA_BOX_SIZE)
   // printFPS()
 }
 

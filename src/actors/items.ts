@@ -38,13 +38,18 @@ export class Items {
     this.items.push(new Heart(dropLocation))
   }
 
-  public getIfOverlapping(link: Link, linkCollision: Rectangle) {
+  public getIfOverlapping(allLinks: Link[]) {
     this.items = this.items.filter(i => {
-      // TODO: Maybe optimize this for performance by storing a hash of positions
-      if (isOverlapping(i.getCurrentCollision(), linkCollision)) {
-        i.get(link)
-        i.getNode().remove()
-        return false
+      for (const l of allLinks) {
+        // TODO: Maybe optimize this for performance by storing a hash of item positions
+        if (isOverlapping(i.getCurrentCollision(), l.getCurrentCollision())) {
+          i.get(l)
+          if (getLink() === l) {
+            i.onGetIfCurrentLink(l)
+          }
+          i.getNode().remove()
+          return false
+        }
       }
       return true
     })
@@ -58,6 +63,7 @@ export class Items {
 abstract class Item {
   protected node: FrameNode
   abstract get(link: Link): void
+  abstract onGetIfCurrentLink(link: Link): void
   abstract nextFrame(): boolean
   private currentPosition: Vector
   private width: number
@@ -92,8 +98,11 @@ abstract class Item {
 
 class Bow extends Item {
   public get(link: Link) {
-    figma.ui.postMessage({setBow: "bow"})
     link.getBow()
+  }
+
+  public onGetIfCurrentLink(link: Link) {
+    figma.ui.postMessage({setBow: "bow"})
   }
 
   public nextFrame() {
@@ -117,10 +126,11 @@ class Heart extends Item {
   }
 
   public get(link: Link) {
-    const health = link.getHeart()
-    if (link === getLink()) {
-      figma.ui.postMessage({health: displayHealth(health, 3)})
-    }
+    link.getHeart()
+  }
+
+  public onGetIfCurrentLink(link: Link) {
+    figma.ui.postMessage({health: displayHealth(link.getHealth(), 3)})
   }
 
   public nextFrame() {
@@ -151,8 +161,11 @@ class MasterSword extends Item {
   }
 
   public get(link: Link) {
-    figma.ui.postMessage({setSword: "master-sword"})
     link.getMasterSword()
+  }
+
+  public onGetIfCurrentLink() {
+    figma.ui.postMessage({setSword: "master-sword"})
   }
 
   public nextFrame() {
@@ -185,6 +198,9 @@ class Triforce extends Item {
 
   public get(link: Link) {
     link.getTriforceShard()
+  }
+
+  public onGetIfCurrentLink() {
     figma.ui.postMessage({triforceShards: displayTriforceShards()})
   }
 
