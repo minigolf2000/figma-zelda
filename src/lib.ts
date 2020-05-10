@@ -33,10 +33,6 @@ export function setWorldPosition(p: Vector) {
   worldPosition = p
 }
 
-export function getWorldPosition() {
-  return worldPosition
-}
-
 let link: Link
 export function setLink(l: Link) {
   link = l
@@ -108,7 +104,7 @@ export function displayHealth(current: number, total: number) {
 }
 
 let currentCenter: Vector = figma.viewport.center
-export function updateCamera(linkPosition: Rectangle, worldPosition: Vector, cameraBoxSize: number) {
+export function updateCamera(linkPosition: Rectangle, cameraBoxSize: number) {
   // TODO: does this take link's width/height into account?
   const distFromCenter = cameraBoxSize / 3.5
   const currentX = linkPosition.x + worldPosition.x

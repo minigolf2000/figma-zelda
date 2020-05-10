@@ -1,4 +1,4 @@
-import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode, setLink, getLink, setProjectiles, getProjectiles, detachNode, displayTriforceShards, setTriforceShardsTotal, CAMERA_BOX_SIZE, getWorldPosition, setWorldPosition } from './lib'
+import { FPS, displayHealth, updateCamera, setWorldNode, getWorldNode, setLink, getLink, setProjectiles, getProjectiles, detachNode, displayTriforceShards, setTriforceShardsTotal, CAMERA_BOX_SIZE, setWorldPosition } from './lib'
 import { loadEnemies } from './actors/enemies/enemies'
 import { Tiles, isOverlapping, snapTilesToGrid, setTiles, lintWorld } from './tiles'
 import { onKeyPressed, keysPressed, paused } from './buttons'
@@ -39,19 +39,22 @@ function findLinkNode() {
   return null
 }
 
+const findNearestFrameAncestor = (node: BaseNode) => {
+  let current: any = node
+  while (current) {
+    if (current.type === 'FRAME') { return current }
+    current = current.parent
+  }
+}
+
 function main() {
-  let linkNodeOrNull = findLinkNode()
-  if (!linkNodeOrNull) {
+  let templateLinkNode = findLinkNode()
+  if (!templateLinkNode) {
     figma.closePlugin("Please have Link selected while running the Plugin")
     return false
   }
 
-  if (!linkNodeOrNull.parent || linkNodeOrNull.parent.type !== 'FRAME') {
-    figma.closePlugin("Could not find a 'link' node inside a frame")
-    return false
-  }
-
-  templateWorldNode = linkNodeOrNull.parent
+  templateWorldNode = findNearestFrameAncestor(templateLinkNode)
   if (templateWorldNode.getPluginData("running-world") ===  "true") {
     figma.closePlugin("Multiplayer is not supported yet!")
     return false
@@ -60,28 +63,30 @@ function main() {
   snapTilesToGrid(templateWorldNode)
   lintWorld(templateWorldNode)
   templateWorldNode.visible = false
+  templateLinkNode.setPluginData("player-one", "true")
 
   const worldNode = templateWorldNode.clone()
   worldNode.setPluginData("running-world", "true")
   setWorldNode(worldNode)
   worldNode.visible = true
-  figma.currentPage.selection = [worldNode] // used to find the correct linkNode
-  linkNodeOrNull = findLinkNode()!
-  linkNodeOrNull.masterComponent.setRelaunchData({relaunch: ''})
 
   setTiles(new Tiles(worldNode))
 
   setItems(new Items(worldNode))
   setTriforceShardsTotal(getItems().triforceShardTotal())
   enemies = loadEnemies(worldNode)
-  setLink(new Link(detachNode(linkNodeOrNull)))
+
+  const linkNode = worldNode.findOne((node: SceneNode) => node.getPluginData("player-one") === "true")! as InstanceNode
+  setLink(new Link(detachNode(linkNode)))
+  templateLinkNode.setPluginData("player-one", "") // reset this to initial value
 
   figma.currentPage.setRelaunchData({relaunch: ''})
-  worldNode.setRelaunchData({relaunch: ''})
+  templateWorldNode.setRelaunchData({relaunch: ''})
   figma.currentPage.selection = []
+
   figma.viewport.zoom = 3.5
   setWorldPosition(getWorldNode())
-  updateCamera(getLink().getCurrentCollision(), getWorldPosition(), 0)
+  updateCamera(getLink().getCurrentCollision(), 0)
 
   return true
 }
@@ -180,7 +185,7 @@ function nextFrame() {
   }))
 
 
-  updateCamera(linkNode, getWorldPosition(), CAMERA_BOX_SIZE)
+  updateCamera(linkNode, CAMERA_BOX_SIZE)
   // printFPS()
 }
 
@@ -193,8 +198,8 @@ export function printFPS() {
 }
 
 figma.on("close", () => {
-  getWorldNode().remove()
-  templateWorldNode.visible = true
+  if (getWorldNode()) getWorldNode().remove()
+  if (templateWorldNode) templateWorldNode.visible = true
 })
 
 if (main()) {
