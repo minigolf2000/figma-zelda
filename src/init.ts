@@ -1,9 +1,10 @@
 import { Enemies } from './actors/enemies/enemies'
 import { getItems, Items } from './actors/items'
-import { onKeyPressed } from './buttons'
+import { onButtonsPressed } from './buttons'
 import { displayHealth, displayTriforceShards, findNodesInWorld, getLink, getWorldNode, setLink, setTriforceShardsTotal, setWorldNode, setWorldPosition, updateCamera } from './lib'
 import { Link } from './link'
 import { lintWorld, snapTilesToGrid, Tiles } from './tiles'
+import { MultiplayerLinks } from './actors/multiplayer_links'
 
 
 let templateWorldNode: FrameNode
@@ -21,6 +22,7 @@ export function init() {
     return false
   }
 
+  // TODO: figure out if player is player-one or not
   snapTilesToGrid(templateWorldNode)
   lintWorld(templateWorldNode)
   templateWorldNode.visible = false
@@ -29,12 +31,14 @@ export function init() {
   const worldNode = templateWorldNode.clone()
   worldNode.setPluginData("running-world", "true")
   setWorldNode(worldNode)
+  worldNode.expanded = false // collapse this for performance by avoiding layers panel rerenders
   worldNode.visible = true
 
   const nodesInWorld = findNodesInWorld(worldNode)
   new Tiles(worldNode, nodesInWorld.tiles)
   new Items(nodesInWorld.items)
   new Enemies(nodesInWorld.enemies)
+  new MultiplayerLinks(nodesInWorld.multiplayerLinks)
   setLink(new Link(nodesInWorld.link!))
   setTriforceShardsTotal(getItems().triforceShardTotal())
 
@@ -45,13 +49,13 @@ export function init() {
 
   figma.viewport.zoom = 3.5
   setWorldPosition(getWorldNode())
-  updateCamera(getLink().getCurrentCollision(), 0)
+  updateCamera(getLink().getCurrentCollision(), 0) // center Link in viewport
 
   figma.showUI(__html__, {width: 260, height: 160})
   figma.ui.postMessage({health: displayHealth(3, 3)})
   figma.ui.postMessage({triforceShards: displayTriforceShards()})
   figma.ui.postMessage({setSword: 'wooden-sword'})
-  figma.ui.onmessage = onKeyPressed
+  figma.ui.onmessage = (m) => onButtonsPressed(m, getLink().buttonsPressed)
 
   return true
 }

@@ -1,7 +1,7 @@
 import { Sprite } from "./sprite"
 import { Actor } from "./actors/actor"
-import { facingOpposite, createNewLibSprite, getWorldNode, addProjectile, displayHealth, incrementTriforceShardsCurrent, displayTriforceShards } from "./lib"
-import { keysPressed, changeFacing, getMovementDirection } from "./buttons"
+import { facingOpposite, createNewLibSprite, getWorldNode, addProjectile, displayHealth, incrementTriforceShardsCurrent, displayTriforceShards, Facing } from "./lib"
+import { Buttons } from "./buttons"
 import { multiply } from "./vector"
 import { Arrow } from "./actors/projectile"
 
@@ -19,6 +19,7 @@ export class Link extends Actor {
   private swordSprite: Sprite
   private hasBowAndArrow: boolean = false
   private hasMasterSword: boolean = false
+  public buttonsPressed: Buttons = {up: false, down: false, left: false, right: false, x: false, z: false, esc: false}
 
   public constructor(node: FrameNode) {
     super(node, HEALTH_MAX, 'down')
@@ -114,19 +115,40 @@ export class Link extends Actor {
     return this.winAnimationFrame! < 200
   }
 
+  public getMovementDirection() {
+    const vector = {x: 0, y: 0}
+    if (this.buttonsPressed.left) vector.x -= 1
+    if (this.buttonsPressed.right) vector.x += 1
+    if (this.buttonsPressed.up) vector.y -= 1
+    if (this.buttonsPressed.down) vector.y += 1
+    return vector
+  }
+
+  public changeFacing(facing: Facing) {
+    if (this.buttonsPressed.down && !this.buttonsPressed.up) return 'down'
+    if (this.buttonsPressed.up && !this.buttonsPressed.down) return 'up'
+    if (this.buttonsPressed.left && !this.buttonsPressed.right) return 'left'
+    if (this.buttonsPressed.right && !this.buttonsPressed.left) return 'right'
+    return facing
+  }
+
+  public updateButtonsPressedFromPluginData() {
+    // this.buttonsPressed = this.getNode().getPluginData("buttons-pressed")
+  }
+
   public nextFrame() {
     this.incrementInvulnerability()
-    if (keysPressed.z && this.swordNode && this.swordActiveFrame === null && this.bowActiveFrame === null) {
+    if (this.buttonsPressed.z && this.swordNode && this.swordActiveFrame === null && this.bowActiveFrame === null) {
       this.swordActiveFrame = 0
     }
-    if (keysPressed.x && this.hasBowAndArrow && this.swordActiveFrame === null && this.bowActiveFrame === null) {
+    if (this.buttonsPressed.x && this.hasBowAndArrow && this.swordActiveFrame === null && this.bowActiveFrame === null) {
       this.bowActiveFrame = 0
     }
 
     let walking = false
     if (this.swordActiveFrame === null && this.bowActiveFrame === null) {
-      this.facing = changeFacing(this.facing)
-      const direction = getMovementDirection()
+      this.facing = this.changeFacing(this.facing)
+      const direction = this.getMovementDirection()
       walking = direction.x !== 0 || direction.y !== 0
       if (walking) {
         this.move(multiply(direction, WALK_SPEED))
@@ -252,3 +274,4 @@ export class Link extends Actor {
     }
   }
 }
+

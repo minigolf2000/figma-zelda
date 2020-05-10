@@ -1,10 +1,11 @@
 import { Actor } from './actors/actor'
 import { getItems } from './actors/items'
-import { keysPressed, paused } from './buttons'
+import { paused } from './buttons'
 import { init } from './init'
 import { CAMERA_BOX_SIZE, FPS, getLink, getProjectiles, setProjectiles, updateCamera } from './lib'
 import { isOverlapping } from './tiles'
 import { getEnemies } from './actors/enemies/enemies'
+import { getMultiplayerLinks } from './actors/multiplayer_links'
 
 let gameLost = false
 
@@ -15,11 +16,12 @@ function nextFrame() {
   const linkNode = link.getCurrentCollision()
   const items = getItems()
   const enemies = getEnemies()
+  const multiplayerLinks = getMultiplayerLinks()
 
   if (paused) {
     return
   }
-  if (keysPressed.esc) {
+  if (link.buttonsPressed.esc) {
     figma.closePlugin()
     return
   }
@@ -38,6 +40,7 @@ function nextFrame() {
   items.nextFrame()
 
   link.nextFrame()
+  multiplayerLinks.nextFrame()
   const linkHurtbox = link.getCurrentCollision()
   const linkHitbox = link.hitBox()
 
@@ -97,7 +100,6 @@ function nextFrame() {
     }
     return true
   }))
-
 
   updateCamera(linkNode, CAMERA_BOX_SIZE)
   // printFPS()
