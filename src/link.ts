@@ -72,14 +72,6 @@ export class Link extends Actor {
       }
       this.sprite.setSprite(['basic', 'down', Math.floor(this.deathAnimationFrame / 4) % 2 ])
     }
-    if (this.deathAnimationFrame === 38) {
-      const redFill: SolidPaint = {
-        type: "SOLID",
-        color: {r: 216 / 255, g: 40 / 255, b: 0 / 255},
-        opacity: .2
-      }
-      getWorldNode().fills = [...getWorldNode().fills as readonly Paint[], redFill]
-    }
     if (this.deathAnimationFrame > 38 && this.deathAnimationFrame <= 80) {
       switch (Math.floor(this.deathAnimationFrame / 2) % 4) {
         case 0:
