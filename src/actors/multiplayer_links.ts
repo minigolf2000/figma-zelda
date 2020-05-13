@@ -1,4 +1,5 @@
 import { Link } from "../link"
+import { ClientMessages } from "../lib"
 
 let l: MultiplayerLinks
 export function getMultiplayerLinks() {
@@ -20,7 +21,13 @@ export class MultiplayerLinks {
   public nextFrame() {
     this.multiplayerLinks.forEach(l => {
       l.updateButtonsPressedFromPluginData()
-      l.nextFrame()
+      const stillAlive = l.nextFrame()
+      if (!stillAlive) {
+        const messages = JSON.parse(l.getNode().getPluginData("messages") || "{}") as ClientMessages
+        messages.death = true
+        l.getNode().setPluginData("messages", JSON.stringify(messages))
+      }
+      return stillAlive
     })
   }
 }

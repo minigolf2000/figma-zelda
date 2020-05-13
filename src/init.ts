@@ -35,6 +35,7 @@ export function init() {
   const worldNode = templateWorldNode.clone()
   worldNode.setPluginData("running-world", "true")
   setWorldNode(worldNode)
+  worldNode.name = `${worldNode.name}-running`
   worldNode.expanded = false // collapse this for performance by avoiding layers panel rerenders
   worldNode.visible = true
 

@@ -63,6 +63,7 @@ export interface ClientMessages {
   health: string,
   triforceShards: string,
   win: boolean,
+  death: boolean
 }
 
 let worldNode: FrameNode

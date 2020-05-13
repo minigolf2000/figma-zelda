@@ -7,8 +7,6 @@ import { isOverlapping } from './tiles'
 import { getEnemies } from './actors/enemies/enemies'
 import { getMultiplayerLinks } from './actors/multiplayer_links'
 
-let gameLost = false
-
 // The main game loop function that gets called `FPS` times per second
 // Performs some logic, then delegates logic to each actor's nextFrame()
 function nextFrame() {
@@ -34,11 +32,6 @@ function nextFrame() {
       }
     }
 
-    return
-  }
-  if (gameLost) {
-    enemies.removeAll()
-    if (!link.deathAnimation()) { figma.closePlugin() }
     return
   }
 
@@ -105,6 +98,10 @@ function updateUIWithNewItems(linkNode: FrameNode) {
   if (messages.win) {
     getLink().winAnimationFrame = 0
   }
+  if (messages.death && !getMultiplayerLinks()) {
+    // If Link is dead and this is a client, close plugin
+    figma.closePlugin()
+  }
 }
 
 function calculateDamages() {
@@ -119,8 +116,7 @@ function calculateDamages() {
       // enemy damages link
       const hurtVector = isOverlapping(l.getCurrentCollision(), enemyHitbox)
       if (hurtVector) {
-        const health = l.takeDamage(enemy.getDamage(), hurtVector)
-        if (health <= 0) { gameLost = true }
+        l.takeDamage(enemy.getDamage(), hurtVector)
       }
 
       const linkHitbox = l.swordCollision()
@@ -159,8 +155,7 @@ function calculateDamages() {
       const hurtVector = isOverlapping(l.getCurrentCollision(), projectile.getCurrentCollision())
       if (hurtVector) {
         if (!l.isShielding(projectile)) {
-          const health = l.takeDamage(projectile.getDamage(), hurtVector)
-          if (health <= 0) { gameLost = true }
+          l.takeDamage(projectile.getDamage(), hurtVector)
         }
         projectile.getNode().remove()
         return false
@@ -177,8 +172,7 @@ function calculateDamages() {
         if (l1 !== l2) {
           const hurtVector = isOverlapping(l2.getCurrentCollision(), swordHitbox)
           if (hurtVector) {
-            const health = l2.takeDamage(l1.getDamage(), hurtVector)
-            if (health <= 0) { gameLost = true }
+            l2.takeDamage(l1.getDamage(), hurtVector)
           }
         }
       }

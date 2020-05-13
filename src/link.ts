@@ -1,10 +1,12 @@
 import { Sprite } from "./sprite"
 import { Actor } from "./actors/actor"
-import { facingOpposite, createNewLibSprite, addProjectile, Facing, ClientMessages, displayHealth } from "./lib"
+import { facingOpposite, createNewLibSprite, addProjectile, Facing, ClientMessages, displayHealth, getWorldNode } from "./lib"
 import { Buttons } from "./buttons"
 import { multiply } from "./vector"
 import { Arrow } from "./actors/projectile"
 import { Rectangle } from "./tiles"
+import { getMultiplayerLinks } from "./actors/multiplayer_links"
+import { getEnemies } from "./actors/enemies/enemies"
 
 const HEALTH_MAX = 3.0
 const WALK_SPEED = 2.5
@@ -66,12 +68,24 @@ export class Link extends Actor {
 
   private deathAnimationFrame = 0
   public deathAnimation() {
+    if (this.deathAnimationFrame === 0 && getMultiplayerLinks().getAll().length === 0) {
+      getEnemies().removeAll()
+    }
     if (this.deathAnimationFrame <= 30) {
       if (this.deathAnimationFrame % 2 === 0) {
         this.node.visible = !this.node.visible
       }
       this.sprite.setSprite(['basic', 'down', Math.floor(this.deathAnimationFrame / 4) % 2 ])
     }
+    if (this.deathAnimationFrame === 38 && getMultiplayerLinks().getAll().length === 0) {
+      const redFill: SolidPaint = {
+        type: "SOLID",
+        color: {r: 216 / 255, g: 40 / 255, b: 0 / 255},
+        opacity: .2
+      }
+      getWorldNode().fills = [...getWorldNode().fills as readonly Paint[], redFill]
+    }
+
     if (this.deathAnimationFrame > 38 && this.deathAnimationFrame <= 80) {
       switch (Math.floor(this.deathAnimationFrame / 2) % 4) {
         case 0:
@@ -123,6 +137,10 @@ export class Link extends Actor {
   }
 
   public nextFrame() {
+    if (this.health <= 0) {
+      return this.deathAnimation()
+    }
+
     this.incrementInvulnerability()
     if (this.buttonsPressed.z && this.swordNode && this.swordActiveFrame === null && this.bowActiveFrame === null) {
       this.swordActiveFrame = 0
