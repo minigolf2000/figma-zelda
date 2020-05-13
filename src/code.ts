@@ -73,7 +73,10 @@ function nextFrameClient() {
 
   // Update link's plugin data
   linkNode.setPluginData("buttons-pressed", JSON.stringify(link.buttonsPressed))
-  updateCamera(link.getCurrentCollision(), CAMERA_BOX_SIZE)
+
+  // actually pass in linkNode here since link's position never gets updated
+  // in the client. this feels weird
+  updateCamera(linkNode, CAMERA_BOX_SIZE)
   // printFPS()
 }
 

@@ -1,6 +1,6 @@
 import { Sprite } from "./sprite"
 import { Actor } from "./actors/actor"
-import { facingOpposite, createNewLibSprite, getWorldNode, addProjectile, Facing, ClientMessages, displayHealth } from "./lib"
+import { facingOpposite, createNewLibSprite, addProjectile, Facing, ClientMessages, displayHealth } from "./lib"
 import { Buttons } from "./buttons"
 import { multiply } from "./vector"
 import { Arrow } from "./actors/projectile"
