@@ -45,6 +45,7 @@ export function init() {
   setTriforceShardsTotal(getItems().triforceShardTotal())
 
   templateLinkNode.setPluginData("player-one", "") // reset this to initial value
+  templateLinkNode.setRelaunchData({relaunch: ''})
   templateWorldNode.setRelaunchData({relaunch: ''})
   figma.currentPage.setRelaunchData({relaunch: ''})
   figma.currentPage.selection = []

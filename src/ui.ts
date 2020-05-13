@@ -24,7 +24,7 @@ uiEl.onfocus = (e) => {
 onmessage = (event) => {
   if (event.data.pluginMessage.health) {
     document.getElementById('health')!.innerHTML = event.data.pluginMessage.health
-  } else if (event.data.pluginMessage.triforceShards) {
+  } else if (event.data.pluginMessage.triforceShards !== undefined) {
     document.getElementById('triforce-shards')!.innerHTML = event.data.pluginMessage.triforceShards
   } else if (event.data.pluginMessage.setSword) {
     document.getElementById('sword')!.className = `${event.data.pluginMessage.setSword} visible`
