@@ -1,6 +1,6 @@
 import { Sprite } from "./sprite"
 import { Actor } from "./actors/actor"
-import { facingOpposite, createNewLibSprite, getWorldNode, addProjectile, incrementTriforceShardsCurrent, Facing } from "./lib"
+import { facingOpposite, createNewLibSprite, getWorldNode, addProjectile, incrementTriforceShardsCurrent, Facing, ClientMessages, displayHealth } from "./lib"
 import { Buttons } from "./buttons"
 import { multiply } from "./vector"
 import { Arrow } from "./actors/projectile"
@@ -170,6 +170,11 @@ export class Link extends Actor {
 
   public takeDamage(damage: number, direction: Vector) {
     super.takeDamage(damage, direction)
+
+    const messages = JSON.parse(this.getNode().getPluginData("messages") || "{}") as ClientMessages
+    messages.health = displayHealth(this.health, 3)
+    this.getNode().setPluginData("messages", JSON.stringify(messages))
+
     return this.health
   }
 

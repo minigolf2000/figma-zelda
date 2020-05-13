@@ -2,7 +2,7 @@ import { Actor } from './actors/actor'
 import { getItems } from './actors/items'
 import { paused } from './buttons'
 import { init, initReturnValue } from './init'
-import { CAMERA_BOX_SIZE, FPS, getLink, getProjectiles, setProjectiles, updateCamera, displayHealth, ClientMessages } from './lib'
+import { CAMERA_BOX_SIZE, FPS, getLink, getProjectiles, setProjectiles, updateCamera, ClientMessages } from './lib'
 import { isOverlapping } from './tiles'
 import { getEnemies } from './actors/enemies/enemies'
 import { getMultiplayerLinks } from './actors/multiplayer_links'
@@ -43,8 +43,8 @@ function nextFrame() {
   setProjectiles(getProjectiles().filter(projectile => !!projectile.nextFrame()))
   enemies.nextFrame()
 
-  updateUIWithNewItems(link.getNode())
   calculateDamages()
+  updateUIWithNewItems(link.getNode())
 
   updateCamera(link.getCurrentCollision(), CAMERA_BOX_SIZE)
   // printFPS()
@@ -108,9 +108,6 @@ function calculateDamages() {
       const hurtVector = isOverlapping(l.getCurrentCollision(), enemyHitbox)
       if (hurtVector) {
         const health = l.takeDamage(enemy.getDamage(), hurtVector)
-        if (l === link) {
-          figma.ui.postMessage({health: displayHealth(health, 3)})
-        }
         if (health <= 0) { gameLost = true }
       }
 
@@ -151,9 +148,6 @@ function calculateDamages() {
       if (hurtVector) {
         if (!l.isShielding(projectile)) {
           const health = l.takeDamage(projectile.getDamage(), hurtVector)
-          if (l === link) {
-            figma.ui.postMessage({health: displayHealth(health, 3)})
-          }
           if (health <= 0) { gameLost = true }
         }
         projectile.getNode().remove()
@@ -162,6 +156,22 @@ function calculateDamages() {
     }
     return true
   }))
+
+  // Sword friendly fire
+  for (let l1 of allLinks) {
+    const swordHitbox = l1.swordCollision()
+    if (swordHitbox) {
+      for (let l2 of allLinks) {
+        if (l1 !== l2) {
+          const hurtVector = isOverlapping(l2.getCurrentCollision(), swordHitbox)
+          if (hurtVector) {
+            const health = l2.takeDamage(l1.getDamage(), hurtVector)
+            if (health <= 0) { gameLost = true }
+          }
+        }
+      }
+    }
+  }
 }
 
 let lastFrameTimestamp: number = Date.now()
@@ -176,5 +186,6 @@ const i = init()
 if (i === initReturnValue.server) {
   setInterval(nextFrame, 1000 / FPS)
 } else if (i === initReturnValue.client) {
+  figma.notify("Successfully joined")
   setInterval(nextFrameClient, 1000 / FPS)
 }

@@ -4,7 +4,7 @@ import { onButtonsPressed } from './buttons'
 import { displayHealth, displayTriforceShards, findNodesInWorld, getLink, getWorldNode, setLink, setTriforceShardsTotal, setWorldNode, setWorldPosition, updateCamera } from './lib'
 import { Link } from './link'
 import { lintWorld, snapTilesToGrid, Tiles } from './tiles'
-import { MultiplayerLinks } from './actors/multiplayer_links'
+import { MultiplayerLinks, getMultiplayerLinks } from './actors/multiplayer_links'
 
 export enum initReturnValue {
   server = 0,
@@ -31,6 +31,7 @@ export function init() {
   lintWorld(templateWorldNode)
   templateWorldNode.visible = false
   templateLinkNode.setPluginData("player-one", "true")
+  templateWorldNode.setPluginData("booting", "true")
 
   const worldNode = templateWorldNode.clone()
   worldNode.setPluginData("running-world", "true")
@@ -47,10 +48,12 @@ export function init() {
   setTriforceShardsTotal(getItems().triforceShardTotal())
 
   templateLinkNode.setPluginData("player-one", "") // reset this to initial value
-  templateLinkNode.masterComponent.setRelaunchData({relaunch: ''})
-  templateWorldNode.setRelaunchData({relaunch: ''})
-  figma.currentPage.setRelaunchData({relaunch: ''})
   figma.currentPage.selection = []
+  figma.currentPage.setRelaunchData({relaunch: ''})
+  templateWorldNode.setRelaunchData({relaunch: ''})
+  templateLinkNode.masterComponent.setRelaunchData({relaunch: ''})
+  getLink().getNode().setRelaunchData({relaunch: ''})
+  getMultiplayerLinks().getAll().forEach(n => n.getNode().setRelaunchData({relaunch: ''}))
 
   sharedSetup()
   figma.on("close", () => {
@@ -103,6 +106,7 @@ const findNearestFrameAncestor = (node: BaseNode & ChildrenMixin) => {
 }
 
 const sharedSetup = () => {
+  getLink().getNode().setPluginData("active", "true")
   figma.viewport.zoom = 3.5
   setWorldPosition(getWorldNode())
   updateCamera(getLink().getCurrentCollision(), 0) // center Link in viewport
@@ -115,12 +119,17 @@ const sharedSetup = () => {
 }
 
 const initClientMode = (linkNode: FrameNode, worldNode: FrameNode) => {
+  if (worldNode.getPluginData("booting") === "true") {
+    // this does not work lol. ask plugins team how to do this
+    figma.closePlugin("Another user is initializing this world. Please try running the plugin again once the world loads!")
+    return initReturnValue.error
+  }
+
   if (linkNode.getPluginData("active") === "true") {
     figma.closePlugin("Please select a Link that is not already taken")
     return initReturnValue.error
   }
 
-  linkNode.setPluginData("active", "true")
   setWorldNode(worldNode)
   setLink(new Link(linkNode))
 
