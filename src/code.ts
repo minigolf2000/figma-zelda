@@ -27,7 +27,13 @@ function nextFrame() {
 
   if (link.winAnimationFrame !== null) {
     enemies.removeAll()
-    if (!link.winAnimation()) { figma.closePlugin() }
+    for (let l of allLinks) {
+      if (!l.winAnimation()) {
+        figma.closePlugin()
+        break
+      }
+    }
+
     return
   }
   if (gameLost) {
@@ -92,6 +98,9 @@ function updateUIWithNewItems(linkNode: FrameNode) {
   }
   if (messages.triforceShards) {
     figma.ui.postMessage({triforceShards: messages.triforceShards})
+  }
+  if (messages.win) {
+    getLink().winAnimationFrame = 0
   }
 }
 

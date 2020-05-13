@@ -1,6 +1,6 @@
 import { Sprite } from "./sprite"
 import { Actor } from "./actors/actor"
-import { facingOpposite, createNewLibSprite, getWorldNode, addProjectile, incrementTriforceShardsCurrent, Facing, ClientMessages, displayHealth } from "./lib"
+import { facingOpposite, createNewLibSprite, getWorldNode, addProjectile, Facing, ClientMessages, displayHealth } from "./lib"
 import { Buttons } from "./buttons"
 import { multiply } from "./vector"
 import { Arrow } from "./actors/projectile"
@@ -37,13 +37,6 @@ export class Link extends Actor {
     return this.swordActiveFrame !== null ?
       {x: this.swordNode.x, y: this.swordNode.y, width: this.swordNode.width, height: this.swordNode.height} :
       null
-  }
-
-  public getTriforceShard() {
-    const hasWon = incrementTriforceShardsCurrent()
-    if (hasWon) {
-      this.winAnimationFrame = 0
-    }
   }
 
   public getBow() {

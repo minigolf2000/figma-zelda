@@ -62,6 +62,7 @@ export interface ClientMessages {
   getSword: string,
   health: string,
   triforceShards: string,
+  win: boolean,
 }
 
 let worldNode: FrameNode
@@ -130,6 +131,9 @@ function notifyAllLinksOfTriforceShards() {
   allLinks.forEach(l => {
     const messages = JSON.parse(l.getNode().getPluginData("messages") || "{}") as ClientMessages
     messages.triforceShards = displayTriforceShards()
+    if (triforceShardsCurrent === triforceShardsTotal) {
+      messages.win = true
+    }
     l.getNode().setPluginData("messages", JSON.stringify(messages))
   })
 }

@@ -31,7 +31,6 @@ export function init() {
   lintWorld(templateWorldNode)
   templateWorldNode.visible = false
   templateLinkNode.setPluginData("player-one", "true")
-  templateWorldNode.setPluginData("booting", "true")
 
   const worldNode = templateWorldNode.clone()
   worldNode.setPluginData("running-world", "true")
@@ -119,7 +118,7 @@ const sharedSetup = () => {
 }
 
 const initClientMode = (linkNode: FrameNode, worldNode: FrameNode) => {
-  if (worldNode.getPluginData("booting") === "true") {
+  if (!worldNode.visible) {
     // this does not work lol. ask plugins team how to do this
     figma.closePlugin("Another user is initializing this world. Please try running the plugin again once the world loads!")
     return initReturnValue.error

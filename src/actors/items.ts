@@ -1,4 +1,4 @@
-import { createNewLibSprite, displayHealth, ClientMessages } from "../lib"
+import { createNewLibSprite, displayHealth, ClientMessages, incrementTriforceShardsCurrent } from "../lib"
 import { Link } from "../link"
 import { Rectangle, isOverlapping } from "../tiles"
 import { Sprite } from "../sprite"
@@ -193,7 +193,7 @@ class Triforce extends Item {
   }
 
   public get(link: Link) {
-    link.getTriforceShard()
+    incrementTriforceShardsCurrent()
   }
 
   public nextFrame() {
