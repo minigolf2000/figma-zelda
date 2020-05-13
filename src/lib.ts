@@ -1,6 +1,7 @@
 import { Link } from "./link"
 import { Projectile } from "./actors/projectile"
 import { Rectangle, COLLISION_TILES, WATER_TILES, DECORATIVE_TILES } from "./tiles"
+import { getMultiplayerLinks } from "./actors/multiplayer_links"
 
 export const FPS = 30
 export const CAMERA_BOX_SIZE = 150
@@ -115,11 +116,22 @@ let triforceShardsTotal: number
 let triforceShardsCurrent = 0
 export function setTriforceShardsTotal(t: number) {
   triforceShardsTotal = t
+  notifyAllLinksOfTriforceShards()
 }
 
 export function incrementTriforceShardsCurrent() {
   triforceShardsCurrent++
+  notifyAllLinksOfTriforceShards()
   return triforceShardsCurrent === triforceShardsTotal
+}
+
+function notifyAllLinksOfTriforceShards() {
+  const allLinks = [getLink(), ...getMultiplayerLinks().getAll()]
+  allLinks.forEach(l => {
+    const messages = JSON.parse(l.getNode().getPluginData("messages") || "{}") as ClientMessages
+    messages.triforceShards = displayTriforceShards()
+    l.getNode().setPluginData("messages", JSON.stringify(messages))
+  })
 }
 
 export function displayTriforceShards() {

@@ -1,4 +1,4 @@
-import { createNewLibSprite, displayHealth, displayTriforceShards, ClientMessages } from "../lib"
+import { createNewLibSprite, displayHealth, ClientMessages } from "../lib"
 import { Link } from "../link"
 import { Rectangle, isOverlapping } from "../tiles"
 import { Sprite } from "../sprite"
@@ -194,10 +194,6 @@ class Triforce extends Item {
 
   public get(link: Link) {
     link.getTriforceShard()
-
-    const messages = JSON.parse(link.getNode().getPluginData("messages") || "{}") as ClientMessages
-    messages.triforceShards = displayTriforceShards()
-    link.getNode().setPluginData("messages", JSON.stringify(messages))
   }
 
   public nextFrame() {
