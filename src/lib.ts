@@ -171,7 +171,7 @@ export function updateCamera(linkPosition: Rectangle, cameraBoxSize: number) {
 // node data for FrameNodes is pretty fast. This is a helper function to detach
 // instances to frames for performance
 // Once Plugin API supports detaching, replace this function with the official function
-function detachNode(node: InstanceNode) {
+export function detachNode(node: InstanceNode) {
   const detached = figma.createFrame()
   detached.name = node.name
   detached.x = node.x

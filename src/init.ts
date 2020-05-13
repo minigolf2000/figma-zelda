@@ -6,20 +6,22 @@ import { Link } from './link'
 import { lintWorld, snapTilesToGrid, Tiles } from './tiles'
 import { MultiplayerLinks } from './actors/multiplayer_links'
 
-
-let templateWorldNode: FrameNode
+export enum initReturnValue {
+  server = 0,
+  client = 1,
+  error = 2,
+}
 
 export function init() {
   let templateLinkNode = findLinkNode()
   if (!templateLinkNode) {
     figma.closePlugin("Please have Link selected while running the Plugin")
-    return false
+    return initReturnValue.error
   }
 
-  templateWorldNode = findNearestFrameAncestor(templateLinkNode)
+  let templateWorldNode = findNearestFrameAncestor(templateLinkNode)!
   if (templateWorldNode.getPluginData("running-world") ===  "true") {
-    figma.closePlugin("Multiplayer is not supported yet!")
-    return false
+    return initClientMode(templateLinkNode as FrameNode, templateWorldNode)
   }
 
   // TODO: figure out if player is player-one or not
@@ -47,6 +49,57 @@ export function init() {
   figma.currentPage.setRelaunchData({relaunch: ''})
   figma.currentPage.selection = []
 
+  sharedSetup()
+  figma.on("close", () => {
+    getWorldNode().remove()
+    templateWorldNode.visible = true
+  })
+
+  return initReturnValue.server
+}
+
+function findLinkNode() {
+  const isPlayableLink = (node: BaseNode) => node.name === 'link' && node.parent?.type !== 'PAGE'
+  let firstSelectedNode: (BaseNode & ChildrenMixin) | null = figma.currentPage.selection[0] as BaseNode & ChildrenMixin
+
+  // Search for link starting from Page if no selection
+  if (!firstSelectedNode) {
+    return figma.currentPage.findOne(node => isPlayableLink(node)) as InstanceNode | FrameNode
+  }
+
+  // If selecting an invalid search point, walk up the tree until selecting a valid search point
+  let searchPoint = firstSelectedNode
+  if (firstSelectedNode.name !== 'link') {
+    searchPoint = findNearestFrameAncestor(firstSelectedNode) || firstSelectedNode
+  }
+
+  // Now we are selecting a valid search point, which is either:
+  // a Link node
+  // the nearest frame ancestor
+
+  // Return this node
+  if (isPlayableLink(searchPoint)) {
+    return searchPoint as InstanceNode | FrameNode
+  }
+
+  // Search for a valid link
+  if (searchPoint.type === 'FRAME') {
+    return searchPoint.findOne(node => isPlayableLink(node)) as InstanceNode | FrameNode
+  }
+
+  return null
+}
+
+const findNearestFrameAncestor = (node: BaseNode & ChildrenMixin) => {
+  let current: (BaseNode & ChildrenMixin) | null = node.parent
+  while (current) {
+    if (current.type === 'FRAME') { return current as FrameNode }
+    current = current.parent
+  }
+  return null
+}
+
+const sharedSetup = () => {
   figma.viewport.zoom = 3.5
   setWorldPosition(getWorldNode())
   updateCamera(getLink().getCurrentCollision(), 0) // center Link in viewport
@@ -56,48 +109,22 @@ export function init() {
   figma.ui.postMessage({triforceShards: displayTriforceShards()})
   figma.ui.postMessage({setSword: 'wooden-sword'})
   figma.ui.onmessage = (m) => onButtonsPressed(m, getLink().buttonsPressed)
-
-  return true
 }
 
-function findLinkNode() {
-  const isPlayableLink = (node: BaseNode) => node.type === 'INSTANCE' && node.name === 'link' && node.parent?.type !== 'PAGE'
-  let firstSelectedNode: (BaseNode & ChildrenMixin) | null = figma.currentPage.selection[0] as BaseNode & ChildrenMixin
-
-  // Search for link starting from Page if no selection
-  if (!firstSelectedNode) {
-    return figma.currentPage.findOne(node => isPlayableLink(node)) as InstanceNode
+const initClientMode = (linkNode: FrameNode, worldNode: FrameNode) => {
+  if (linkNode.getPluginData("active") === "true") {
+    figma.closePlugin("Please select a Link that is not already taken")
+    return initReturnValue.error
   }
 
-  // If selecting an invalid search point, walk up the tree until selecting a valid search point
-  while (firstSelectedNode && firstSelectedNode.type !== 'PAGE' && firstSelectedNode.type !== 'FRAME' && firstSelectedNode.name !== 'link') {
-    firstSelectedNode = firstSelectedNode.parent!
-  }
+  linkNode.setPluginData("active", "true")
+  setWorldNode(worldNode)
+  setLink(new Link(linkNode))
 
-  // Now we are selecting a valid search point
+  figma.on("close", () => {
+    linkNode.setPluginData("active", "")
+  })
 
-  // Return this node
-  if (isPlayableLink(firstSelectedNode)) {
-    return firstSelectedNode as InstanceNode
-  }
-
-  // Search for a valid link
-  if (firstSelectedNode.type === 'FRAME') {
-    return firstSelectedNode.findOne(node => isPlayableLink(node)) as InstanceNode
-  }
-
-  return null
+  sharedSetup()
+  return initReturnValue.client
 }
-
-const findNearestFrameAncestor = (node: BaseNode) => {
-  let current: any = node
-  while (current) {
-    if (current.type === 'FRAME') { return current }
-    current = current.parent
-  }
-}
-
-figma.on("close", () => {
-  if (getWorldNode()) getWorldNode().remove()
-  if (templateWorldNode) templateWorldNode.visible = true
-})

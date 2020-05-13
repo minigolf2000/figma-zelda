@@ -168,6 +168,6 @@ export function lintWorld(worldNode: FrameNode) {
     }
   })
   if (Object.keys(warnings).length > 0) {
-    figma.notify(`Warning: Please fix overlapping tiles at ${Object.keys(warnings).join(" & ")}`)
+    figma.notify(`Warning: Please fix overlapping tiles at (${Object.keys(warnings).join(") & (")})`)
   }
 }

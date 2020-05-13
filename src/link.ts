@@ -134,7 +134,7 @@ export class Link extends Actor {
   }
 
   public updateButtonsPressedFromPluginData() {
-    // this.buttonsPressed = this.getNode().getPluginData("buttons-pressed")
+    this.buttonsPressed = JSON.parse(this.getNode().getPluginData("buttons-pressed") || "{}")
   }
 
   public nextFrame() {

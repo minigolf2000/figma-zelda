@@ -1,7 +1,7 @@
 import { Actor } from './actors/actor'
 import { getItems } from './actors/items'
 import { paused } from './buttons'
-import { init } from './init'
+import { init, initReturnValue } from './init'
 import { CAMERA_BOX_SIZE, FPS, getLink, getProjectiles, setProjectiles, updateCamera, displayHealth } from './lib'
 import { isOverlapping } from './tiles'
 import { getEnemies } from './actors/enemies/enemies'
@@ -45,6 +45,27 @@ function nextFrame() {
 
   calculateDamages()
 
+  updateCamera(link.getCurrentCollision(), CAMERA_BOX_SIZE)
+  // printFPS()
+}
+
+// Game loop run by multiplayerLinks
+function nextFrameClient() {
+  const link = getLink()
+  const linkNode = link.getNode()
+  if (linkNode.removed) {
+    // Server has closed and game is over
+    // TODO: figure out how to make this avoid emitting "node with id does not exist" console error
+    figma.closePlugin()
+    return
+  }
+
+  // handle pause
+  // handle win/lose
+  // handle item get
+
+  // Update link's plugin data
+  linkNode.setPluginData("buttons-pressed", JSON.stringify(link.buttonsPressed))
   updateCamera(link.getCurrentCollision(), CAMERA_BOX_SIZE)
   // printFPS()
 }
@@ -126,6 +147,9 @@ export function printFPS() {
   console.info(`fps: ${fps}`)
 }
 
-if (init()) {
+const i = init()
+if (i === initReturnValue.server) {
   setInterval(nextFrame, 1000 / FPS)
+} else if (i === initReturnValue.client) {
+  setInterval(nextFrameClient, 1000 / FPS)
 }
