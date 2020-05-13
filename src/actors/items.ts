@@ -1,4 +1,4 @@
-import { createNewLibSprite, getLink, displayHealth, displayTriforceShards } from "../lib"
+import { createNewLibSprite, displayHealth, displayTriforceShards, ClientMessages } from "../lib"
 import { Link } from "../link"
 import { Rectangle, isOverlapping } from "../tiles"
 import { Sprite } from "../sprite"
@@ -44,9 +44,6 @@ export class Items {
         // TODO: Maybe optimize this for performance by storing a hash of item positions
         if (isOverlapping(i.getCurrentCollision(), l.getCurrentCollision())) {
           i.get(l)
-          if (getLink() === l) {
-            i.onGetIfCurrentLink(l)
-          }
           i.getNode().remove()
           return false
         }
@@ -63,7 +60,6 @@ export class Items {
 abstract class Item {
   protected node: FrameNode
   abstract get(link: Link): void
-  abstract onGetIfCurrentLink(link: Link): void
   abstract nextFrame(): boolean
   private currentPosition: Vector
   private width: number
@@ -99,10 +95,10 @@ abstract class Item {
 class Bow extends Item {
   public get(link: Link) {
     link.getBow()
-  }
 
-  public onGetIfCurrentLink(link: Link) {
-    figma.ui.postMessage({setBow: "bow"})
+    const messages = JSON.parse(link.getNode().getPluginData("messages") || "{}") as ClientMessages
+    messages.getBow = true
+    link.getNode().setPluginData("messages", JSON.stringify(messages))
   }
 
   public nextFrame() {
@@ -127,10 +123,10 @@ class Heart extends Item {
 
   public get(link: Link) {
     link.getHeart()
-  }
 
-  public onGetIfCurrentLink(link: Link) {
-    figma.ui.postMessage({health: displayHealth(link.getHealth(), 3)})
+    const messages = JSON.parse(link.getNode().getPluginData("messages") || "{}") as ClientMessages
+    messages.health = displayHealth(link.getHealth(), 3)
+    link.getNode().setPluginData("messages", JSON.stringify(messages))
   }
 
   public nextFrame() {
@@ -162,10 +158,10 @@ class MasterSword extends Item {
 
   public get(link: Link) {
     link.getMasterSword()
-  }
 
-  public onGetIfCurrentLink() {
-    figma.ui.postMessage({setSword: "master-sword"})
+    const messages = JSON.parse(link.getNode().getPluginData("messages") || "{}") as ClientMessages
+    messages.getSword = "master-sword"
+    link.getNode().setPluginData("messages", JSON.stringify(messages))
   }
 
   public nextFrame() {
@@ -198,10 +194,10 @@ class Triforce extends Item {
 
   public get(link: Link) {
     link.getTriforceShard()
-  }
 
-  public onGetIfCurrentLink() {
-    figma.ui.postMessage({triforceShards: displayTriforceShards()})
+    const messages = JSON.parse(link.getNode().getPluginData("messages") || "{}") as ClientMessages
+    messages.triforceShards = displayTriforceShards()
+    link.getNode().setPluginData("messages", JSON.stringify(messages))
   }
 
   public nextFrame() {

@@ -9,6 +9,7 @@ export class MultiplayerLinks {
   private multiplayerLinks: Link[] = []
 
   public constructor(nodes: FrameNode[]) {
+    nodes.forEach(n => n.setRelaunchData({relaunch: ''}))
     this.multiplayerLinks = nodes.map(n => new Link(n))
     l = this
   }

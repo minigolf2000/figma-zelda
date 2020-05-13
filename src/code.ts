@@ -2,7 +2,7 @@ import { Actor } from './actors/actor'
 import { getItems } from './actors/items'
 import { paused } from './buttons'
 import { init, initReturnValue } from './init'
-import { CAMERA_BOX_SIZE, FPS, getLink, getProjectiles, setProjectiles, updateCamera, displayHealth } from './lib'
+import { CAMERA_BOX_SIZE, FPS, getLink, getProjectiles, setProjectiles, updateCamera, displayHealth, ClientMessages } from './lib'
 import { isOverlapping } from './tiles'
 import { getEnemies } from './actors/enemies/enemies'
 import { getMultiplayerLinks } from './actors/multiplayer_links'
@@ -43,6 +43,7 @@ function nextFrame() {
   setProjectiles(getProjectiles().filter(projectile => !!projectile.nextFrame()))
   enemies.nextFrame()
 
+  updateUIWithNewItems(link.getNode())
   calculateDamages()
 
   updateCamera(link.getCurrentCollision(), CAMERA_BOX_SIZE)
@@ -51,7 +52,7 @@ function nextFrame() {
 
 // Game loop run by multiplayerLinks
 function nextFrameClient() {
-  const link = getLink()
+  const link = getLink() // does client really even need a Link object?
   const linkNode = link.getNode()
   if (linkNode.removed) {
     // Server has closed and game is over
@@ -62,12 +63,36 @@ function nextFrameClient() {
 
   // handle pause
   // handle win/lose
-  // handle item get
+  updateUIWithNewItems(linkNode)
 
   // Update link's plugin data
   linkNode.setPluginData("buttons-pressed", JSON.stringify(link.buttonsPressed))
   updateCamera(link.getCurrentCollision(), CAMERA_BOX_SIZE)
   // printFPS()
+}
+
+function updateUIWithNewItems(linkNode: FrameNode) {
+  const rawMessages = linkNode.getPluginData("messages")
+  if (rawMessages === "") {
+    return
+  }
+
+  // technically is possible for a new message to come in during this time
+  // probably have to introduce some locking mechanism to prevent race conditions
+  linkNode.setPluginData("messages", "")
+  const messages = JSON.parse(rawMessages) as ClientMessages
+  if (messages.getBow) {
+    figma.ui.postMessage({setBow: "bow"})
+  }
+  if (messages.health) {
+    figma.ui.postMessage({health: messages.health})
+  }
+  if (messages.getSword) {
+    figma.ui.postMessage({setSword: "master-sword"})
+  }
+  if (messages.triforceShards) {
+    figma.ui.postMessage({triforceShards: messages.triforceShards})
+  }
 }
 
 function calculateDamages() {

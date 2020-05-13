@@ -24,6 +24,8 @@ export function init() {
     return initClientMode(templateLinkNode as FrameNode, templateWorldNode)
   }
 
+  templateLinkNode = templateLinkNode as InstanceNode
+
   // TODO: figure out if player is player-one or not
   snapTilesToGrid(templateWorldNode)
   lintWorld(templateWorldNode)
@@ -45,7 +47,7 @@ export function init() {
   setTriforceShardsTotal(getItems().triforceShardTotal())
 
   templateLinkNode.setPluginData("player-one", "") // reset this to initial value
-  templateLinkNode.setRelaunchData({relaunch: ''})
+  templateLinkNode.masterComponent.setRelaunchData({relaunch: ''})
   templateWorldNode.setRelaunchData({relaunch: ''})
   figma.currentPage.setRelaunchData({relaunch: ''})
   figma.currentPage.selection = []

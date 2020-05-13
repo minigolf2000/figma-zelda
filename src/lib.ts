@@ -56,6 +56,13 @@ export function facingOpposite(f1: Facing, f2: Facing) {
     f1 === 'right' && f2 === 'left'
 }
 
+export interface ClientMessages {
+  getBow: boolean,
+  getSword: string,
+  health: string,
+  triforceShards: string,
+}
+
 let worldNode: FrameNode
 export function setWorldNode(w: FrameNode) {
   worldNode = w
