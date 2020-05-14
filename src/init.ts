@@ -4,7 +4,7 @@ import { onButtonsPressed } from './buttons'
 import { displayHealth, displayTriforceShards, findNodesInWorld, getLink, getWorldNode, setLink, setTriforceShardsTotal, setWorldNode, setWorldPosition, updateCamera } from './lib'
 import { Link } from './link'
 import { lintWorld, snapTilesToGrid, Tiles } from './tiles'
-import { MultiplayerLinks, getMultiplayerLinks } from './actors/multiplayer_links'
+import { MultiplayerLinks } from './actors/multiplayer_links'
 
 export enum initReturnValue {
   server = 0,
@@ -53,8 +53,6 @@ export function init() {
   templateWorldNode.setRelaunchData({relaunch: ''})
   // If Link component ever gets its relaunchData cleared somehow, uncomment this to set it
   // templateLinkNode.masterComponent.setRelaunchData({relaunch: ''})
-  getLink().getNode().setRelaunchData({relaunch: ''})
-  getMultiplayerLinks().getAll().forEach(n => n.getNode().setRelaunchData({relaunch: ''}))
 
   sharedSetup()
   figma.on("close", () => {

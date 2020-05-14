@@ -37,7 +37,10 @@ function nextFrame() {
 
   items.getIfOverlapping(allLinks)
   items.nextFrame()
-  link.nextFrame()
+  if (!link.nextFrame()) {
+    // Link is dead
+    figma.closePlugin()
+  }
   getMultiplayerLinks().nextFrame()
   setProjectiles(getProjectiles().filter(projectile => !!projectile.nextFrame()))
   enemies.nextFrame()

@@ -131,7 +131,7 @@ function notifyAllLinksOfTriforceShards() {
   allLinks.forEach(l => {
     const messages = JSON.parse(l.getNode().getPluginData("messages") || "{}") as ClientMessages
     messages.triforceShards = displayTriforceShards()
-    if (triforceShardsCurrent === triforceShardsTotal) {
+    if (triforceShardsCurrent > 0 && triforceShardsCurrent === triforceShardsTotal) {
       messages.win = true
     }
     l.getNode().setPluginData("messages", JSON.stringify(messages))
