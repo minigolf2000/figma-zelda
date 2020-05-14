@@ -51,7 +51,8 @@ export function init() {
   figma.currentPage.selection = []
   figma.currentPage.setRelaunchData({relaunch: ''})
   templateWorldNode.setRelaunchData({relaunch: ''})
-  templateLinkNode.masterComponent.setRelaunchData({relaunch: ''})
+  // If Link component ever gets its relaunchData cleared somehow, uncomment this to set it
+  // templateLinkNode.masterComponent.setRelaunchData({relaunch: ''})
   getLink().getNode().setRelaunchData({relaunch: ''})
   getMultiplayerLinks().getAll().forEach(n => n.getNode().setRelaunchData({relaunch: ''}))
 

@@ -1,10 +1,10 @@
 {
-  "name": "Figma Zelda",
-  "id": "842383021183067357",
+  "name": "Zelda Maker",
+  "id": "842586917829092335",
   "api": "1.0.0",
   "main": "dist/code.js",
   "ui": "dist/ui.html",
   "relaunchButtons": [
-    {"command": "relaunch", "name" : "Play Figma Zelda"}
+    {"command": "relaunch", "name" : "Play Zelda maker level"}
   ]
 }
