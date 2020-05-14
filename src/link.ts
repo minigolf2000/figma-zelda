@@ -28,7 +28,7 @@ export class Link extends Actor {
     super(node, HEALTH_MAX, 'down')
     this.sprite = new Sprite(node, ['basic', 'down', 0])
     this.walkingFrame = 0
-    this.swordNode = createNewLibSprite('wooden-sword-held')
+    this.swordNode = createNewLibSprite(this.node, 'wooden-sword-held')
     this.swordSprite = new Sprite(this.swordNode)
 
     this.invulnerabilityKnockbackDuration = 6
@@ -47,7 +47,7 @@ export class Link extends Actor {
 
   public getMasterSword() {
     this.swordNode.remove()
-    this.swordNode = createNewLibSprite('master-sword-held')
+    this.swordNode = createNewLibSprite(this.node, 'master-sword-held')
     this.swordSprite = new Sprite(this.swordNode)
     this.hasMasterSword = true
   }
@@ -272,7 +272,7 @@ export class Link extends Actor {
     }
 
     if (this.bowActiveFrame === 3) {
-      addProjectile((new Arrow(this.getCurrentCollision(), this.facing)).initialMove())
+      addProjectile((new Arrow(this, this.facing)).initialMove())
     }
 
     if (this.bowActiveFrame > 6) {

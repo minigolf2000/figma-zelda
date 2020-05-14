@@ -47,7 +47,7 @@ class Octorok extends Actor {
 
   private shootBehavior() {
     if (this.shootingFrame === 12) {
-      addProjectile((new OctorokRock(this.getCurrentCollision(), this.facing)).initialMove())
+      addProjectile((new OctorokRock(this, this.facing)).initialMove())
     }
 
     this.shootingFrame!++

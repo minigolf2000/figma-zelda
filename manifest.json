@@ -5,6 +5,6 @@
   "main": "dist/code.js",
   "ui": "dist/ui.html",
   "relaunchButtons": [
-    {"command": "relaunch", "name" : "Play Zelda maker level"}
+    {"command": "relaunch", "name" : "Play Zelda Maker"}
   ]
 }

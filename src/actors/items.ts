@@ -1,4 +1,4 @@
-import { createNewLibSprite, displayHealth, ClientMessages, incrementTriforceShardsCurrent } from "../lib"
+import { createNewLibSprite, displayHealth, ClientMessages, incrementTriforceShardsCurrent, getLink } from "../lib"
 import { Link } from "../link"
 import { Rectangle, isOverlapping } from "../tiles"
 import { Sprite } from "../sprite"
@@ -114,7 +114,7 @@ class Heart extends Item {
   private animationFrame: number = 0
 
   public constructor(dropLocation: Rectangle) {
-    super(createNewLibSprite('heart'))
+    super(createNewLibSprite(getLink().getNode(), 'heart'))
     this.node.x = dropLocation.x + dropLocation.width / 2 - HEART_WIDTH / 2
     this.node.y = dropLocation.y + dropLocation.height / 2 - HEART_HEIGHT / 2
     this.setCurrentPosition({x: this.node.x, y: this.node.y})

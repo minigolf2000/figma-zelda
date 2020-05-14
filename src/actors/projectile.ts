@@ -1,5 +1,5 @@
 import { Actor } from "./actor"
-import { Rectangle, CollisionLevel } from "../tiles"
+import { CollisionLevel } from "../tiles"
 import { Facing, createNewLibSprite } from "../lib"
 import { multiply } from "../vector"
 import { Sprite } from "../sprite"
@@ -12,10 +12,11 @@ const LIFESPAN_FRAMES = 100
 export class Projectile extends Actor {
   private frames: number = 0
 
-  public constructor(spriteName: string, shooterRectangle: Rectangle, facing: Facing) {
-    super(createNewLibSprite(spriteName), Infinity, facing)
-    this.node.x = shooterRectangle.x + shooterRectangle.width / 2 - this.node.width / 2
-    this.node.y = shooterRectangle.y + shooterRectangle.height / 2 - this.node.height / 2
+  public constructor(spriteName: string, shooter: Actor, facing: Facing) {
+    super(createNewLibSprite(shooter.getNode(), spriteName), Infinity, facing)
+    const shooterCollision = shooter.getCurrentCollision()
+    this.node.x = shooterCollision.x + shooterCollision.width / 2 - this.node.width / 2
+    this.node.y = shooterCollision.y + shooterCollision.height / 2 - this.node.height / 2
     this.setCurrentPosition({x: this.node.x, y: this.node.y})
     this.collisionLevel = CollisionLevel.Wall
     this.damage = DAMAGE
@@ -43,15 +44,15 @@ export class Projectile extends Actor {
 }
 
 export class Arrow extends Projectile {
-  public constructor(shooterRectangle: Rectangle, facing: Facing) {
-    super('arrow', shooterRectangle, facing)
+  public constructor(shooter: Actor, facing: Facing) {
+    super('arrow', shooter, facing)
     new Sprite(this.node, ['basic', this.facing])
     this.damage = BOW_DAMAGE
   }
 }
 
 export class OctorokRock extends Projectile {
-  public constructor(shooterRectangle: Rectangle, facing: Facing) {
-    super('octorok-rock', shooterRectangle, facing)
+  public constructor(shooter: Actor, facing: Facing) {
+    super('octorok-rock', shooter, facing)
   }
 }

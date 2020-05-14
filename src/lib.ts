@@ -103,9 +103,8 @@ export function addProjectile(projectile: Projectile | null) {
   }
 }
 
-const libSpritesPage = figma.root.children.find((node: BaseNode) => node.type === 'PAGE' && node.name === 'lib-sprites')!
-export function createNewLibSprite(name: String) {
-  const libInstanceNode = libSpritesPage.children.find((node: SceneNode) => node.name === name) as InstanceNode
+export function createNewLibSprite(parent: FrameNode, name: String) {
+  const libInstanceNode = parent.children.find((node: SceneNode) => node.name === name) as InstanceNode
   if (!libInstanceNode) { throw `could not find lib sprite named ${name}`}
   const libInstanceClone = detachNode(libInstanceNode.clone())
 
