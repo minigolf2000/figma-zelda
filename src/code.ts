@@ -6,6 +6,7 @@ import { CAMERA_BOX_SIZE, FPS, getLink, getProjectiles, setProjectiles, updateCa
 import { isOverlapping } from './tiles'
 import { getEnemies } from './actors/enemies/enemies'
 import { getMultiplayerLinks } from './actors/multiplayer_links'
+import { facingToVector } from './vector'
 
 // The main game loop function that gets called `FPS` times per second
 // Performs some logic, then delegates logic to each actor's nextFrame()
@@ -127,7 +128,8 @@ function calculateDamages() {
       if (linkHitbox) {
         const hitVector = isOverlapping(enemyHitbox, linkHitbox)
         if (hitVector) {
-          const enemyHealth = enemy.takeDamage(l.getDamage(), l.facingVector())
+          const knockbackFacing = l.knockbackFacing()
+          const enemyHealth = enemy.takeDamage(l.getDamage(), knockbackFacing && facingToVector(knockbackFacing))
           if (enemyHealth <= 0) {
             return false
           }
@@ -140,7 +142,8 @@ function calculateDamages() {
       // projectiles damage enemy
       const hitVector = isOverlapping(enemyHitbox, projectile.getCurrentCollision())
       if (hitVector) {
-        const enemyHealth = enemy.takeDamage(projectile.getDamage(), projectile.facingVector())
+        const knockbackFacing = projectile.knockbackFacing()
+        const enemyHealth = enemy.takeDamage(projectile.getDamage(), knockbackFacing && facingToVector(knockbackFacing))
         if (enemyHealth <= 0) {
           enemyKilledByProjectile = true
         }

@@ -2,7 +2,7 @@ import { Sprite } from "../../sprite"
 import { Facing, getLink, addProjectile } from "../../lib"
 import { Rectangle } from "../../tiles"
 import { Actor } from "../actor"
-import { multiply, vectorToFacing } from "../../vector"
+import { multiply, vectorToFacing, facingToVector } from "../../vector"
 import { OctorokRock } from "../projectile"
 
 const RED_HEALTH = 0.5
@@ -67,7 +67,7 @@ class Octorok extends Actor {
       }
     }
 
-    if (!this.move(multiply(this.facingVector(), WALK_SPEED))) {
+    if (!this.move(multiply(facingToVector(this.facing), WALK_SPEED))) {
       // Force turn to another direction
       this.facing = ['up', 'down', 'left', 'right'].filter(f => f !== this.facing)[Math.floor(Math.random() * 3)] as Facing
     }

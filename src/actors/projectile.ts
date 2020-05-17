@@ -1,7 +1,7 @@
 import { Actor } from "./actor"
 import { CollisionLevel } from "../tiles"
 import { Facing, createNewLibSprite } from "../lib"
-import { multiply } from "../vector"
+import { multiply, facingToVector } from "../vector"
 import { Sprite } from "../sprite"
 
 const PROJECTILE_SPEED = 4.0
@@ -23,7 +23,7 @@ export class Projectile extends Actor {
   }
 
   public initialMove() {
-    if (this.move(multiply(this.facingVector(), 16))) {
+    if (this.move(multiply(facingToVector(this.facing), 16))) {
       return this
     } else {
       this.getNode().remove()
@@ -33,7 +33,7 @@ export class Projectile extends Actor {
 
   public nextFrame() {
     this.frames++
-    const successfulMove = this.move(multiply(this.facingVector(), PROJECTILE_SPEED))
+    const successfulMove = this.move(multiply(facingToVector(this.facing), PROJECTILE_SPEED))
     if (this.frames <= LIFESPAN_FRAMES && successfulMove) {
       return true
     } else {
@@ -48,6 +48,11 @@ export class Arrow extends Projectile {
     super('arrow', shooter, facing)
     new Sprite(this.node, ['basic', this.facing])
     this.damage = BOW_DAMAGE
+  }
+
+  public knockbackFacing() {
+    // Arrows do no knockback
+    return null
   }
 }
 

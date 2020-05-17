@@ -45,7 +45,7 @@ export const findNodesInWorld = (worldNode: FrameNode) => {
 
 export interface Invulnerability {
   numFrames: number
-  direction: Vector
+  direction: Vector | null // represents knockback direction if present. if null, no knockback
 }
 
 export type Facing = 'up' | 'down' | 'left' | 'right'

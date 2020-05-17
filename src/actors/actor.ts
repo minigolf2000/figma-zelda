@@ -62,7 +62,7 @@ export abstract class Actor {
     return successfulMove
   }
 
-  public takeDamage(damage: number, direction: Vector) {
+  public takeDamage(damage: number, direction: Vector | null) {
     if (this.invulnerability !== null) {
       return this.health
     }
@@ -74,24 +74,15 @@ export abstract class Actor {
     return this.health
   }
 
+  // Compute the direction in which knockback should occur when this actor
+  // damages another actor
+  public knockbackFacing(): Facing | null {
+    return this.facing
+  }
+
   protected onDeath() {
     if (getLink().health < 3 && Math.random() < 0.25) getItems().spawnHeart(this.node)
     this.node.remove()
-  }
-
-  public facingVector() {
-    switch (this.facing) {
-      case 'up':
-        return {x: 0, y: -1}
-      case 'down':
-        return {x: 0, y: 1}
-      case 'left':
-        return {x: -1, y: 0}
-      case 'right':
-        return {x: 1, y: 0}
-      default:
-        throw 'Invalid facing'
-    }
   }
 
   protected incrementInvulnerability() {
@@ -102,7 +93,7 @@ export abstract class Actor {
     if (this.invulnerability.numFrames % 2 === 0) {
       this.node.visible = !this.node.visible
     }
-    if (this.invulnerability.numFrames < this.invulnerabilityKnockbackDuration) {
+    if (this.invulnerability.direction && this.invulnerability.numFrames < this.invulnerabilityKnockbackDuration) {
       this.move(multiply(this.invulnerability.direction, this.invulnerabilityKnockbackMagnitude))
     }
     if (this.invulnerability.numFrames === 20) {
