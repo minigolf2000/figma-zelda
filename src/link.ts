@@ -17,9 +17,11 @@ export class Link extends Actor {
   private walkingFrame: number = 0
   private swordActiveFrame: number | null = null
   private bowActiveFrame: number | null = null
-  private swordNode: SceneNode
   private sprite: Sprite
+  private swordNode: FrameNode
   private swordSprite: Sprite
+  private bowNode: FrameNode
+  private bowSprite: Sprite
   private hasBowAndArrow: boolean = false
   private hasMasterSword: boolean = false
   public buttonsPressed: Buttons = {up: false, down: false, left: false, right: false, x: false, z: false, esc: false}
@@ -28,7 +30,7 @@ export class Link extends Actor {
     super(node, HEALTH_MAX, 'down')
     this.sprite = new Sprite(node, ['basic', 'down', 0])
     this.walkingFrame = 0
-    this.swordNode = createNewLibSprite(this.node, 'wooden-sword-held')
+    this.swordNode = createNewLibSprite(this.node, 'wooden-sword-held', 0 /* insert to bottom */)
     this.swordSprite = new Sprite(this.swordNode)
 
     this.invulnerabilityKnockbackDuration = 6
@@ -43,11 +45,13 @@ export class Link extends Actor {
 
   public getBow() {
     this.hasBowAndArrow = true
+    this.bowNode = createNewLibSprite(this.node, 'bow-held', 0 /* insert to bottom */)
+    this.bowSprite = new Sprite(this.bowNode)
   }
 
   public getMasterSword() {
     this.swordNode.remove()
-    this.swordNode = createNewLibSprite(this.node, 'master-sword-held')
+    this.swordNode = createNewLibSprite(this.node, 'master-sword-held', 0 /* insert to bottom */)
     this.swordSprite = new Sprite(this.swordNode)
     this.hasMasterSword = true
   }
@@ -273,11 +277,27 @@ export class Link extends Actor {
       return
     }
 
-    if (this.bowActiveFrame === 3) {
-      addProjectile((new Arrow(this, this.facing)).initialMove())
+    this.bowNode.x = this.getCurrentCollision().x
+    this.bowNode.y = this.getCurrentCollision().y
+
+    if (this.bowActiveFrame === 0) {
+      this.sprite.setSprite(['action', this.facing])
+      this.bowSprite.setSprite([this.facing])
     }
 
-    if (this.bowActiveFrame > 6) {
+    if (this.bowActiveFrame === 1) {
+      this.bowNode.visible = true
+    }
+
+    if (this.bowActiveFrame === 5) {
+      addProjectile(new Arrow(this))
+    }
+
+    if (this.bowActiveFrame === 8) {
+      this.bowNode.visible = false
+    }
+
+    if (this.bowActiveFrame > 10) {
       this.bowActiveFrame = null
     } else {
       this.bowActiveFrame++

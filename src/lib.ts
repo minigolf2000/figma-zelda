@@ -103,13 +103,17 @@ export function addProjectile(projectile: Projectile | null) {
   }
 }
 
-export function createNewLibSprite(parent: FrameNode, name: String) {
+export function createNewLibSprite(parent: FrameNode, name: String, insertIndex?: number) {
   const libInstanceNode = parent.children.find((node: SceneNode) => node.name === name) as InstanceNode
   if (!libInstanceNode) { throw `could not find lib sprite named ${name}`}
   const libInstanceClone = detachNode(libInstanceNode.clone())
 
-  const insertIndex = 0 // insert to the bottom
-  getWorldNode().insertChild(insertIndex, libInstanceClone)
+  if (insertIndex !== undefined) {
+    getWorldNode().insertChild(insertIndex, libInstanceClone)
+  } else {
+    getWorldNode().appendChild(libInstanceClone)
+  }
+
   return libInstanceClone
 }
 

@@ -114,7 +114,7 @@ class Heart extends Item {
   private animationFrame: number = 0
 
   public constructor(dropLocation: Rectangle) {
-    super(createNewLibSprite(getLink().getNode(), 'heart'))
+    super(createNewLibSprite(getLink().getNode(), 'heart', 0 /* insert to bottom */))
     this.node.x = dropLocation.x + dropLocation.width / 2 - HEART_WIDTH / 2
     this.node.y = dropLocation.y + dropLocation.height / 2 - HEART_HEIGHT / 2
     this.setCurrentPosition({x: this.node.x, y: this.node.y})
