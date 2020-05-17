@@ -14,7 +14,7 @@ class Moblin extends Actor {
 
   public constructor(node: FrameNode, health: number) {
     super(node, health, 'down')
-    this.sprite = new Sprite(node, ['basic', 'down', 0])
+    this.sprite = new Sprite(node, ['down', 0])
     this.walkingFrame = Math.floor(Math.random() * MAX_WALK_FRAMES)
     this.damage = DAMAGE
   }
@@ -36,7 +36,7 @@ class Moblin extends Actor {
 
     this.walkingFrame++
     if (this.walkingFrame === MAX_WALK_FRAMES) this.walkingFrame = 0
-    this.sprite.setSprite(['basic', this.facing, Math.floor(this.walkingFrame / 4) % 2])
+    this.sprite.setSprite([this.facing, Math.floor(this.walkingFrame / 4) % 2])
 
     if (this.walkingFrame < 20) {
       this.move(multiply(facingToVector(this.facing), WALK_SPEED))

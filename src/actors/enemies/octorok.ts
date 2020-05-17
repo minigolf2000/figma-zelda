@@ -20,7 +20,7 @@ class Octorok extends Actor {
 
   public constructor(node: FrameNode, health: number) {
     super(node, health, 'down')
-    this.sprite = new Sprite(node, ['basic', 'down', 0])
+    this.sprite = new Sprite(node, ['down', 0])
     this.spriteAnimationFrame = Math.floor(Math.random() * 4)
     this.walkingFrame = Math.floor(Math.random() * 48)
     this.damage = DAMAGE
@@ -33,7 +33,7 @@ class Octorok extends Actor {
     }
 
     this.incrementInvulnerability()
-    this.sprite.setSprite(['basic', this.facing, Math.floor(this.spriteAnimationFrame / 4) % 2])
+    this.sprite.setSprite([this.facing, Math.floor(this.spriteAnimationFrame / 4) % 2])
 
     if (this.shootingFrame !== null) {
       this.shootBehavior()

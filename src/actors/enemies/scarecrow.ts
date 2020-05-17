@@ -7,7 +7,7 @@ const HEALTH = Infinity
 export class Scarecrow extends Actor {
   public constructor(node: FrameNode) {
     super(node, HEALTH, 'down')
-    new Sprite(node, ['basic', 'down', 0])
+    new Sprite(node, ['down', 0])
   }
 
   public nextFrame() {

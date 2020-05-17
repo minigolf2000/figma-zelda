@@ -53,7 +53,7 @@ export class Arrow extends Projectile {
     if (shooter.facing !== 'up') shooterCollision.y -= 2
     super('arrow', shooterCollision, shooter.getNode(), shooter.facing)
 
-    new Sprite(this.node, ['basic', this.facing])
+    new Sprite(this.node, [this.facing])
     this.damage = BOW_DAMAGE
 
     this.initialMove(10)

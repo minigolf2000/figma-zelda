@@ -153,7 +153,7 @@ class MasterSword extends Item {
 
   public constructor(node: FrameNode) {
     super(node)
-    this.sprite = new Sprite(node, ['basic', 'down', 0])
+    this.sprite = new Sprite(node, [0])
   }
 
   public get(link: Link) {
@@ -166,14 +166,14 @@ class MasterSword extends Item {
 
   public nextFrame() {
     if (this.animationFrame === 55) {
-      this.sprite.setSprite(['basic', 'down', 1])
+      this.sprite.setSprite([1])
     }
     if (this.animationFrame === 58) {
-      this.sprite.setSprite(['basic', 'down', 2])
+      this.sprite.setSprite([2])
     }
     if (this.animationFrame === 64) {
       this.animationFrame = 0
-      this.sprite.setSprite(['basic', 'down', 0])
+      this.sprite.setSprite([0])
     } else {
       this.animationFrame++
     }

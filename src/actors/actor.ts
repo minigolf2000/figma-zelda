@@ -56,10 +56,10 @@ export abstract class Actor {
   protected move(vector: Vector) {
     const currentCollision = this.getCurrentCollision()
     const newPosition = getTiles().getMovePositionRespectingCollision(currentCollision, vector, this.collisionLevel)
-    const successfulMove = currentCollision.x + vector.x === newPosition.x && currentCollision.y + vector.y === newPosition.y
+    const isSuccessfulMove = currentCollision.x + vector.x === newPosition.x && currentCollision.y + vector.y === newPosition.y
 
     this.setCurrentPosition(newPosition)
-    return successfulMove
+    return isSuccessfulMove
   }
 
   public takeDamage(damage: number, direction: Vector | null) {
