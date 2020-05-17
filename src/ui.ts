@@ -2,16 +2,18 @@ import './ui.css'
 
 const uiEl = document.getElementById('ui')!
 uiEl.focus()
-uiEl.onkeydown = (e) => {
-  parent.postMessage({ pluginMessage: { type: 'keydown', keyCode: e.keyCode } }, '*')
+uiEl.onkeydown = (e: KeyboardEvent) => {
+  if (!e.repeat) {
+    parent.postMessage({ pluginMessage: { type: 'keydown', keyCode: e.keyCode } }, '*')
+  }
 }
-uiEl.onkeyup = (e) => {
+uiEl.onkeyup = (e: KeyboardEvent) => {
   parent.postMessage({ pluginMessage: { type: 'keyup', keyCode: e.keyCode } }, '*')
 }
-uiEl.onblur = (e) => {
+uiEl.onblur = () => {
   parent.postMessage({ pluginMessage: { type: 'blur' } }, '*')
 }
-uiEl.onfocus = (e) => {
+uiEl.onfocus = () => {
   parent.postMessage({ pluginMessage: { type: 'focus' } }, '*')
 }
 

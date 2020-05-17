@@ -144,9 +144,11 @@ export class Link extends Actor {
     this.incrementInvulnerability()
     if (this.buttonsPressed.z && this.swordNode && this.swordActiveFrame === null && this.bowActiveFrame === null) {
       this.swordActiveFrame = 0
+      this.buttonsPressed.z = false // clear button between presses so holding down button doesn't work
     }
     if (this.buttonsPressed.x && this.hasBowAndArrow && this.swordActiveFrame === null && this.bowActiveFrame === null) {
       this.bowActiveFrame = 0
+      this.buttonsPressed.x = false // clear button between presses so holding down button doesn't work
     }
 
     let walking = false
