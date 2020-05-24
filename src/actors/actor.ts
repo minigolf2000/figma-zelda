@@ -1,5 +1,5 @@
 import { Facing, Invulnerability, getLink } from "../lib"
-import { CollisionLevel, getTiles, Rectangle } from "../tiles"
+import { CollisionLevel, getTiles, Rectangle, midpoint } from "../tiles"
 import { multiply } from "../vector"
 import { getItems } from "./items"
 
@@ -27,7 +27,7 @@ export abstract class Actor {
     this.health = health
     this.facing = facing
     this.collisionLevel = CollisionLevel.Water
-    this.homeVector = {x: node.x, y: node.y}
+    this.homeVector = midpoint(this.getCurrentCollision())
   }
 
   public getNode() {
@@ -53,13 +53,14 @@ export abstract class Actor {
     this.node.y = position.y
   }
 
-  protected move(vector: Vector) {
+  protected move(vector: Vector): Vector | null {
     const currentCollision = this.getCurrentCollision()
     const newPosition = getTiles().getMovePositionRespectingCollision(currentCollision, vector, this.collisionLevel)
-    const isSuccessfulMove = currentCollision.x + vector.x === newPosition.x && currentCollision.y + vector.y === newPosition.y
+
+    const blockedVector = {x: Math.round(newPosition.x - currentCollision.x - vector.x), y: Math.round(newPosition.y - currentCollision.y - vector.y)}
 
     this.setCurrentPosition(newPosition)
-    return isSuccessfulMove
+    return (blockedVector.x !== 0 || blockedVector.y !== 0) ? blockedVector : null
   }
 
   public takeDamage(damage: number, direction: Vector | null) {

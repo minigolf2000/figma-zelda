@@ -133,6 +133,11 @@ export function isOverlapping(rect1: Rectangle, rect2: Rectangle): Vector | null
   return null
 }
 
+// Return a vector representing the midpoint of the rectangle
+export function midpoint(r: Rectangle): Vector {
+  return {x: r.x + r.width / 2, y: r.y + r.height / 2}
+}
+
 export function snapTilesToGrid(worldNode: FrameNode) {
   let numTilesSnappedToGrid = 0
 

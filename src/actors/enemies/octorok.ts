@@ -67,7 +67,7 @@ class Octorok extends Actor {
       }
     }
 
-    if (!this.move(multiply(facingToVector(this.facing), WALK_SPEED))) {
+    if (this.move(multiply(facingToVector(this.facing), WALK_SPEED))) {
       // Force turn to another direction
       this.facing = ['up', 'down', 'left', 'right'].filter(f => f !== this.facing)[Math.floor(Math.random() * 3)] as Facing
     }

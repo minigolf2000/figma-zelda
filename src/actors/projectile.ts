@@ -37,8 +37,8 @@ export class Projectile extends Actor {
 
   public nextFrame() {
     this.frames++
-    const successfulMove = this.move(multiply(facingToVector(this.facing), PROJECTILE_SPEED))
-    if (this.frames <= LIFESPAN_FRAMES && successfulMove) {
+    const isObstructed = this.move(multiply(facingToVector(this.facing), PROJECTILE_SPEED))
+    if (this.frames <= LIFESPAN_FRAMES && !isObstructed) {
       return true
     } else {
       this.getNode().remove()
