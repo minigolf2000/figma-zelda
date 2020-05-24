@@ -29,9 +29,11 @@ export function onButtonsPressed(msg: any, buttonsPressed: Buttons) {
     // case 16: // SHIFT
     // case 32: // SPACE
     case 88: // X
+    case 190: // .
       buttonsPressed.x = (msg.type === 'keydown') ? true : false
       break
     case 90: // Z
+    case 188: // ,
       buttonsPressed.z = (msg.type === 'keydown') ? true : false
       break
     case 37: // LEFT_ARROW

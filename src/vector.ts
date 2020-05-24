@@ -19,8 +19,13 @@ export function distance(v1: Vector, v2: Vector): number {
   return Math.sqrt(a * a + b * b)
 }
 
-export function multiply(v1: Vector, magnitude: number): Vector {
-  return {x: v1.x * magnitude, y: v1.y * magnitude}
+// Return a vector such that vector v1 has magnitude of m
+// e.g. vector {x: 1, y: 1}, m: 2.5 returns {x: 1.6, y: 1.6}
+export function multiply(v1: Vector, m: number): Vector {
+  const mag = magnitude(v1)
+  const m1 = m / mag
+
+  return {x: v1.x * m1, y: v1.y * m1}
 }
 
 export function normalize(v: Vector): Vector {
