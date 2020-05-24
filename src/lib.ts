@@ -98,7 +98,8 @@ export function getProjectiles() {
 }
 
 export function addProjectile(projectile: Projectile | null) {
-  if (projectile) {
+  // checking for getNode() seems jank. TODO: refactor projectile initialMove and lifecycle?
+  if (projectile && projectile.getNode() && !projectile.getNode().removed) {
     projectiles.push(projectile)
   }
 }

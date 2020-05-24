@@ -1,6 +1,6 @@
 import { normalize, direction } from "./vector"
 
-export const COLLISION_TILES = new Set(['tree', 'rock', 'rock_se', 'rock_s', 'rock_sw', 'rock_ne', 'rock_n', 'rock_nw'])
+export const COLLISION_TILES = new Set(['tree', 'rock', 'rock_se', 'wall', 'rock_sw', 'rock_ne', 'rock_n', 'rock_nw'])
 export const WATER_TILES = new Set(['water'])
 export const DECORATIVE_TILES = new Set(['dirt', 'bridge', 'stairs'])
 export enum CollisionLevel {

@@ -7,7 +7,7 @@ import { midpoint } from "../../tiles"
 const MAX_WALK_FRAMES = 28
 const HEALTH = 3.0
 const WALK_SPEED = 1.5
-const DAMAGE = 1.0
+const DAMAGE = 0.5
 
 const PURSUIT_DISTANCE = 120 // Distance at which Lynel will start chasing Link
 
@@ -65,12 +65,22 @@ export class LynelRed extends Actor {
     return blockedVector
   }
 
+  public takeDamage(damage: number, direction: Vector | null) {
+    // Lynels take no knockback from weak weapons, notably wooden sword and arrows
+    if (damage < 1) {
+      direction = null
+    }
+
+    return super.takeDamage(damage, direction)
+  }
+
   public nextFrame() {
     const linkCollision = getLink().getCurrentCollision()
     if (this.health <= 0) {
       this.getNode().remove()
       return false
     }
+
     this.incrementInvulnerability()
 
     const destination = (distance(this.homeVector, midpoint(linkCollision)) > PURSUIT_DISTANCE) ?

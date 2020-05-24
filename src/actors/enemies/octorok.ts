@@ -59,7 +59,7 @@ class Octorok extends Actor {
 
   private wanderBehavior() {
     if (this.walkingFrame === 0) {
-      if (Math.random() < 0.8) {
+      if (Math.random() < 0.7) {
         this.facing = ['up', 'down', 'left', 'right'][Math.floor(Math.random() * 4)] as Facing
       } else {
         // Every once in a while, walk toward home

@@ -28,10 +28,10 @@ export class Projectile extends Actor {
 
   public initialMove(magnitude: number) {
     if (this.move(multiply(facingToVector(this.facing), magnitude))) {
-      return this
-    } else {
       this.getNode().remove()
       return null
+    } else {
+      return this
     }
   }
 
